@@ -1,17 +1,24 @@
 package com.ecole.service;
 
+import com.ecole.entity.ContratsEmployes;
 import com.ecole.entity.ProfilsComptables;
 import com.ecole.entity.ProfilsDirecteurs;
 import com.ecole.entity.ProfilsProfesseurs;
 import com.ecole.entity.ProfilsSecretariat;
 import com.ecole.entity.VueEmployesDetail;
 import com.ecole.entity.User;
+import com.ecole.entity.Role;
+import com.ecole.entity.UserRole;
+import com.ecole.entity.UserRoleId;
+import com.ecole.repository.ContratsEmployesRepository;
 import com.ecole.repository.ProfilsComptablesRepository;
 import com.ecole.repository.ProfilsDirecteursRepository;
 import com.ecole.repository.ProfilsProfesseursRepository;
 import com.ecole.repository.ProfilsSecretariatRepository;
 import com.ecole.repository.VueEmployesDetailRepository;
 import com.ecole.repository.UserRepository;
+import com.ecole.repository.RoleRepository;
+import com.ecole.repository.UserRoleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -41,7 +48,10 @@ public class EmployeService {
     private final ProfilsSecretariatRepository profilsSecretariatRepository;
     private final ProfilsDirecteursRepository profilsDirecteursRepository;
     private final ProfilsComptablesRepository profilsComptablesRepository;
+    private final ContratsEmployesRepository contratsEmployesRepository;
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final UserRoleRepository userRoleRepository;
     private static final String PHOTO_DIR = "src/main/resources/static/photo/photo-employes";
     private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
@@ -81,6 +91,15 @@ public class EmployeService {
         }
     }
 
+    public List<VueEmployesDetail> filterEmployes(String keyword, String roleNom, Long matiereId, BigDecimal salaireMin, BigDecimal salaireMax) {
+        try {
+            return vueEmployesDetailRepository.filterEmployes(keyword, roleNom, matiereId, salaireMin, salaireMax);
+        } catch (Exception e) {
+            log.error("Error filtering employes: {}", e.getMessage());
+            return List.of();
+        }
+    }
+
     public Optional<VueEmployesDetail> getEmployeById(Long userId) {
         try {
             return vueEmployesDetailRepository.findByUserId(userId);
@@ -108,6 +127,9 @@ public class EmployeService {
 
     public String getPhotoUrl(VueEmployesDetail employe) {
         if (employe.getPhotoUrl() != null && !employe.getPhotoUrl().isEmpty()) {
+            if (employe.getPhotoUrl().contains("DefaultIMG")) {
+                return "/photo/" + employe.getPhotoUrl();
+            }
             return "/photo/photo-employes/" + employe.getPhotoUrl();
         }
         
@@ -260,7 +282,7 @@ public class EmployeService {
             result.put("valid", false);
             result.put("exists", false);
             result.put("normalized", "");
-            result.put("message", "Numéro invalide. Utilisez un numéro malgache à 10 chiffres commençant par 032, 033, 034, 037 ou 038.");
+            result.put("message", "Numéro invalide. Utilisez un numéro malgache commençant par +261, 0, 032, 033, 034, 037 ou 038.");
             return result;
         }
 
@@ -280,12 +302,49 @@ public class EmployeService {
         return result;
     }
 
+    public Map<String, Object> validatePassword(String password) {
+        Map<String, Object> result = new HashMap<>();
+        
+        if (password == null || password.trim().isEmpty()) {
+            result.put("valid", false);
+            result.put("message", "Le mot de passe est requis.");
+            return result;
+        }
+
+        if (password.length() < 8) {
+            result.put("valid", false);
+            result.put("message", "Le mot de passe doit contenir au moins 8 caractères.");
+            return result;
+        }
+
+        if (!password.matches(".*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?].*")) {
+            result.put("valid", false);
+            result.put("message", "Le mot de passe doit contenir au moins un caractère spécial (!@#$%^&*()_+-=[]{};':\"\\|,.<>/?)");
+            return result;
+        }
+
+        result.put("valid", true);
+        result.put("message", "Mot de passe valide.");
+        return result;
+    }
+
     private String normalizeMalagasyPhone(String telephone) {
         String digits = telephone.replaceAll("\\D+", "");
         if (digits == null || digits.isEmpty()) {
             return null;
         }
         
+        // Handle +261 prefix (12 digits: 261 + 10 digit number)
+        if (digits.length() == 12 && digits.startsWith("261")) {
+            digits = digits.substring(2); // Remove 261
+        }
+        
+        // Handle 0 prefix (10 digits: 0 + 9 digit number)
+        if (digits.length() == 10 && digits.startsWith("0")) {
+            digits = digits.substring(1); // Remove leading 0
+        }
+        
+        // Now handle standard formats
         if (digits.length() == 10 && digits.startsWith("03")) {
             String prefix = digits.substring(0, 2);
             if (prefix.equals("032") || prefix.equals("033") || prefix.equals("034") || 
@@ -319,6 +378,18 @@ public class EmployeService {
             return "un comptable";
         }
         return null;
+    }
+
+    private String generateMatricule(String nom, String prenom) {
+        String initials = "";
+        if (nom != null && !nom.isEmpty()) {
+            initials += nom.substring(0, 1).toUpperCase();
+        }
+        if (prenom != null && !prenom.isEmpty()) {
+            initials += prenom.substring(0, 1).toUpperCase();
+        }
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        return "PROF-" + initials + "-" + timestamp.substring(timestamp.length() - 6);
     }
 
     @Transactional
@@ -355,7 +426,45 @@ public class EmployeService {
         String photoFilename = null;
         if (photo != null && !photo.isEmpty()) {
             photoFilename = uploadEmployeePhoto(user.getId(), photo);
+        } else {
+            // Set default photo based on gender
+            if ("F".equals(sexe)) {
+                photoFilename = "DefaultIMG_Femme.png";
+            } else {
+                photoFilename = "DefaultIMG_Homme.png";
+            }
         }
+
+        // Create contract entry
+        ContratsEmployes contrat = new ContratsEmployes();
+        contrat.setUser(user);
+        contrat.setFonction(fonction);
+        contrat.setTypeContratId(typeContratId);
+        contrat.setSexe(sexe);
+
+        // Generate contract reference: CTR-YYYYMMDD-FONCTION_3-USER_ID
+        String dateStr = java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
+        String funcCode = fonction.substring(0, Math.min(fonction.length(), 3)).toUpperCase();
+        String refContrat = "CTR-" + dateStr + "-" + funcCode + "-" + user.getId();
+        contrat.setReferenceContrat(refContrat);
+
+        contrat.setDateDebut(dateDebut);
+        contrat.setDateFin(dateFin);
+        contrat.setSalaireMensuel(salaireMensuel);
+        contrat.setHeuresHebdo(heuresHebdo);
+        contrat.setStatut("actif");
+        contrat.setCreatedAt(java.time.LocalDateTime.now());
+        contrat.setUpdatedAt(java.time.LocalDateTime.now());
+        contrat = contratsEmployesRepository.save(contrat);
+
+        // Assign the role in user_roles table
+        Role role = roleRepository.findByNom(fonction.toLowerCase())
+            .orElseThrow(() -> new IllegalArgumentException("Fonction non reconnue: " + fonction));
+        UserRole userRole = new UserRole();
+        userRole.setId(new UserRoleId(user.getId(), role.getId()));
+        userRole.setUser(user);
+        userRole.setRole(role);
+        userRoleRepository.save(userRole);
 
         switch (fonction.toLowerCase()) {
             case "professeur":
@@ -367,6 +476,12 @@ public class EmployeService {
                 professeur.setTelephone(normalizedPhone);
                 professeur.setPhotoUrl(photoFilename);
                 professeur.setIdMatiere(matiereId);
+                professeur.setMatricule(generateMatricule(nom, prenom));
+                professeur.setAdresse(adresse);
+                professeur.setSpecialite(specialite);
+                professeur.setDateDebutContrat(dateDebut);
+                professeur.setDateFinContrat(dateFin);
+                professeur.setIdContrat(contrat.getId());
                 professeur.setCreatedAt(java.time.LocalDateTime.now());
                 profilsProfesseursRepository.save(professeur);
                 break;
@@ -378,6 +493,7 @@ public class EmployeService {
                 secretariat.setSexe(sexe);
                 secretariat.setTelephone(normalizedPhone);
                 secretariat.setPhotoUrl(photoFilename);
+                secretariat.setIdContrat(contrat.getId());
                 secretariat.setCreatedAt(java.time.LocalDateTime.now());
                 profilsSecretariatRepository.save(secretariat);
                 break;
@@ -389,6 +505,7 @@ public class EmployeService {
                 directeur.setSexe(sexe);
                 directeur.setTelephone(normalizedPhone);
                 directeur.setPhotoUrl(photoFilename);
+                directeur.setIdContrat(contrat.getId());
                 directeur.setCreatedAt(java.time.LocalDateTime.now());
                 profilsDirecteursRepository.save(directeur);
                 break;
@@ -400,6 +517,7 @@ public class EmployeService {
                 comptable.setSexe(sexe);
                 comptable.setTelephone(normalizedPhone);
                 comptable.setPhotoUrl(photoFilename);
+                comptable.setIdContrat(contrat.getId());
                 comptable.setCreatedAt(java.time.LocalDateTime.now());
                 profilsComptablesRepository.save(comptable);
                 break;

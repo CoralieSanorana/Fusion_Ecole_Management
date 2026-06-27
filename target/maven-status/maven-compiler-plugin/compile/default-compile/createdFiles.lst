@@ -10,6 +10,8 @@ com\ecole\entity\HoraireEdt.class
 com\ecole\service\InscriptionService.class
 com\ecole\service\NoteService.class
 com\ecole\entity\User.class
+com\ecole\service\TypesContratsEmployesService.class
+com\ecole\entity\TypesContratsEmployes.class
 com\ecole\repository\UserRoleRepository.class
 com\ecole\controller\DirecteurController.class
 com\ecole\repository\ProfilsComptablesRepository.class
@@ -52,6 +54,7 @@ com\ecole\controller\FragmentController.class
 com\ecole\entity\Moyenne.class
 com\ecole\repository\CoefficientRepository.class
 com\ecole\repository\VueEmployesDetailRepository.class
+com\ecole\repository\ContratsEmployesRepository.class
 com\ecole\entity\Etablissement.class
 com\ecole\controller\SecretaireController.class
 com\ecole\repository\SalleRepository.class
@@ -71,6 +74,7 @@ com\ecole\entity\Note.class
 com\ecole\repository\AffectationEnseignementRepository.class
 com\ecole\repository\HoraireEdtRepository.class
 com\ecole\service\EvenementService.class
+com\ecole\repository\TypesContratsEmployesRepository.class
 com\ecole\EcoleApplication.class
 com\ecole\service\EvenementInstanceService.class
 com\ecole\entity\Periode.class
@@ -85,6 +89,7 @@ com\ecole\entity\Seance.class
 com\ecole\repository\InscriptionRepository.class
 com\ecole\service\SeanceService.class
 com\ecole\repository\RoleRepository.class
+com\ecole\entity\ContratsEmployes.class
 com\ecole\service\RoleService.class
 com\ecole\entity\Inscription.class
 com\ecole\entity\UserRoleId.class

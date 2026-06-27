@@ -219,7 +219,7 @@ CREATE TABLE profils_professeurs (
     nom                VARCHAR(150) NOT NULL,
     prenom             VARCHAR(150) NOT NULL,
     date_naissance     DATE,
-    sexe               CHAR(1) CHECK (sexe IN ('M', 'F')),
+    sexe               CHAR(1) CHECK (sexe IN ('H', 'F')),
     photo_url          VARCHAR(500),
     telephone          VARCHAR(50),
     adresse            TEXT,

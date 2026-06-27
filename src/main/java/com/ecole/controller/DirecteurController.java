@@ -26,6 +26,8 @@ public class DirecteurController {
     private final EdtService edtService;
     private final InitializeService initializeService;
     private final EmployeService employeService;
+    private final com.ecole.service.MatiereService matiereService;
+    private final com.ecole.service.TypesContratsEmployesService typesContratsEmployesService;
 
     @GetMapping("/directeur/dashboard")
     public String dashboard(Model model) {
@@ -42,10 +44,36 @@ public class DirecteurController {
     }
 
     @GetMapping("/directeur/professeurs")
-    public String professeurs(Model model) {
+    public String professeurs(
+            @RequestParam(name = "keyword", required = false) String keyword,
+            @RequestParam(name = "role", required = false) String role,
+            @RequestParam(name = "matiere", required = false) Long matiereId,
+            @RequestParam(name = "salaireMin", required = false) BigDecimal salaireMin,
+            @RequestParam(name = "salaireMax", required = false) BigDecimal salaireMax,
+            Model model) {
         model.addAttribute("pageTitle", "Corps Professoral");
         model.addAttribute("currentRole", "directeur");
-        model.addAttribute("employes", employeService.getProfesseursEtSecretaires());
+        model.addAttribute("matieres", matiereService.findAll());
+        model.addAttribute("typesContrats", typesContratsEmployesService.findAll());
+        
+        // Treat empty strings as null
+        String normalizedKeyword = (keyword != null && !keyword.trim().isEmpty()) ? keyword : null;
+        String normalizedRole = (role != null && !role.trim().isEmpty()) ? role : null;
+        
+        List<VueEmployesDetail> employes;
+        if (normalizedKeyword != null || normalizedRole != null || matiereId != null || salaireMin != null || salaireMax != null) {
+            employes = employeService.filterEmployes(normalizedKeyword, normalizedRole, matiereId, salaireMin, salaireMax);
+        } else {
+            employes = employeService.getProfesseursEtSecretaires();
+        }
+        
+        model.addAttribute("employes", employes);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("role", role);
+        model.addAttribute("matiereId", matiereId);
+        model.addAttribute("salaireMin", salaireMin);
+        model.addAttribute("salaireMax", salaireMax);
+        
         return "directeur/professeurs";
     }
 
@@ -100,6 +128,13 @@ public class DirecteurController {
     @ResponseBody
     public Map<String, Object> checkPhone(@RequestParam String telephone) {
         Map<String, Object> result = employeService.validateAndCheckPhone(telephone);
+        return result;
+    }
+
+    @GetMapping("/directeur/employes/check-password")
+    @ResponseBody
+    public Map<String, Object> checkPassword(@RequestParam String password) {
+        Map<String, Object> result = employeService.validatePassword(password);
         return result;
     }
 

@@ -280,7 +280,7 @@
     <article class="contract-cv" th:if="${employe != null}">
       <header class="contract-cv-header">
         <div class="contract-photo-wrap" id="employee-photo-trigger" role="button" tabindex="0" aria-label="Modifier la photo de l'employé">
-          <img th:src="${employe.photoUrl != null && !employe.photoUrl.isEmpty() ? '/photo/photo-employes/' + employe.photoUrl : photoUrl}" alt="Photo employé">
+          <img th:src="${employe.photoUrl != null && !employe.photoUrl.isEmpty() ? (employe.photoUrl.contains('DefaultIMG') ? '/photo/' + employe.photoUrl : '/photo/photo-employes/' + employe.photoUrl) : photoUrl}" alt="Photo employé">
           <div class="contract-photo-overlay">Appuyer pour modifier</div>
         </div>
         <div class="contract-cv-title">
