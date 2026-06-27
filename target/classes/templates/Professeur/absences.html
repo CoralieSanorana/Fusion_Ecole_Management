@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head"></head>
+<body>
+<canvas id="particle-canvas"></canvas>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar" th:replace="fragments/header :: sidebar"></aside>
+  <header class="topbar" th:replace="fragments/header :: topbar"></header>
+  <main class="main-content">
+    <div class="page-header">
+        <div>
+            <h2>Gestion des Absences</h2>
+            <p th:text="${matiere != null ? matiere + ' — ' + classe : 'Sélectionnez une séance'}">Matière — Classe</p>
+            <p style="margin-top:4px;font-size:14px;opacity:.8;" th:text="${heureDebut != null && heureFin != null ? 'Heure : ' + heureDebut + ' - ' + heureFin + ' — Salle : ' + salle : ''}">Heure — Salle</p>
+        </div>
+        <div class="page-header-actions">
+          <a th:if="${classeId != null}" th:href="@{/professeur/historique_absences(classeId=${classeId}, matiere=${matiere})}" class="btn btn-secondary" style="margin-right: 10px;">
+            <i class="fas fa-history"></i> Historique absences
+          </a>
+          <a href="/professeur/emploi" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Retour
+          </a>
+        </div>
+    </div>
+    
+    <div th:if="${classeId == null}" class="card">
+        <div class="card-body">
+            <p style="text-align:center;color:var(--txt3);padding:40px;">
+                Veuillez sélectionner une séance depuis l'emploi du temps pour gérer les absences.
+            </p>
+        </div>
+    </div>
+    
+    <div th:if="${classeId != null}" class="card">
+        <div class="card-header">
+            <h3>Liste des Élèves — <span th:text="${classe}">Classe</span></h3>
+        </div>
+        <div class="card-body">
+            <form th:action="@{/professeur/absences/save}" method="post">
+                <input type="hidden" name="emploiDuTempsId" th:value="${emploiDuTempsId}">
+                <input type="hidden" name="matiere" th:value="${matiere}">
+                <input type="hidden" name="classe" th:value="${classe}">
+                <input type="hidden" name="salle" th:value="${salle}">
+                <input type="hidden" name="heureDebut" th:value="${heureDebut}">
+                <input type="hidden" name="heureFin" th:value="${heureFin}">
+                <input type="hidden" name="classeId" th:value="${classeId}">
+                
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Matricule</th>
+                                <th>Nom</th>
+                                <th>Prénom</th>
+                                <th>Absent</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="inscription : ${inscriptions}">
+                                <td th:text="${etudiantProfiles.get(inscription.etudiantId) != null ? etudiantProfiles.get(inscription.etudiantId).matricule : ''}">Matricule</td>
+                                <td th:text="${etudiantProfiles.get(inscription.etudiantId) != null ? etudiantProfiles.get(inscription.etudiantId).nom : 'Étudiant'}">Nom</td>
+                                <td th:text="${etudiantProfiles.get(inscription.etudiantId) != null ? etudiantProfiles.get(inscription.etudiantId).prenom : ''}">Prénom</td>
+                                <td>
+                                    <input type="checkbox" 
+                                           name="absents" 
+                                           th:value="${inscription.etudiantId}"
+                                           class="form-checkbox">
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="form-actions" style="margin-top:20px;">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Enregistrer les absences
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div id="success-message" class="card" style="display:none;margin-top:20px;">
+        <div class="card-body" style="text-align:center;color:var(--success);padding:20px;">
+            <i class="fas fa-check-circle" style="font-size:24px;"></i>
+            <p style="margin-top:10px;">Les absences ont été enregistrées avec succès !</p>
+        </div>
+    </div>
+  </main>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script th:inline="javascript">
+    // Show success message if present in URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('success') === 'true') {
+        document.getElementById('success-message').style.display = 'block';
+        setTimeout(() => {
+            window.location.href = '/professeur/emploi';
+        }, 2000);
+    }
+</script>
+</body>
+</html>

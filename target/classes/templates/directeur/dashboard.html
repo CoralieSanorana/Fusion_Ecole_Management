@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+<body>
+<canvas id="particle-canvas"></canvas>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar" th:replace="~{fragments/header :: sidebar}"></aside>
+  <header class="topbar" th:replace="~{fragments/header :: topbar}"></header>
+  <main class="main-content">
+    <div class="page-header">
+        <div>
+          <h2>Bonjour, M. Rakoto 👋</h2>
+          <p>Vue d'ensemble de l'établissement — Avril 2026</p>
+        </div>
+        <div class="page-header-actions">
+          <select class="form-control" style="width:auto;padding:8px 16px;">
+            <option>Avril 2026</option>
+            <option>Mars 2026</option>
+            <option>Février 2026</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="stats-grid" style="margin-bottom:var(--sp-xl);">
+        <div class="stat-card amber">
+          <div class="stat-icon amber"><i class="fas fa-coins"></i></div>
+          <div class="stat-value">4 200 000</div>
+          <div class="stat-label">Bénéfice mensuel (Ar)</div>
+          <div class="stat-trend up"><i class="fas fa-arrow-up"></i> +12% vs mois dernier</div>
+        </div>
+        <div class="stat-card rose">
+          <div class="stat-icon rose"><i class="fas fa-wallet"></i></div>
+          <div class="stat-value">2 450 000</div>
+          <div class="stat-label">Dépenses salaires (Ar)</div>
+          <div class="stat-trend down"><i class="fas fa-arrow-down"></i> −2% vs mois dernier</div>
+        </div>
+        <div class="stat-card teal">
+          <div class="stat-icon teal"><i class="fas fa-user-graduate"></i></div>
+          <div class="stat-value">187</div>
+          <div class="stat-label">Élèves ayant payé ce mois</div>
+          <div class="stat-trend up"><i class="fas fa-arrow-up"></i> 92% du total</div>
+        </div>
+        <div class="stat-card violet">
+          <div class="stat-icon violet"><i class="fas fa-chalkboard-teacher"></i></div>
+          <div class="stat-value">24</div>
+          <div class="stat-label">Professeurs actifs</div>
+          <div class="stat-trend up"><i class="fas fa-check"></i> Tous présents</div>
+        </div>
+        <div class="stat-card navy">
+          <div class="stat-icon navy"><i class="fas fa-school"></i></div>
+          <div class="stat-value">203</div>
+          <div class="stat-label">Élèves inscrits total</div>
+          <div class="stat-trend up"><i class="fas fa-arrow-up"></i> +8 depuis la rentrée</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <h3>Recettes vs Dépenses (2026)</h3>
+            <button class="btn btn-sm btn-secondary"><i class="fas fa-download"></i> Export</button>
+          </div>
+          <div class="card-body">
+            <div class="chart-placeholder">
+              <div class="chart-bar" style="height:60%"></div>
+              <div class="chart-bar alt" style="height:45%"></div>
+              <div class="chart-bar" style="height:80%"></div>
+              <div class="chart-bar alt" style="height:55%"></div>
+              <div class="chart-bar" style="height:95%"></div>
+              <div class="chart-bar alt" style="height:70%"></div>
+              <div class="chart-bar" style="height:88%"></div>
+              <div class="chart-bar alt" style="height:65%"></div>
+              <div class="chart-bar" style="height:75%"></div>
+              <div class="chart-bar alt" style="height:50%"></div>
+              <div class="chart-bar" style="height:85%"></div>
+              <div class="chart-bar alt" style="height:72%"></div>
+            </div>
+            <div style="display:flex;gap:var(--sp-lg);margin-top:var(--sp-md);font-size:12px;">
+              <span style="display:flex;align-items:center;gap:6px;"><span style="width:12px;height:12px;border-radius:3px;background:var(--clr-amber);display:inline-block;"></span>Recettes</span>
+              <span style="display:flex;align-items:center;gap:6px;"><span style="width:12px;height:12px;border-radius:3px;background:var(--clr-teal);display:inline-block;"></span>Dépenses</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h3>Taux de paiement Avril</h3></div>
+          <div class="card-body" style="display:flex;align-items:center;gap:var(--sp-xl);">
+            <div class="donut-chart"></div>
+            <div style="flex:1;">
+              <div class="bilan-item" style="padding-top:0;">
+                <span class="presence-dot present"></span>
+                <span class="bilan-item-label">Payé</span>
+                <div class="bilan-item-bar">
+                  <div class="progress-bar"><div class="progress-fill teal" style="width:68%"></div></div>
+                </div>
+                <span class="bilan-item-val">187</span>
+              </div>
+              <div class="bilan-item">
+                <span class="presence-dot absent"></span>
+                <span class="bilan-item-label">Impayé</span>
+                <div class="bilan-item-bar">
+                  <div class="progress-bar"><div class="progress-fill rose" style="width:17%"></div></div>
+                </div>
+                <span class="bilan-item-val">16</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:var(--sp-xl);">
+        <div class="card-header">
+          <h3>Activité récente</h3>
+          <button class="btn btn-sm btn-secondary">Tout voir</button>
+        </div>
+        <div class="card-body" style="padding:var(--sp-lg);">
+          <div class="timeline">
+            <div class="timeline-item">
+              <div class="timeline-dot" style="background:rgba(0,255,133,.08);color:var(--g);">💰</div>
+              <div class="timeline-content">
+                <strong>Paiement reçu — Rakoto Jean (1ère A)</strong>
+                <small>Aujourd'hui à 09h14 — 80 000 Ar</small>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot" style="background:rgba(0,212,110,.1);color:var(--success);">📝</div>
+              <div class="timeline-content">
+                <strong>Notes publiées — Mathématiques Terminale C</strong>
+                <small>Hier à 16h30 — Par Prof. Rabe</small>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot" style="background:rgba(10,77,255,.1);color:var(--b);">👤</div>
+              <div class="timeline-content">
+                <strong>Nouvel élève inscrit — Andria Miora</strong>
+                <small>14 Avril 2026 — Classe Seconde B</small>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-dot" style="background:rgba(255,59,92,.1);color:var(--danger);">📣</div>
+              <div class="timeline-content">
+                <strong>Actualité publiée — Réunion parents-profs</strong>
+                <small>12 Avril 2026 — Par Secrétariat</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+  </main>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

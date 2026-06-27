@@ -1,0 +1,158 @@
+<!-- ============================================================
+     MODALS
+============================================================ -->
+
+<!-- Modal Profil -->
+<div class="modal-backdrop" id="modal-profil">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Mon Compte</h3>
+      <button onclick="closeModal('modal-profil')" style="color:var(--txt3);font-size:18px;"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div style="text-align:center;padding-bottom:var(--sp-lg);">
+        <div class="avatar-placeholder" style="width:72px;height:72px;background:linear-gradient(135deg,var(--g),var(--b));font-size:28px;margin:0 auto var(--sp-md);">DR</div>
+        <h4 style="font-family:var(--font-display);font-size:20px;">M. Rakoto</h4>
+        <span class="badge badge-amber" style="margin-top:6px;">Directeur</span>
+      </div>
+      <div class="form-group"><label>Email</label><input type="email" class="form-control" value="directeur@lycee.mg"/></div>
+      <div class="form-group"><label>Nouveau mot de passe</label><input type="password" class="form-control" placeholder="••••••••"/></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-profil')">Annuler</button>
+      <button class="btn btn-primary" onclick="closeModal('modal-profil');showToast('✅ Profil mis à jour !')">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Ajouter Professeur -->
+<div class="modal-backdrop" id="modal-add-prof">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Nouveau Professeur</h3>
+      <button onclick="closeModal('modal-add-prof')" style="color:var(--txt3);font-size:18px;"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Prénom</label><input type="text" class="form-control" placeholder="Jean"/></div>
+        <div class="form-group"><label>Nom</label><input type="text" class="form-control" placeholder="Rakoto"/></div>
+      </div>
+      <div class="form-group"><label>Matière enseignée</label>
+        <select class="form-control"><option>Mathématiques</option><option>Français</option><option>Sciences Physiques</option><option>Histoire-Géo</option><option>SVT</option><option>Anglais</option></select>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Contact</label><input type="tel" class="form-control" placeholder="034 XX XXX XX"/></div>
+        <div class="form-group"><label>Salaire (Ar)</label><input type="number" class="form-control" placeholder="250000"/></div>
+      </div>
+      <div class="form-group"><label>Quartier</label><input type="text" class="form-control" placeholder="Antananarivo"/></div>
+      <div class="form-group"><label>Date d'embauche</label><input type="date" class="form-control"/></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-add-prof')">Annuler</button>
+      <button class="btn btn-primary" onclick="closeModal('modal-add-prof');showToast('👨‍🏫 Professeur ajouté !')">Ajouter</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Ajouter Élève -->
+<div class="modal-backdrop" id="modal-add-eleve">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Nouvel Élève</h3>
+      <button onclick="closeModal('modal-add-eleve')" style="color:var(--txt3);font-size:18px;"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Prénom de l'élève</label><input type="text" class="form-control" placeholder="Miora"/></div>
+        <div class="form-group"><label>Nom</label><input type="text" class="form-control" placeholder="Andria"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Date de naissance</label><input type="date" class="form-control"/></div>
+        <div class="form-group"><label>Classe</label>
+          <select class="form-control"><option>Seconde A</option><option>Seconde B</option><option>1ère A</option><option>1ère B</option><option>Terminale C</option><option>Terminale D</option></select>
+        </div>
+      </div>
+      <div class="form-group"><label>Nom du parent/tuteur</label><input type="text" class="form-control" placeholder="Andria Pierre"/></div>
+      <div class="form-row">
+        <div class="form-group"><label>Contact parent</label><input type="tel" class="form-control" placeholder="034 XX XXX XX"/></div>
+        <div class="form-group"><label>Quartier</label><input type="text" class="form-control" placeholder="Antananarivo"/></div>
+      </div>
+      <div class="form-group"><label>Adresse</label><input type="text" class="form-control" placeholder="Lot XX, …"/></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-add-eleve')">Annuler</button>
+      <button class="btn btn-primary" onclick="closeModal('modal-add-eleve');showToast('🎒 Élève inscrit !')">Inscrire</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Sondage -->
+<div class="modal-backdrop" id="modal-sondage">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Créer un Sondage</h3>
+      <button onclick="closeModal('modal-sondage')" style="color:var(--txt3);font-size:18px;"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label>Question</label><input type="text" class="form-control" placeholder="Ex: Quelle activité préférez-vous ?"/></div>
+      <div class="form-group"><label>Option 1</label><input type="text" class="form-control" placeholder="Option A"/></div>
+      <div class="form-group"><label>Option 2</label><input type="text" class="form-control" placeholder="Option B"/></div>
+      <div class="form-group"><label>Option 3 (optionnel)</label><input type="text" class="form-control" placeholder="Option C"/></div>
+      <div class="form-group"><label>Expire dans</label>
+        <select class="form-control"><option>1 jour</option><option>3 jours</option><option>7 jours</option><option>14 jours</option></select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-sondage')">Annuler</button>
+      <button class="btn btn-primary" onclick="closeModal('modal-sondage');showToast('📊 Sondage publié !')">Publier</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Devoir -->
+<div class="modal-backdrop" id="modal-devoir">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Nouveau Devoir</h3>
+      <button onclick="closeModal('modal-devoir')" style="color:var(--txt3);font-size:18px;"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label>Titre du devoir</label><input type="text" class="form-control" placeholder="Ex: Exercices sur les intégrales"/></div>
+      <div class="form-row">
+        <div class="form-group"><label>Classe</label><select class="form-control"><option>Terminale C</option><option>1ère C</option></select></div>
+        <div class="form-group"><label>Date limite</label><input type="date" class="form-control"/></div>
+      </div>
+      <div class="form-group"><label>Instructions</label><textarea class="form-control" rows="4" style="resize:vertical;" placeholder="Détails du devoir…"></textarea></div>
+      <div class="form-group"><label>Pièce jointe (optionnel)</label><input type="file" class="form-control" accept=".pdf,.doc,.docx"/></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-devoir')">Annuler</button>
+      <button class="btn btn-primary" onclick="closeModal('modal-devoir');showToast('📚 Devoir publié !')">Publier</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Actualité -->
+<div class="modal-backdrop" id="modal-news">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Publier une Actualité</h3>
+      <button onclick="closeModal('modal-news')" style="color:var(--txt3);font-size:18px;"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label>Titre</label><input type="text" class="form-control" placeholder="Titre de l'actualité"/></div>
+      <div class="form-group"><label>Catégorie</label>
+        <select class="form-control"><option>Évènement</option><option>Examens</option><option>Annonce</option><option>Félicitations</option><option>Autre</option></select>
+      </div>
+      <div class="form-group"><label>Contenu</label><textarea class="form-control" rows="5" style="resize:vertical;" placeholder="Rédigez votre actualité…"></textarea></div>
+      <div class="form-group"><label>Image (optionnel)</label><input type="file" class="form-control" accept="image/*"/></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-news')">Annuler</button>
+      <button class="btn btn-primary" onclick="closeModal('modal-news');showToast('📣 Actualité publiée !')">Publier</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toast-container"></div>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Erreur</title>
+</head>
+<body>
+
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+
+            <!-- Icône selon le code -->
+            <div style="font-size: 80px;">
+                <span th:if="${status == 404}">🔍</span>
+                <span th:if="${status == 403}">🚫</span>
+                <span th:if="${status == 500}">💥</span>
+                <span th:if="${status != 404 and status != 403 and status != 500}">⚠️</span>
+            </div>
+
+            <!-- Code HTTP -->
+            <h1 class="display-1 fw-bold text-danger"
+                th:text="${status}">
+            </h1>
+
+            <!-- Message selon le code -->
+            <h4 th:if="${status == 404}">Page introuvable</h4>
+            <h4 th:if="${status == 403}">Accès refusé</h4>
+            <h4 th:if="${status == 500}">Erreur interne du serveur</h4>
+
+            <!-- Message technique -->
+            <p class="text-muted mt-2" th:text="${message}"></p>
+
+            <!-- Détail du path -->
+            <p class="text-muted small">
+                URL : <code th:text="${path}"></code>
+            </p>
+
+            <!-- Timestamp -->
+            <p class="text-muted small"
+               th:text="${#dates.format(timestamp, 'dd/MM/yyyy HH:mm:ss')}">
+            </p>
+
+            <a href="/" class="btn btn-primary mt-3">🏠 Retour à l'accueil</a>
+            <a th:href="@{/demandes_status}" class="btn btn-outline-secondary mt-3">
+                📋 Suivi statuts
+            </a>
+
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head"></head>
+<style>
+    .seance-card {
+        margin-bottom: 20px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    .seance-header {
+        background: var(--surf2);
+        padding: 15px 20px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .seance-date {
+        font-weight: 600;
+        color: var(--txt1);
+        font-size: 14px;
+    }
+    .seance-time {
+        font-size: 13px;
+        color: var(--txt3);
+    }
+    .absence-list {
+        padding: 0;
+    }
+    .absence-item {
+        padding: 12px 20px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    .absence-item:last-child {
+        border-bottom: none;
+    }
+    .absence-item:hover {
+        background: var(--surf1);
+    }
+    .student-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--g3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        color: var(--g);
+        font-size: 14px;
+    }
+    .student-info {
+        flex: 1;
+    }
+    .student-name {
+        font-weight: 600;
+        color: var(--txt1);
+        font-size: 14px;
+    }
+    .student-matricule {
+        font-size: 12px;
+        color: var(--txt3);
+        margin-top: 2px;
+    }
+    .absence-badge {
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+    }
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--txt3);
+    }
+    .empty-state i {
+        font-size: 48px;
+        margin-bottom: 15px;
+        opacity: 0.5;
+    }
+</style>
+<body>
+<canvas id="particle-canvas"></canvas>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar" th:replace="fragments/header :: sidebar"></aside>
+  <header class="topbar" th:replace="fragments/header :: topbar"></header>
+  
+  <main class="main-content">
+    <div class="page-header">
+        <div>
+            <h2>Historique des Absences</h2>
+            <p th:text="${classe != null ? 'Classe : ' + classe.nom : ''}">Classe</p>
+            <p th:if="${matiere != null}" style="margin-top:4px;font-size:14px;opacity:.8;" th:text="'Matière : ' + matiere">Matière</p>
+        </div>
+        <div class="page-header-actions">
+          <a th:href="@{/professeur/absences(classeId=${classeId}, matiere=${matiere})}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Retour
+          </a>
+        </div>
+    </div>
+    
+    <div th:if="${absencesBySeance.isEmpty()}" class="card">
+        <div class="card-body">
+            <div class="empty-state">
+                <i class="fas fa-calendar-check"></i>
+                <p>Aucune absence enregistrée pour cette classe.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div th:if="${not absencesBySeance.isEmpty()}">
+        <div th:each="seanceEntry : ${absencesBySeance}" class="seance-card">
+            <div class="seance-header">
+                <div>
+                    <div class="seance-date" th:text="${#temporals.format(seanceMap[seanceEntry.key].dateSeance, 'EEEE dd MMMM yyyy')}">Date</div>
+                    <div class="seance-time" th:text="'Séance #' + ${seanceEntry.key}">Séance</div>
+                </div>
+                <div style="text-align:right;">
+                    <span style="font-size:12px;color:var(--txt3);">Étudiants absents : </span>
+                    <span style="font-weight:600;color:var(--txt1);" th:text="${seanceEntry.value.size()}">0</span>
+                </div>
+            </div>
+            <div class="absence-list">
+                <div th:each="absence : ${seanceEntry.value}" class="absence-item">
+                    <div class="student-avatar" th:text="${etudiantProfiles.get(absence.etudiantId) != null ? etudiantProfiles.get(absence.etudiantId).nom.substring(0,1).toUpperCase() + etudiantProfiles.get(absence.etudiantId).prenom.substring(0,1).toUpperCase() : '??'}">AB</div>
+                    <div class="student-info">
+                        <div class="student-name" th:text="${etudiantProfiles.get(absence.etudiantId) != null ? etudiantProfiles.get(absence.etudiantId).nom + ' ' + etudiantProfiles.get(absence.etudiantId).prenom : 'Étudiant inconnu'}">Nom Prénom</div>
+                        <div class="student-matricule" th:text="${etudiantProfiles.get(absence.etudiantId) != null ? 'Matricule : ' + etudiantProfiles.get(absence.etudiantId).matricule : ''}">Matricule</div>
+                    </div>
+                    <div class="absence-badge" th:text="${absence.type == 'justifiee' ? 'Justifiée' : 'Non justifiée'}">Non justifiée</div>
+                </div>
+            </div>
+        </div>
+    </div>
+  </main>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

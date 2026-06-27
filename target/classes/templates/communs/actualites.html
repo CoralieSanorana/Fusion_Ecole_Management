@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head"></head>
+<body>
+<canvas id="particle-canvas"></canvas>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar" th:replace="fragments/header :: sidebar"></aside>
+  <header class="topbar" th:replace="fragments/header :: topbar"></header>
+  <main class="main-content">
+    <div class="page-header">
+        <div><h2>Actualités</h2><p>Nouvelles et événements de l'établissement</p></div>
+        <button class="btn btn-primary" onclick="openModal('modal-news')"><i class="fas fa-plus"></i> Publier une actualité</button>
+      </div>
+
+      <!-- Publication form (for authorized roles) -->
+      <div class="card" style="margin-bottom:var(--sp-xl);border-left:3px solid var(--g);">
+        <div class="card-body">
+          <div style="display:flex;gap:var(--sp-md);align-items:flex-start;">
+            <div class="avatar-placeholder" style="width:40px;height:40px;background:linear-gradient(135deg,var(--g),var(--b));font-size:15px;">DR</div>
+            <div style="flex:1;">
+              <textarea class="form-control" rows="3" placeholder="Partagez une actualité avec l'école…" style="resize:none;"></textarea>
+              <div style="margin-top:var(--sp-sm);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--sp-sm);">
+                <div style="display:flex;gap:var(--sp-sm);">
+                  <button class="btn btn-sm btn-secondary"><i class="fas fa-image"></i> Photo</button>
+                  <button class="btn btn-sm btn-secondary" onclick="openModal('modal-sondage')"><i class="fas fa-poll"></i> Sondage</button>
+                </div>
+                <button class="btn btn-sm btn-primary" onclick="showToast('📣 Actualité publiée !')"><i class="fas fa-paper-plane"></i> Publier</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <div class="news-card">
+          <div class="news-card-image">📢</div>
+          <div class="news-card-body">
+            <div class="news-meta">
+              <span class="badge badge-navy">Direction</span>
+              <span>12 Avril 2026</span>
+            </div>
+            <h4>Réunion Parents-Professeurs</h4>
+            <p>La réunion parents-professeurs du 2ème trimestre se tiendra vendredi 19 avril à 9h dans la grande salle.</p>
+          </div>
+        </div>
+        <div class="news-card">
+          <div class="news-card-image">🏆</div>
+          <div class="news-card-body">
+            <div class="news-meta">
+              <span class="badge badge-amber">Évènement</span>
+              <span>10 Avril 2026</span>
+            </div>
+            <h4>Concours National de Maths</h4>
+            <p>Félicitations à nos élèves de Terminale C qui ont remporté la 2ème place au concours régional de mathématiques !</p>
+          </div>
+        </div>
+        <div class="news-card">
+          <div class="news-card-image" style="background:linear-gradient(135deg,var(--g),#4DFFA0);">📝</div>
+          <div class="news-card-body">
+            <div class="news-meta">
+              <span class="badge badge-green">Examens</span>
+              <span>8 Avril 2026</span>
+            </div>
+            <h4>Calendrier des Examens T2</h4>
+            <p>Le calendrier des examens du deuxième trimestre est disponible. Les examens se dérouleront du 5 au 16 mai.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sondage -->
+      <div class="card" style="margin-top:var(--sp-xl);">
+        <div class="card-header">
+          <div style="display:flex;align-items:center;gap:var(--sp-md);">
+            <div class="avatar-placeholder" style="width:36px;height:36px;background:linear-gradient(135deg,var(--g),#4DFFA0);font-size:14px;">RS</div>
+            <div><strong style="display:block;font-size:14px;">Prof. Rasoa</strong><small style="color:var(--txt3);">Il y a 2 heures · Sondage</small></div>
+          </div>
+          <i class="fas fa-poll" style="color:var(--b);font-size:20px;"></i>
+        </div>
+        <div class="card-body">
+          <p style="font-weight:600;margin-bottom:var(--sp-lg);">Quel type d'activité préférez-vous pour la sortie de fin d'année ?</p>
+          <div class="poll-option" onclick="selectPoll(this)">
+            <div class="poll-radio"></div> Visite culturelle (musée, monument)
+          </div>
+          <div class="poll-option selected" onclick="selectPoll(this)">
+            <div class="poll-radio"></div> Excursion à la montagne
+          </div>
+          <div class="poll-option" onclick="selectPoll(this)">
+            <div class="poll-radio"></div> Activités sportives
+          </div>
+          <div class="poll-option" onclick="selectPoll(this)">
+            <div class="poll-radio"></div> Gala et remise de prix
+          </div>
+          <div style="margin-top:var(--sp-md);font-size:12px;color:var(--txt3);">47 réponses · Expire dans 3 jours</div>
+        </div>
+      </div>
+  </main>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

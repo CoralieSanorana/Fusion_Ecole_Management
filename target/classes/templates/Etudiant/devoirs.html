@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+<body>
+<canvas id="particle-canvas"></canvas>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar" th:replace="~{fragments/header :: sidebar}"></aside>
+  <header class="topbar" th:replace="~{fragments/header :: topbar}"></header>
+  <main class="main-content">
+    <div class="page-header">
+        <div><h2>Devoirs & Leçons</h2><p>Travaux publiés par vos professeurs</p></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:var(--sp-md);">
+        <div class="devoir-card">
+          <h4>Exercices — Limites et Continuité</h4>
+          <div class="due">📅 À rendre: 18 Avril 2026</div>
+          <p>Exercices 5 à 12 page 87 du manuel. Correction de l'exercice 4 vue en classe.</p>
+          <div style="margin-top:var(--sp-md);display:flex;gap:var(--sp-sm);">
+            <span class="badge badge-amber">Mathématiques</span>
+            <span class="badge badge-red">Dans 2 jours</span>
+          </div>
+        </div>
+        <div class="devoir-card" style="border-left-color:var(--success);">
+          <h4>Leçon — Génétique et Hérédité</h4>
+          <div class="due" style="color:var(--success);">📅 Pour: 21 Avril 2026</div>
+          <p>Relire le chapitre 8 de SVT. Mémoriser les lois de Mendel.</p>
+          <div style="margin-top:var(--sp-md);display:flex;gap:var(--sp-sm);">
+            <span class="badge badge-violet">SVT</span>
+            <span class="badge badge-green">Dans 5 jours</span>
+          </div>
+        </div>
+        <div class="devoir-card" style="border-left-color:var(--b);">
+          <h4>Dissertation — La Négritude</h4>
+          <div class="due" style="color:var(--b);">📅 À rendre: 25 Avril 2026</div>
+          <p>Rédiger une dissertation de 3 pages sur le mouvement de la Négritude. Plan détaillé obligatoire.</p>
+          <div style="margin-top:var(--sp-md);display:flex;gap:var(--sp-sm);">
+            <span class="badge badge-navy">Français</span>
+            <span class="badge badge-green">Dans 9 jours</span>
+          </div>
+        </div>
+      </div>
+  </main>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

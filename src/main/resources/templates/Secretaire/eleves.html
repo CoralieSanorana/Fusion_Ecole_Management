@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head"></head>
+<body>
+<canvas id="particle-canvas"></canvas>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar" th:replace="fragments/header :: sidebar"></aside>
+  <header class="topbar" th:replace="fragments/header :: topbar"></header>
+  <main class="main-content">
+    <div class="page-header">
+        <div><h2>Liste des Élèves</h2><p>203 élèves inscrits pour l'année 2025–2026</p></div>
+        <button class="btn btn-primary" onclick="openModal('modal-add-eleve')"><i class="fas fa-plus"></i> Nouvel élève</button>
+      </div>
+
+      <div style="display:flex;gap:var(--sp-md);margin-bottom:var(--sp-lg);flex-wrap:wrap;align-items:center;">
+        <div class="filter-pills">
+          <div class="pill active">Tous</div>
+          <div class="pill">Seconde</div>
+          <div class="pill">1ère</div>
+          <div class="pill">Terminale</div>
+        </div>
+        <div style="display:flex;gap:var(--sp-sm);margin-left:auto;">
+          <select class="form-control" style="width:auto;padding:8px 12px;font-size:13px;">
+            <option>Toutes les salles</option><option>Seconde A</option><option>Seconde B</option>
+            <option>1ère A</option><option>1ère B</option><option>Terminale C</option>
+          </select>
+          <input type="text" class="form-control" placeholder="Rechercher un élève…" style="width:220px;"/>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Élève</th><th>Classe</th><th>Janv.</th><th>Fév.</th><th>Mars</th><th>Avr.</th><th>Actions</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><div style="display:flex;align-items:center;gap:var(--sp-md);"><div class="avatar-placeholder" style="width:32px;height:32px;background:linear-gradient(135deg,var(--g),var(--b));font-size:12px;">RJ</div>Rakoto Jean</div></td>
+                <td><span class="badge badge-navy">1ère A</span></td>
+                <td><span class="badge badge-green">✓</span></td>
+                <td><span class="badge badge-green">✓</span></td>
+                <td><span class="badge badge-green">✓</span></td>
+                <td><span class="badge badge-green">✓</span></td>
+                <td><button class="btn btn-sm btn-secondary" onclick="showPage('sec-profils')">Profil</button></td>
+              </tr>
+              <tr>
+                <td><div style="display:flex;align-items:center;gap:var(--sp-md);"><div class="avatar-placeholder" style="width:32px;height:32px;background:linear-gradient(135deg,var(--g),#4DFFA0);font-size:12px;">AM</div>Andria Miora</div></td>
+                <td><span class="badge badge-navy">Seconde B</span></td>
+                <td><span class="badge badge-green">✓</span></td>
+                <td><span class="badge badge-green">✓</span></td>
+                <td><span class="badge badge-red">✗</span></td>
+                <td><span class="badge badge-green">✓</span></td>
+                <td><button class="btn btn-sm btn-secondary" onclick="showPage('sec-profils')">Profil</button></td>
+              </tr>
+              <tr>
+                <td><div style="display:flex;align-items:center;gap:var(--sp-md);"><div class="avatar-placeholder" style="width:32px;height:32px;background:linear-gradient(135deg,var(--warn),#FFD84D);font-size:12px;">HN</div>Hery Njaka</div></td>
+                <td><span class="badge badge-navy">1ère B</span></td>
+                <td><span class="badge badge-green">✓</span></td>
+                <td><span class="badge badge-red">✗</span></td>
+                <td><span class="badge badge-red">✗</span></td>
+                <td><span class="badge badge-red">✗</span></td>
+                <td><button class="btn btn-sm btn-secondary" onclick="window.location.href='/secretariat/profil'">Profil</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+  </main>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

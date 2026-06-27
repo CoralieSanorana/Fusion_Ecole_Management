@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+<style>
+    .edt-slot {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        text-align: center;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+    }
+    .edt-slot.is-empty:hover {
+        background: var(--surf2);
+    }
+    .edt-slot.is-selected {
+        background: var(--g3) !important;
+        border: 2px solid var(--g);
+    }
+    .schedule-cell {
+        min-height: 60px;
+    }
+</style>
+<body>
+<canvas id="particle-canvas"></canvas>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar" th:replace="~{fragments/header :: sidebar}"></aside>
+  <header class="topbar" th:replace="~{fragments/header :: topbar}"></header>
+  <main class="main-content">
+      <div class="page-header">
+          <div>
+              <h2>Emploi du Temps</h2>
+              <p>Sélectionnez une salle, puis cliquez sur plusieurs cases pour composer le planning.</p>
+          </div>
+          <form id="edt-filter-form" style="display:flex;gap:var(--sp-sm);align-items:flex-end;flex-wrap:wrap;">
+              <div class="form-group" style="min-width:200px;margin-bottom:0;">
+                  <label>Niveau</label>
+                  <select class="form-control" name="niveau_id" id="edt-niveau-select" onchange="updateEdtFilter()">
+                      <option value="">Global (Standard)</option>
+                      <option th:each="niveau : ${niveaux}" th:value="${niveau.id}" th:text="${niveau.libelle}" th:selected="${selectedNiveauId != null and selectedNiveauId == niveau.id}"></option>
+                  </select>
+              </div>
+              <div class="form-group" style="min-width:200px;margin-bottom:0;">
+                  <label>Salle</label>
+                  <select class="form-control" name="salle_id" id="edt-salle-select" onchange="updateEdtFilter()">
+                      <option th:each="salle : ${salles}" th:value="${salle.id}" th:text="${salle.nom}" th:selected="${selectedSalleId != null and selectedSalleId == salle.id}"></option>
+                  </select>
+              </div>
+              <button class="btn btn-secondary" type="button" onclick="updateEdtFilter()">Charger</button>
+          </form>
+          <script>
+              function updateEdtFilter() {
+                  const niveauId = document.getElementById('edt-niveau-select').value;
+                  const salleId = document.getElementById('edt-salle-select').value;
+                  let url = '/directeur/edt';
+                  const params = [];
+                  if (niveauId) params.push('niveau_id=' + encodeURIComponent(niveauId));
+                  if (salleId) params.push('salle_id=' + encodeURIComponent(salleId));
+                  if (params.length > 0) {
+                      url += '?' + params.join('&');
+                  }
+                  window.location.href = url;
+              }
+          </script>
+      </div>
+
+      <div class="grid-2" style="align-items:start;">
+          <div class="card" style="grid-column: 1 / -1;">
+              <div class="card-body" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--sp-md);">
+                  <div class="edt-stat">
+                      <small>Année active</small>
+                      <strong th:text="${annee != null ? annee.libelle : 'Aucune'}"></strong>
+                  </div>
+                  <div class="edt-stat">
+                      <small>Salle sélectionnée</small>
+                      <strong th:text="${selectedSalle != null ? selectedSalle.nom : 'Aucune'}"></strong>
+                  </div>
+                  <div class="edt-stat">
+                      <small>Plages horaires</small>
+                      <strong th:text="${#lists.size(horaires)}"></strong>
+                  </div>
+                  <div class="edt-stat">
+                      <small>Cases occupées</small>
+                      <strong th:text="${creneauxCount}"></strong>
+                  </div>
+              </div>
+          </div>
+
+          <div class="card" style="grid-column: 1 / -1;">
+              <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:var(--sp-md);">
+                  <h3>Grille hebdomadaire</h3>
+                  <div style="display:flex; gap:var(--sp-sm); align-items:center;">
+                      <button th:if="${selectedNiveauId != null and selectedNiveauId > 0}" class="btn btn-secondary btn-sm" type="button" onclick="openModal('modal-edt-horaires')">
+                          <i class="fas fa-clock"></i> <span th:text="'Configurer horaires (' + selectedNiveauLibelle + ')'"></span>
+                      </button>
+                      <span th:if="${selectedNiveauId == null or selectedNiveauId == 0}" style="font-size:12px;color:var(--clr-text-muted);">
+                          <i class="fas fa-info-circle"></i> Choisissez un niveau pour modifier ses horaires
+                      </span>
+                      <button class="btn btn-primary btn-sm" type="button" onclick="openModal('modal-edt-insert')">
+                          <i class="fas fa-calendar-plus"></i> Insérer l'emploi du temps
+                          <span id="selected-badge" style="display:none;background:var(--clr-navy);color:#fff;border-radius:var(--r-full);padding:2px 8px;font-size:11px;font-weight:600;margin-left:6px;align-items:center;justify-content:center;">0</span>
+                      </button>
+                  </div>
+              </div>
+              <div class="card-body" style="padding: var(--sp-md);">
+                  <div th:if="${annee == null}">
+                      <p>Activez d'abord une année scolaire.</p>
+                  </div>
+                  <div th:if="${annee != null and #lists.isEmpty(horaires)}">
+                      <p>Aucune plage horaire n'est définie. Créez les horaires de l'école dans la base.</p>
+                  </div>
+                  <div th:if="${annee != null and #lists.isEmpty(salles)}">
+                      <p>Aucune salle active n'est disponible.</p>
+                  </div>
+                  <div th:if="${annee != null and not #lists.isEmpty(horaires) and not #lists.isEmpty(salles)}">
+                      <p style="margin-bottom:var(--sp-md);color:var(--clr-text-muted);">
+                          Cliquez sur une ou plusieurs cases. Les cases déjà occupées seront remplacées quand vous enregistrerez.
+                      </p>
+                      <div class="schedule-grid edt-grid" data-edt-grid th:style="'grid-template-columns: 70px repeat(' + ${#maps.size(jours)} + ', 1fr);'">
+                          <!-- Header row: Heure + Days -->
+                          <div class="schedule-header">Heure</div>
+                          <div class="schedule-header" th:each="jour : ${jours}" th:text="${jour.value}"></div>
+
+                          <!-- Time slots -->
+                          <th:block th:each="horaire : ${horaires}">
+                              <div class="schedule-cell schedule-time" style="display:flex; align-items:center; justify-content:center; text-align:center;">
+                                  <div>
+                                      <strong th:text="${#temporals.format(horaire.heureDebut, 'HH:mm') + ' - ' + #temporals.format(horaire.heureFin, 'HH:mm')}"></strong><br>
+                                      <small style="font-size: 10px; opacity:0.85;" th:text="${horaire.libelle}"></small>
+                                  </div>
+                              </div>
+
+                              <div class="schedule-cell" th:each="jour : ${jours}" style="padding:4px;">
+                                  <th:block th:with="creneauMap=${parHoraire.get(horaire.id)}, creneau=${creneauMap != null ? creneauMap.get(jour.key) : null}">
+                                      <button
+                                              type="button"
+                                              class="edt-slot"
+                                              th:classappend="${creneau != null ? 'is-occupied' : 'is-empty'}"
+                                              data-edt-cell
+                                              th:attr="data-cell-value=${jour.key + '|' + horaire.id}, data-cell-label=${jour.value + ' ' + #temporals.format(horaire.heureDebut, 'HH:mm') + '-' + #temporals.format(horaire.heureFin, 'HH:mm')}"
+                                              aria-pressed="false">
+                                          <th:block th:if="${creneau != null}">
+                                              <div class="schedule-class math" style="padding: 4px 6px; font-size: 10px; display: flex; flex-direction: column; justify-content: center; height: 100%;">
+                                                  <strong style="display: block; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;" th:text="${creneau.matiereNom}"></strong>
+                                                  <span style="font-size: 9px; opacity: 0.85; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;" th:text="${creneau.classeNom + ' · ' + creneau.profPrenom + ' ' + creneau.profNom}"></span>
+                                                  <span style="font-size: 9px; opacity: 0.75; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;" th:text="${creneau.salleNom}"></span>
+                                              </div>
+                                          </th:block>
+                                          <th:block th:if="${creneau == null}">
+                                              <span class="edt-slot-placeholder" style="font-size: 10px; opacity: 0.5;">Libre</span>
+                                          </th:block>
+                                      </button>
+                                  </th:block>
+                              </div>
+                          </th:block>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+          <div class="modal-backdrop" id="modal-edt-insert">
+              <div class="modal">
+                  <div th:if="${annee == null}">
+                      <div class="modal-header">
+                          <h3>Insérer l'emploi du temps</h3>
+                          <button type="button" onclick="closeModal('modal-edt-insert')" style="color:var(--clr-text-muted);font-size:18px;"><i class="fas fa-times"></i></button>
+                      </div>
+                      <div class="modal-body">
+                          <p>Activez d'abord une année scolaire.</p>
+                      </div>
+                      <div class="modal-footer">
+                          <button class="btn btn-secondary" type="button" onclick="closeModal('modal-edt-insert')">Fermer</button>
+                      </div>
+                  </div>
+                  <form th:if="${annee != null}" method="post" action="/directeur/edt" data-edt-form>
+                      <input type="hidden" name="salle_id" th:value="${selectedSalleId}">
+                      <div class="modal-header">
+                          <h3><i class="fas fa-calendar-plus" style="color:var(--clr-amber);margin-right:8px;"></i>Insérer l'emploi du temps</h3>
+                          <button type="button" onclick="closeModal('modal-edt-insert')" style="color:var(--clr-text-muted);font-size:18px;"><i class="fas fa-times"></i></button>
+                      </div>
+                      <div class="modal-body">
+                          <div class="form-group">
+                              <label>Affectation</label>
+                              <select class="form-control" name="affectation_id" required>
+                                  <option value="">Choisir une affectation</option>
+                                  <option th:each="aff : ${affectations}" th:value="${aff.id}" th:text="${aff.niveauLibelle + ' - ' + aff.classeNom + ' - ' + aff.matiereNom + ' / ' + aff.profPrenom + ' ' + aff.profNom}"></option>
+                              </select>
+                          </div>
+                          <div class="edt-selection-summary" style="margin:var(--sp-lg) 0;">
+                              <div style="display:flex;justify-content:space-between;gap:var(--sp-sm);align-items:center;margin-bottom:var(--sp-xs);">
+                                  <strong>Cases sélectionnées</strong>
+                                  <span data-selected-count style="font-weight:bold;color:var(--clr-amber);">0 case</span>
+                              </div>
+                              <div class="edt-selection-list" data-selected-list>
+                                  <span class="edt-chip is-empty">Aucune case</span>
+                              </div>
+                              <div data-selected-cells></div>
+                          </div>
+                          <p style="margin-top:var(--sp-md);font-size:12px;color:var(--clr-text-muted);">
+                              <i class="fas fa-info-circle" style="margin-right:4px;"></i> Les cellules déjà occupées seront remplacées pour cette salle et cette plage.
+                          </p>
+                      </div>
+                      <div class="modal-footer">
+                          <button class="btn btn-secondary" type="button" onclick="closeModal('modal-edt-insert')">Fermer</button>
+                          <button class="btn btn-secondary" type="button" data-clear-selection>Vider la sélection</button>
+                          <button class="btn btn-primary" type="submit">Enregistrer la sélection</button>
+                      </div>
+                  </form>
+              </div>
+          </div>
+
+          <div th:if="${selectedNiveauId != null and selectedNiveauId > 0}" class="modal-backdrop" id="modal-edt-horaires">
+              <div class="modal" style="max-width: 650px; width: 95%;">
+                  <form method="post" action="/directeur/edt/save-horaires">
+                      <input type="hidden" name="niveau_id" th:value="${selectedNiveauId}">
+                      <input type="hidden" name="salle_id" th:value="${selectedSalleId}">
+                      <div class="modal-header">
+                          <h3><i class="fas fa-clock" style="color:var(--clr-teal);margin-right:8px;"></i>Horaires du niveau : <span th:text="${selectedNiveauLibelle}"></span></h3>
+                          <button type="button" onclick="closeModal('modal-edt-horaires')" style="color:var(--clr-text-muted);font-size:18px;"><i class="fas fa-times"></i></button>
+                      </div>
+                      <div class="modal-body" style="max-height: 400px; overflow-y: auto; padding: var(--sp-md);">
+                          <p style="font-size:12px;color:var(--clr-text-muted);margin-bottom:var(--sp-md);">
+                              Définissez les plages horaires de ce niveau. L'ordre détermine leur position d'affichage dans la grille.
+                          </p>
+                          <table class="table" style="width: 100%; border-collapse: collapse; text-align: left;">
+                              <thead>
+                                  <tr style="border-bottom: 2px solid var(--clr-border);">
+                                      <th style="padding: 8px;">Libellé</th>
+                                      <th style="padding: 8px;">Début</th>
+                                      <th style="padding: 8px;">Fin</th>
+                                      <th style="padding: 8px; width: 80px;">Ordre</th>
+                                      <th style="padding: 8px; width: 50px;"></th>
+                                  </tr>
+                              </thead>
+                              <tbody id="horaires-tbody">
+                                  <tr th:each="horaire, iterStat : ${horaires}" style="border-bottom: 1px solid var(--clr-border);">
+                                      <td style="padding: 6px 4px;">
+                                          <input type="text" class="form-control" th:name="'horaires[' + ${iterStat.index} + '][libelle]'" th:value="${horaire.libelle}" required style="padding: 6px var(--sp-sm); font-size:13px; min-width: 120px;">
+                                          <input type="hidden" th:name="'horaires[' + ${iterStat.index} + '][id]'" th:value="${horaire.id}">
+                                          <input type="hidden" th:name="'horaires[' + ${iterStat.index} + '][ordre]'" th:value="${iterStat.index + 1}">
+                                      </td>
+                                      <td style="padding: 6px 4px;">
+                                          <input type="time" class="form-control" th:name="'horaires[' + ${iterStat.index} + '][heureDebut]'" th:value="${#temporals.format(horaire.heureDebut, 'HH:mm')}" required style="padding: 6px var(--sp-sm); font-size:13px;">
+                                      </td>
+                                      <td style="padding: 6px 4px;">
+                                          <input type="time" class="form-control" th:name="'horaires[' + ${iterStat.index} + '][heureFin]'" th:value="${#temporals.format(horaire.heureFin, 'HH:mm')}" required style="padding: 6px var(--sp-sm); font-size:13px;">
+                                      </td>
+                                      <td style="padding: 6px 4px;">
+                                          <span th:text="${iterStat.index + 1}"></span>
+                                      </td>
+                                      <td style="padding: 6px 4px; text-align: center;">
+                                          <button type="button" class="btn btn-danger btn-sm" onclick="removeHoraireRow(this)" style="padding: 4px 8px; background: var(--clr-rose); border: none; border-radius: var(--r-sm); color: #fff; cursor: pointer;"><i class="fas fa-trash"></i></button>
+                                      </td>
+                                  </tr>
+                              </tbody>
+                          </table>
+                          <button type="button" class="btn btn-secondary btn-sm" onclick="addHoraireRow()" style="margin-top:var(--sp-md); font-size: 12px; display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; cursor: pointer;">
+                              <i class="fas fa-plus"></i> Ajouter une plage
+                          </button>
+                      </div>
+                      <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center; padding: var(--sp-md);">
+                          <div>
+                              <button class="btn btn-secondary btn-sm" type="submit" name="reset_to_global" value="1" onclick="return confirm('Réinitialiser aux horaires globales ? Toutes les plages spécifiques de ce niveau seront supprimées.')" style="background: var(--clr-rose-light); color: var(--clr-rose); border: none; padding: 8px 12px; font-size: 13px; cursor: pointer;">
+                                  <i class="fas fa-undo"></i> Réinitialiser au global
+                              </button>
+                          </div>
+                          <div style="display:flex; gap:var(--sp-sm);">
+                              <button class="btn btn-secondary btn-sm" type="button" onclick="closeModal('modal-edt-horaires')" style="padding: 8px 16px; font-size: 13px; cursor: pointer;">Fermer</button>
+                              <button class="btn btn-primary btn-sm" type="submit" style="padding: 8px 16px; font-size: 13px; cursor: pointer;">Enregistrer</button>
+                          </div>
+                      </div>
+                  </form>
+              </div>
+          </div>
+      </div>
+
+      <script th:inline="javascript">
+          let horaireIndex = /*[[${#lists.size(horaires)}]]*/ 0;
+
+          function renumberHoraires() {
+              const tbody = document.getElementById('horaires-tbody');
+              const rows = tbody.querySelectorAll('tr');
+              rows.forEach((tr, index) => {
+                  // Update all input names
+                  const inputs = tr.querySelectorAll('input');
+                  inputs.forEach(input => {
+                      // Replace horaires[oldIndex] with horaires[newIndex]
+                      input.name = input.name.replace(/horaires\[\d+\]/g, `horaires[${index}]`);
+                      // Also update the ordre hidden input value
+                      if (input.name.includes('[ordre]')) {
+                          input.value = index + 1;
+                      }
+                  });
+                  // Update the order cell text
+                  const orderCell = tr.querySelector('td:nth-child(4)');
+                  if (orderCell) {
+                      orderCell.textContent = index + 1;
+                  }
+              });
+              horaireIndex = rows.length;
+          }
+
+          function addHoraireRow() {
+              const tbody = document.getElementById('horaires-tbody');
+              const tr = document.createElement('tr');
+              tr.style.borderBottom = '1px solid var(--clr-border)';
+              const newIndex = tbody.children.length;
+              tr.innerHTML = '<td style=\"padding: 6px 4px;\"><input type=\"text\" class=\"form-control\" name=\"horaires[' + newIndex + '][libelle]\" placeholder=\"ex: 08:00 - 09:00\" required style=\"padding: 6px var(--sp-sm); font-size:13px; min-width: 120px;\"><input type=\"hidden\" name=\"horaires[' + newIndex + '][id]\" value=\"new\"><input type=\"hidden\" name=\"horaires[' + newIndex + '][ordre]\" value=\"' + (newIndex + 1) + '\"></td><td style=\"padding: 6px 4px;\"><input type=\"time\" class=\"form-control\" name=\"horaires[' + newIndex + '][heureDebut]\" required style=\"padding: 6px var(--sp-sm); font-size:13px;\"></td><td style=\"padding: 6px 4px;\"><input type=\"time\" class=\"form-control\" name=\"horaires[' + newIndex + '][heureFin]\" required style=\"padding: 6px var(--sp-sm); font-size:13px;\"></td><td style=\"padding: 6px 4px;\">' + (newIndex + 1) + '</td><td style=\"padding: 6px 4px; text-align: center;\"><button type=\"button\" class=\"btn btn-danger btn-sm\" onclick=\"removeHoraireRow(this)\" style=\"padding: 4px 8px; background: var(--clr-rose); border: none; border-radius: var(--r-sm); color: #fff; cursor: pointer;\"><i class=\"fas fa-trash\"></i></button></td>';
+              tbody.appendChild(tr);
+              renumberHoraires();
+          }
+
+          function removeHoraireRow(button) {
+              if (confirm('Supprimer cette plage horaire ? Elle ne sera définitivement retirée qu\'après enregistrement.')) {
+                  button.closest('tr').remove();
+                  renumberHoraires();
+              }
+          }
+      </script>
+  </main>
+</div>
+<script th:src="@{/js/directeur-js/edt/EmploiDuTemps.js}" defer></script>
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

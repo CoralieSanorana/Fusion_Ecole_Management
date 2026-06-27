@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+<body>
+<canvas id="particle-canvas"></canvas>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar" th:replace="~{fragments/header :: sidebar}"></aside>
+  <header class="topbar" th:replace="~{fragments/header :: topbar}"></header>
+  <main class="main-content">
+    <div class="page-header">
+        <div><h2>Bilan de Paiement</h2><p>Taux de recouvrement par mois et par classe</p></div>
+        <select class="form-control" style="width:auto;padding:8px 16px;">
+          <option>Trimestre 1 — 2026</option><option>Trimestre 2 — 2026</option>
+        </select>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>Par classe — Avril 2026</h3></div>
+        <div class="card-body">
+          <div class="bilan-item" style="padding-top:0;">
+            <span class="bilan-item-label">Terminale C</span>
+            <div class="bilan-item-bar"><div class="progress-bar"><div class="progress-fill teal" style="width:95%"></div></div></div>
+            <span class="bilan-item-val">95%</span>
+          </div>
+          <div class="bilan-item">
+            <span class="bilan-item-label">Terminale D</span>
+            <div class="bilan-item-bar"><div class="progress-bar"><div class="progress-fill teal" style="width:88%"></div></div></div>
+            <span class="bilan-item-val">88%</span>
+          </div>
+          <div class="bilan-item">
+            <span class="bilan-item-label">1ère A</span>
+            <div class="bilan-item-bar"><div class="progress-bar"><div class="progress-fill amber" style="width:76%"></div></div></div>
+            <span class="bilan-item-val">76%</span>
+          </div>
+          <div class="bilan-item">
+            <span class="bilan-item-label">1ère B</span>
+            <div class="bilan-item-bar"><div class="progress-bar"><div class="progress-fill amber" style="width:70%"></div></div></div>
+            <span class="bilan-item-val">70%</span>
+          </div>
+          <div class="bilan-item">
+            <span class="bilan-item-label">Seconde A</span>
+            <div class="bilan-item-bar"><div class="progress-bar"><div class="progress-fill rose" style="width:58%"></div></div></div>
+            <span class="bilan-item-val">58%</span>
+          </div>
+          <div class="bilan-item">
+            <span class="bilan-item-label">Seconde B</span>
+            <div class="bilan-item-bar"><div class="progress-bar"><div class="progress-fill rose" style="width:51%"></div></div></div>
+            <span class="bilan-item-val">51%</span>
+          </div>
+        </div>
+      </div>
+  </main>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

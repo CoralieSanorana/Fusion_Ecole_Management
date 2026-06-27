@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head"></head>
+<body>
+<canvas id="particle-canvas"></canvas>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar" th:replace="fragments/header :: sidebar"></aside>
+  <header class="topbar" th:replace="fragments/header :: topbar"></header>
+  <main class="main-content">
+    <div class="page-header">
+        <div><h2>Corps Professoral</h2><p>
+          <span th:text="${employes != null ? employes.size() : 0}">24</span> 
+          <span th:text="${employes != null and employes.size() > 1 ? 'employés actifs' : 'employé actif'}">professeurs actifs</span> dans l'établissement
+        </p></div>
+        <button class="btn btn-primary" id="btn-add-prof" onclick="openModal('modal-add-prof')"><i class="fas fa-plus"></i> Nouveau professeur</button>
+      </div>
+
+      <div class="filter-pills" style="margin-bottom:var(--sp-xl);">
+        <div class="pill active">Tous</div>
+        <div class="pill">Maths</div>
+        <div class="pill">Français</div>
+        <div class="pill">Sciences</div>
+        <div class="pill">Histoire</div>
+        <div class="pill">SVT</div>
+        <div class="pill">Anglais</div>
+      </div>
+
+      <div class="grid-auto">
+        <div class="prof-card" th:each="employe : ${employes}" th:onclick="'window.location.href=\'/directeur/employe/contrat/' + ${employe.userId} + '\''" style="cursor: pointer;">
+          <div class="prof-card-avatar" 
+               th:style="'background:linear-gradient(135deg,' + ${employe.roleNom == 'professeur' ? 'var(--g),var(--b)' : 'var(--clr-violet),#A78BFA'} + ');'"
+               th:text="${employe.nom != null && employe.prenom != null ? employe.nom.substring(0,1).toUpperCase() + employe.prenom.substring(0,1).toUpperCase() : 'XX'}">RB</div>
+          <h4 th:text="${employe.roleNom == 'professeur' ? 'Prof. ' + employe.nom + ' ' + employe.prenom : employe.fonction != null ? employe.fonction : employe.nom + ' ' + employe.prenom}">Prof. Rabe Hery</h4>
+          <div class="matiere" th:text="${employe.matiereNom != null ? employe.matiereNom : employe.typeContratLibelle != null ? employe.typeContratLibelle : employe.roleNom}">Mathématiques</div>
+          <div style="display:flex;justify-content:center;gap:var(--sp-sm);flex-wrap:wrap;margin-top:var(--sp-sm);">
+            <span class="badge badge-navy" th:text="${employe.roleNom == 'professeur' ? 'Professeur' : 'Secrétariat'}">Professeur</span>
+            <span class="badge badge-navy" th:if="${employe.heuresHebdo != null}" th:text="${employe.heuresHebdo + 'h/semaine'}">20h/semaine</span>
+          </div>
+          <div class="salaire" th:if="${employe.salaireMensuel != null}">
+            <span th:text="${#numbers.formatDecimal(employe.salaireMensuel, 0, 0).replace(',', ' ')}">320 000</span> <span>Ar/mois</span>
+          </div>
+          <div class="salaire" th:if="${employe.salaireMensuel == null}">Non défini</div>
+        </div>
+      </div>
+  </main>
+</div>
+
+<script th:src="@{/js/directeur-js/professeur/professeur.js}"></script>
+
+<!-- Modal pour ajouter un employé -->
+<div class="modal-backdrop" id="modal-add-prof">
+  <div class="modal" style="max-width:700px;">
+    <div class="modal-header">
+      <h3>Ajouter un nouvel employé</h3>
+      <button onclick="closeModal('modal-add-prof')" style="color:var(--txt3);font-size:18px;"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <form id="employee-form" method="post" th:action="@{/directeur/employes}" enctype="multipart/form-data">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Fonction</label>
+            <select class="form-control" name="fonction" id="employee-fonction" onchange="syncEmployeeFields()" required>
+              <option value="">Choisir</option>
+              <option value="professeur">Professeur</option>
+              <option value="secretariat">Secrétariat</option>
+              <option value="directeur">Directeur</option>
+              <option value="comptable">Comptable</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input class="form-control" type="email" name="email" id="employee-email" placeholder="prenom.nom@ecole.local" required>
+            <small id="employee-email-feedback" style="display:block;margin-top:6px;font-size:12px;min-height:16px;"></small>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Prénom</label>
+            <input class="form-control" type="text" name="prenom" placeholder="Jean" required>
+          </div>
+          <div class="form-group">
+            <label>Nom</label>
+            <input class="form-control" type="text" name="nom" placeholder="Rakoto" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Sexe</label>
+            <select class="form-control" name="sexe">
+              <option value="M">Masculin</option>
+              <option value="F">Féminin</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Téléphone</label>
+            <input class="form-control" type="text" name="telephone" id="employee-telephone" placeholder="034 00 000 00" inputmode="tel" autocomplete="tel">
+            <small id="employee-telephone-feedback" style="display:block;margin-top:6px;font-size:12px;min-height:16px;"></small>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Mot de passe initial</label>
+            <input class="form-control" type="text" name="password" placeholder="ChangeMe123!">
+          </div>
+          <div class="form-group"></div>
+        </div>
+
+        <div class="form-group">
+          <label>Adresse</label>
+          <input class="form-control" type="text" name="adresse" placeholder="Quartier, ville">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Type de contrat</label>
+            <select class="form-control" name="typeContratId" required>
+              <option value="">Choisir</option>
+              <option value="1">CDI</option>
+              <option value="2">CDD</option>
+              <option value="3">Stage</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Salaire mensuel</label>
+            <input class="form-control" type="number" min="0" step="0.01" name="salaireMensuel" placeholder="320000">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Date de début</label>
+            <input class="form-control" type="date" name="dateDebut">
+          </div>
+          <div class="form-group">
+            <label>Date de fin</label>
+            <input class="form-control" type="date" name="dateFin">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group" id="employee-matiere-group" style="display:none;">
+            <label>Matière enseignée</label>
+            <select class="form-control" name="matiereId">
+              <option value="">Choisir</option>
+              <option value="1">Mathématiques</option>
+              <option value="2">Français</option>
+              <option value="3">Anglais</option>
+              <option value="4">Sciences</option>
+              <option value="5">Histoire</option>
+              <option value="6">SVT</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Heures hebdo</label>
+            <input class="form-control" type="number" min="0" step="0.5" name="heuresHebdo" placeholder="18">
+          </div>
+          <div class="form-group">
+            <label>Spécialité / note interne</label>
+            <input class="form-control" type="text" name="specialite" placeholder="Mathématiques">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Photo de profil</label>
+          <input class="form-control" type="file" name="photo" accept=".jpg,.jpeg,.png,.webp">
+          <small style="font-size:12px;color:#64748b;">La photo sera automatiquement optimisée.</small>
+        </div>
+
+        <button class="btn btn-primary" type="submit">Enregistrer l'employé</button>
+        <div id="employee-form-error" style="display:none;margin-top:10px;padding:10px 12px;border-radius:10px;background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;font-size:13px;"></div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head"></head>
+<body>
+<canvas id="particle-canvas"></canvas>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar" th:replace="fragments/header :: sidebar"></aside>
+  <header class="topbar" th:replace="fragments/header :: topbar"></header>
+  <main class="main-content">
+    <div class="page-header">
+        <div><h2>Ajouter un Paiement</h2><p>Enregistrer un nouveau paiement d'écolage</p></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><h3>Nouveau paiement</h3></div>
+          <div class="card-body">
+            <div class="form-group">
+              <label>Élève</label>
+              <select class="form-control">
+                <option>— Sélectionner un élève —</option>
+                <option>Rakoto Jean — 1ère A</option>
+                <option>Andria Miora — Seconde B</option>
+                <option>Ratsima Lova — Terminale C</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Mois concerné</label>
+                <select class="form-control">
+                  <option>Janvier 2026</option><option>Février 2026</option>
+                  <option>Mars 2026</option><option selected>Avril 2026</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Date d'insertion</label>
+                <input type="date" class="form-control" value="2026-04-16"/>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Montant (Ar)</label>
+              <input type="number" class="form-control" placeholder="80 000" value="80000"/>
+            </div>
+            <div class="form-group">
+              <label>Année scolaire</label>
+              <select class="form-control">
+                <option selected>2025 — 2026</option>
+                <option>2024 — 2025</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Mode de paiement</label>
+              <select class="form-control">
+                <option>Espèces</option>
+                <option>Virement</option>
+                <option>Mobile Money</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" style="width:100%;" onclick="showToast('✅ Paiement enregistré avec succès !')">
+              <i class="fas fa-save"></i> Enregistrer le paiement
+            </button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>Statut des paiements — Avril 2026</h3></div>
+          <div class="card-body">
+            <div style="text-align:center;margin-bottom:var(--sp-xl);">
+              <div class="donut-chart" style="margin:0 auto;"></div>
+            </div>
+            <div class="bilan-item" style="padding-top:0;">
+              <span class="presence-dot present"></span>
+              <span class="bilan-item-label" style="font-weight:500;">Payés</span>
+              <div class="bilan-item-bar"><div class="progress-bar"><div class="progress-fill teal" style="width:92%"></div></div></div>
+              <span class="bilan-item-val">187</span>
+            </div>
+            <div class="bilan-item">
+              <span class="presence-dot absent"></span>
+              <span class="bilan-item-label" style="font-weight:500;">Non payés</span>
+              <div class="bilan-item-bar"><div class="progress-bar"><div class="progress-fill rose" style="width:8%"></div></div></div>
+              <span class="bilan-item-val">16</span>
+            </div>
+          </div>
+        </div>
+      </div>
+  </main>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

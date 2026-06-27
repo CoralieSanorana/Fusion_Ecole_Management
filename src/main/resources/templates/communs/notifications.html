@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head"></head>
+<body>
+<canvas id="particle-canvas"></canvas>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar" th:replace="fragments/header :: sidebar"></aside>
+  <header class="topbar" th:replace="fragments/header :: topbar"></header>
+  <main class="main-content">
+    <div class="page-header">
+        <div><h2>Notifications</h2><p>Tous vos événements et alertes</p></div>
+        <button class="btn btn-secondary"><i class="fas fa-check-double"></i> Tout marquer lu</button>
+      </div>
+      <div class="card">
+        <div class="notif-item unread">
+          <div class="notif-item-icon" style="background:rgba(0,255,133,.08);color:var(--g);">💰</div>
+          <div class="notif-item-text" style="flex:1;">
+            <strong>Nouveau paiement reçu — Rakoto Jean</strong>
+            <small>1ère A — 80 000 Ar — il y a 10 min</small>
+          </div>
+          <span class="badge badge-amber">Nouveau</span>
+        </div>
+        <div class="notif-item unread">
+          <div class="notif-item-icon" style="background:rgba(0,212,110,.1);color:var(--success);">📝</div>
+          <div class="notif-item-text" style="flex:1;">
+            <strong>Notes publiées — Mathématiques Terminale C</strong>
+            <small>Par Prof. Rabe — il y a 30 min</small>
+          </div>
+          <span class="badge badge-amber">Nouveau</span>
+        </div>
+        <div class="notif-item">
+          <div class="notif-item-icon" style="background:rgba(10,77,255,.1);color:var(--b);">📣</div>
+          <div class="notif-item-text" style="flex:1;">
+            <strong>Réunion parents-profs programmée</strong>
+            <small>Vendredi 19 avril 2026 — 9h00</small>
+          </div>
+        </div>
+        <div class="notif-item">
+          <div class="notif-item-icon" style="background:rgba(255,59,92,.1);color:var(--danger);">⚠️</div>
+          <div class="notif-item-text" style="flex:1;">
+            <strong>3 élèves n'ont pas payé l'écolage d'Avril</strong>
+            <small>Action requise — 16 Avril 2026</small>
+          </div>
+        </div>
+        <div class="notif-item">
+          <div class="notif-item-icon" style="background:rgba(0,212,110,.1);color:var(--success);">🏆</div>
+          <div class="notif-item-text" style="flex:1;">
+            <strong>Bulletin du Trimestre 2 publié</strong>
+            <small>Terminale C — 10 Avril 2026</small>
+          </div>
+        </div>
+      </div>
+  </main>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

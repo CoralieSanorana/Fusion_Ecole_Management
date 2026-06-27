@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head"></head>
+<style>
+    .edt-slot {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        text-align: center;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+    }
+    .edt-slot.is-empty:hover {
+        background: var(--surf2);
+    }
+    .edt-slot.is-occupied {
+        background: rgba(26, 115, 232, 0.08);
+        border: 1px solid rgba(26, 115, 232, 0.2);
+    }
+    .edt-slot.is-occupied:hover {
+        background: rgba(26, 115, 232, 0.15);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+    .schedule-cell {
+        min-height: 60px;
+        padding: 4px;
+    }
+    .schedule-time {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        background: var(--surf2);
+        border-radius: 8px;
+        padding: 10px;
+        font-size: 13px;
+        color: var(--txt2);
+        border: 1px solid var(--border);
+    }
+    .schedule-class {
+        padding: 4px 6px;
+        font-size: 10px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: 100%;
+    }
+    .schedule-class strong {
+        display: block;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+    }
+    .schedule-class span {
+        font-size: 9px;
+        opacity: 0.85;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+    }
+    .schedule-grid {
+        display: grid;
+        gap: 8px;
+    }
+    .schedule-header {
+        text-align: center;
+        padding: 12px;
+        font-weight: 600;
+        color: var(--txt1);
+        text-transform: capitalize;
+        background: var(--surf2);
+        border-radius: 8px;
+    }
+</style>
+<body>
+<canvas id="particle-canvas"></canvas>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar" th:replace="fragments/header :: sidebar"></aside>
+  <header class="topbar" th:replace="fragments/header :: topbar"></header>
+  
+  <main class="main-content">
+    <div class="page-header">
+        <div>
+            <h2>Mon Emploi du Temps</h2>
+            <p>Consultez votre planning hebdomadaire et gérez les absences</p>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-body" style="padding: var(--sp-md);">
+            <div th:if="${#lists.isEmpty(horaires)}">
+                <p>Aucune plage horaire n'est définie.</p>
+            </div>
+            <div th:if="${not #lists.isEmpty(horaires)}">
+                <div class="schedule-grid" th:style="'grid-template-columns: 70px repeat(' + ${#maps.size(jours)} + ', 1fr);'">
+                    <!-- Header row: Heure + Days -->
+                    <div class="schedule-header">Heure</div>
+                    <div class="schedule-header" th:each="jour : ${jours}" th:text="${jour.value}"></div>
+
+                    <!-- Time slots -->
+                    <th:block th:each="horaire : ${horaires}">
+                        <div class="schedule-time">
+                            <div>
+                                <strong th:text="${#temporals.format(horaire.heureDebut, 'HH:mm') + ' - ' + #temporals.format(horaire.heureFin, 'HH:mm')}"></strong><br>
+                                <small style="font-size: 10px; opacity:0.85;" th:text="${horaire.libelle}"></small>
+                            </div>
+                        </div>
+
+                        <div class="schedule-cell" th:each="jour : ${jours}">
+                            <th:block th:with="creneauMap=${parHoraire.get(horaire.id)}, creneau=${creneauMap != null ? creneauMap.get(jour.key) : null}">
+                                <button
+                                        type="button"
+                                        class="edt-slot is-occupied"
+                                        th:if="${creneau != null}"
+                                        th:data-id="${creneau.id}"
+                                        th:data-matiere="${creneau.matiereNom}"
+                                        th:data-classe="${creneau.classeNom}"
+                                        th:data-salle="${creneau.salleNom}"
+                                        th:data-heure-debut="${creneau.heureDebut}"
+                                        th:data-heure-fin="${creneau.heureFin}"
+                                        th:data-classe-id="${creneau.classeId}"
+                                        onclick="handleAbsenceClick(this)">
+                                    <div class="schedule-class">
+                                        <strong th:text="${creneau.matiereNom}"></strong>
+                                        <span th:text="${creneau.classeNom + ' · ' + creneau.salleNom}"></span>
+                                    </div>
+                                </button>
+                                <button
+                                        type="button"
+                                        class="edt-slot is-empty"
+                                        th:if="${creneau == null}">
+                                    <span style="font-size: 10px; opacity: 0.5;">Libre</span>
+                                </button>
+                            </th:block>
+                        </div>
+                    </th:block>
+                </div>
+            </div>
+        </div>
+    </div>
+  </main>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script>
+    function handleAbsenceClick(button) {
+        const id = button.dataset.id;
+        const matiere = button.dataset.matiere;
+        const classe = button.dataset.classe;
+        const salle = button.dataset.salle;
+        const heureDebut = button.dataset.heureDebut;
+        const heureFin = button.dataset.heureFin;
+        const classeId = button.dataset.classeId;
+        
+        goToAbsences(id, matiere, classe, salle, heureDebut, heureFin, classeId);
+    }
+    
+    function goToAbsences(emploiDuTempsId, matiere, classe, salle, heureDebut, heureFin, classeId) {
+        window.location.href = `/professeur/absences?emploiDuTempsId=${emploiDuTempsId}&matiere=${encodeURIComponent(matiere)}&classe=${encodeURIComponent(classe)}&salle=${encodeURIComponent(salle)}&heureDebut=${heureDebut}&heureFin=${heureFin}&classeId=${classeId}`;
+    }
+</script>
+</body>
+</html>

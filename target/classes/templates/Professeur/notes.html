@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head"></head>
+<body>
+<canvas id="particle-canvas"></canvas>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar" th:replace="fragments/header :: sidebar"></aside>
+  <header class="topbar" th:replace="fragments/header :: topbar"></header>
+  <main class="main-content">
+    <div class="page-header">
+        <div><h2>Notes des Élèves</h2><p>Saisie et gestion des notes</p></div>
+      </div>
+      
+      <!-- Section: Liste des classes -->
+      <div class="card" th:if="${inscriptions == null}">
+        <div class="card-header">
+          <h3>Mes Classes</h3>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Classe</th>
+                <th>Matière</th>
+                <th>Heures/semaine</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="affectation : ${affectations}">
+                <td th:text="${classeNames.get(affectation.classeId)}">Classe</td>
+                <td th:text="${matiereNames.get(affectation.matiereId)}">Matière</td>
+                <td th:text="${affectation.heuresHebdo}">Heures</td>
+                <td>
+                  <a th:href="@{/professeur/notes/classe/{classeId}(classeId=${affectation.classeId})}" class="btn btn-primary btn-sm">
+                    Voir les élèves
+                  </a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <!-- Section: Liste des étudiants et notes -->
+      <div class="card" th:if="${inscriptions != null}">
+        <div class="card-header">
+          <div>
+            <h3 th:text="${classe != null ? classe.nom : 'Classe'}">Classe</h3>
+            <a href="/professeur/notes" class="btn btn-secondary" style="margin-top: 10px;">
+              <i class="fas fa-arrow-left"></i> Retour aux classes
+            </a>
+          </div>
+          <div>
+            <select id="matiereSelect" class="form-control" style="width:auto;padding:8px 12px;" onchange="filterByMatiere()">
+              <option value="">Toutes les matières</option>
+              <option th:each="affectation : ${affectations}" 
+                      th:if="${affectation.classeId == classeId}"
+                      th:value="${affectation.matiereId}" 
+                      th:text="${matiereNames.get(affectation.matiereId)}">Matière</option>
+            </select>
+            <a th:each="affectation : ${affectations}" 
+               th:if="${affectation.classeId == classeId}"
+               th:href="@{/professeur/saisir_notes/{classeId}/{affectationId}(classeId=${classeId}, affectationId=${affectation.id})}"
+               class="btn btn-primary" style="margin-left: 10px;">
+              <i class="fas fa-plus"></i> Saisir des notes
+            </a>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Élève</th>
+                <th th:each="type : ${evaluationTypes}" 
+                    th:text="${#strings.replace(type, '_', ' ').toUpperCase()}">Type d'évaluation</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="inscription : ${inscriptions}">
+                <td>
+                  <strong th:text="${etudiantProfiles.get(inscription.etudiantId) != null ? etudiantProfiles.get(inscription.etudiantId).nom + ' ' + etudiantProfiles.get(inscription.etudiantId).prenom : 'Étudiant'}">Nom Prénom</strong>
+                  <br/>
+                  <small th:text="${etudiantProfiles.get(inscription.etudiantId) != null ? etudiantProfiles.get(inscription.etudiantId).matricule : ''}">Matricule</small>
+                </td>
+                <td th:each="type : ${evaluationTypes}">
+                  <span th:if="${etudiantNotesByType.get(inscription.etudiantId) != null && etudiantNotesByType.get(inscription.etudiantId).get(type) != null}"
+                        th:text="${etudiantNotesByType.get(inscription.etudiantId).get(type).valeur} + '/' + ${etudiantNotesByType.get(inscription.etudiantId).get(type).sur}">Note</span>
+                  <span th:if="${etudiantNotesByType.get(inscription.etudiantId) == null || etudiantNotesByType.get(inscription.etudiantId).get(type) == null}" 
+                        style="color:var(--txt3);">-</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+  </main>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script>
+function filterByPeriode() {
+  const periodeId = document.getElementById('periodeSelect').value;
+  // TODO: Implement filtering by period
+  console.log('Filter by periode:', periodeId);
+}
+
+function filterByMatiere() {
+  const matiereId = document.getElementById('matiereSelect').value;
+  // TODO: Implement filtering by subject
+  console.log('Filter by matiere:', matiereId);
+}
+</script>
+</body>
+</html>
