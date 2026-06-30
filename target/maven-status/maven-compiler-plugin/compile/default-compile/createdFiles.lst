@@ -1,11 +1,14 @@
 com\ecole\repository\PeriodeRepository.class
+com\ecole\service\EtudiantFilterService.class
 com\ecole\dto\Directeur\AffectationDetailDTO.class
 com\ecole\service\InitializeService.class
 com\ecole\entity\Niveau.class
 com\ecole\controller\ProfesseurController.class
+com\ecole\service\StatistiquesElevesService.class
 com\ecole\repository\EvenementInstanceRepository.class
 com\ecole\repository\MatiereRepository.class
 com\ecole\service\TypeFichierService.class
+com\ecole\dto\Directeur\ClasseStatistique.class
 com\ecole\entity\HoraireEdt.class
 com\ecole\service\InscriptionService.class
 com\ecole\service\NoteService.class
@@ -27,11 +30,14 @@ com\ecole\entity\Evenement.class
 com\ecole\service\MoyenneService.class
 com\ecole\service\ClasseService.class
 com\ecole\service\UserRoleService.class
+com\ecole\dto\Directeur\EtudiantFilterResult.class
 com\ecole\dto\Directeur\HoraireEdtForm.class
 com\ecole\service\NotificationTypeService.class
 com\ecole\entity\ProfilsSecretariat.class
 com\ecole\repository\SupportCoursRepository.class
+com\ecole\service\EtudiantSpecification.class
 com\ecole\dto\Directeur\HoraireEdtSaveRequest.class
+com\ecole\dto\Directeur\StatistiquesElevesResponse.class
 com\ecole\entity\ProfilsDirecteurs.class
 com\ecole\repository\ProfilsSecretariatRepository.class
 com\ecole\service\ProfilEtudiantService.class
@@ -60,6 +66,7 @@ com\ecole\controller\SecretaireController.class
 com\ecole\repository\SalleRepository.class
 com\ecole\service\AbsenceService.class
 com\ecole\repository\EvenementRepository.class
+com\ecole\dto\Directeur\EleveStatPoint.class
 com\ecole\entity\VueEmployesDetail.class
 com\ecole\service\MatiereService.class
 com\ecole\service\ProfilsProfesseursService.class
@@ -81,6 +88,7 @@ com\ecole\entity\Periode.class
 com\ecole\service\PeriodeService.class
 com\ecole\entity\EvenementInstance.class
 com\ecole\service\EmploiDuTempsService.class
+com\ecole\dto\Directeur\StatistiquesElevesCriteria.class
 com\ecole\repository\ClasseRepository.class
 com\ecole\entity\Role.class
 com\ecole\entity\TypeFichier.class
@@ -95,6 +103,7 @@ com\ecole\entity\Inscription.class
 com\ecole\entity\UserRoleId.class
 com\ecole\repository\NotificationRepository.class
 com\ecole\repository\MoyenneRepository.class
+com\ecole\dto\Directeur\EtudiantFilterCriteria.class
 com\ecole\entity\EmploiDuTemps.class
 com\ecole\dto\Directeur\CreneauDTO.class
 com\ecole\entity\ProfilsProfesseurs.class
@@ -103,6 +112,7 @@ com\ecole\service\SalleService.class
 com\ecole\service\NotificationService.class
 com\ecole\entity\Classe.class
 com\ecole\service\CoefficientService.class
+com\ecole\dto\Directeur\NiveauAlerte.class
 com\ecole\entity\ProfilEtudiant.class
 com\ecole\service\EmployeService.class
 com\ecole\service\TitulaireClasseService.class

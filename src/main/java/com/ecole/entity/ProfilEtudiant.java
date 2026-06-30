@@ -1,8 +1,10 @@
 package com.ecole.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List; 
 
 @Entity
 @Table(name = "profils_etudiants")
@@ -56,6 +58,9 @@ public class ProfilEtudiant {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "etudiant", fetch = FetchType.LAZY)
+    private List<Inscription> inscriptions;
 
     @PrePersist
     protected void onCreate() {
@@ -210,5 +215,5 @@ public class ProfilEtudiant {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
-    }
+    }    
 }

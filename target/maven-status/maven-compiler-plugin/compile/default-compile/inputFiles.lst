@@ -6,9 +6,16 @@ F:\Fusion_Ecole_Management\src\main\java\com\ecole\controller\HomeController.jav
 F:\Fusion_Ecole_Management\src\main\java\com\ecole\controller\ProfesseurController.java
 F:\Fusion_Ecole_Management\src\main\java\com\ecole\controller\SecretaireController.java
 F:\Fusion_Ecole_Management\src\main\java\com\ecole\dto\Directeur\AffectationDetailDTO.java
+F:\Fusion_Ecole_Management\src\main\java\com\ecole\dto\Directeur\ClasseStatistique.java
 F:\Fusion_Ecole_Management\src\main\java\com\ecole\dto\Directeur\CreneauDTO.java
+F:\Fusion_Ecole_Management\src\main\java\com\ecole\dto\Directeur\EleveStatPoint.java
+F:\Fusion_Ecole_Management\src\main\java\com\ecole\dto\Directeur\EtudiantFilterCriteria.java
+F:\Fusion_Ecole_Management\src\main\java\com\ecole\dto\Directeur\EtudiantFilterResult.java
 F:\Fusion_Ecole_Management\src\main\java\com\ecole\dto\Directeur\HoraireEdtForm.java
 F:\Fusion_Ecole_Management\src\main\java\com\ecole\dto\Directeur\HoraireEdtSaveRequest.java
+F:\Fusion_Ecole_Management\src\main\java\com\ecole\dto\Directeur\NiveauAlerte.java
+F:\Fusion_Ecole_Management\src\main\java\com\ecole\dto\Directeur\StatistiquesElevesCriteria.java
+F:\Fusion_Ecole_Management\src\main\java\com\ecole\dto\Directeur\StatistiquesElevesResponse.java
 F:\Fusion_Ecole_Management\src\main\java\com\ecole\EcoleApplication.java
 F:\Fusion_Ecole_Management\src\main\java\com\ecole\entity\Absence.java
 F:\Fusion_Ecole_Management\src\main\java\com\ecole\entity\AffectationEnseignement.java
@@ -87,6 +94,8 @@ F:\Fusion_Ecole_Management\src\main\java\com\ecole\service\CoefficientService.ja
 F:\Fusion_Ecole_Management\src\main\java\com\ecole\service\EdtService.java
 F:\Fusion_Ecole_Management\src\main\java\com\ecole\service\EmploiDuTempsService.java
 F:\Fusion_Ecole_Management\src\main\java\com\ecole\service\EmployeService.java
+F:\Fusion_Ecole_Management\src\main\java\com\ecole\service\EtudiantFilterService.java
+F:\Fusion_Ecole_Management\src\main\java\com\ecole\service\EtudiantSpecification.java
 F:\Fusion_Ecole_Management\src\main\java\com\ecole\service\EvenementInstanceService.java
 F:\Fusion_Ecole_Management\src\main\java\com\ecole\service\EvenementService.java
 F:\Fusion_Ecole_Management\src\main\java\com\ecole\service\HoraireEdtService.java
@@ -104,6 +113,7 @@ F:\Fusion_Ecole_Management\src\main\java\com\ecole\service\ProfilsProfesseursSer
 F:\Fusion_Ecole_Management\src\main\java\com\ecole\service\RoleService.java
 F:\Fusion_Ecole_Management\src\main\java\com\ecole\service\SalleService.java
 F:\Fusion_Ecole_Management\src\main\java\com\ecole\service\SeanceService.java
+F:\Fusion_Ecole_Management\src\main\java\com\ecole\service\StatistiquesElevesService.java
 F:\Fusion_Ecole_Management\src\main\java\com\ecole\service\SupportCoursService.java
 F:\Fusion_Ecole_Management\src\main\java\com\ecole\service\TitulaireClasseService.java
 F:\Fusion_Ecole_Management\src\main\java\com\ecole\service\TypeFichierService.java
