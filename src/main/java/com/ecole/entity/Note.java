@@ -97,6 +97,17 @@ public class Note {
         this.affectation = affectation;
     }
 
+    public void setAffectationId(Long affectationId) {
+        if (this.affectation == null) {
+            this.affectation = new AffectationEnseignement();
+        }
+        this.affectation.setId(affectationId);
+    }
+
+    public Long getAffectationId() {
+        return affectation != null ? affectation.getId() : null;
+    }
+
     public Long getPeriodeId() {
         return periodeId;
     }

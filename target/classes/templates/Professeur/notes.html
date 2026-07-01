@@ -51,64 +51,154 @@
               <i class="fas fa-arrow-left"></i> Retour aux classes
             </a>
           </div>
-          <div>
-            <select id="matiereSelect" class="form-control" style="width:auto;padding:8px 12px;" onchange="filterByMatiere()">
-              <option value="">Toutes les matières</option>
-              <option th:each="affectation : ${affectations}" 
-                      th:if="${affectation.classeId == classeId}"
-                      th:value="${affectation.matiereId}" 
-                      th:text="${matiereNames.get(affectation.matiereId)}">Matière</option>
-            </select>
-            <a th:each="affectation : ${affectations}" 
-               th:if="${affectation.classeId == classeId}"
-               th:href="@{/professeur/saisir_notes/{classeId}/{affectationId}(classeId=${classeId}, affectationId=${affectation.id})}"
-               class="btn btn-primary" style="margin-left: 10px;">
-              <i class="fas fa-plus"></i> Saisir des notes
-            </a>
+
+        <div style="padding: 15px; border-bottom: 1px solid var(--border-color, #eef2f5);">
+          <div style="display: flex; gap: 10px; max-width: 500px;">
+            <input type="text" id="notesSearchInput" class="form-control" 
+                   placeholder="Rechercher un élève (Nom, prénom, matricule)..." 
+                   style="flex: 1; padding: 8px 12px;" onkeyup="filterNotesTable()">
           </div>
         </div>
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>Élève</th>
-                <th th:each="type : ${evaluationTypes}" 
-                    th:text="${#strings.replace(type, '_', ' ').toUpperCase()}">Type d'évaluation</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr th:each="inscription : ${inscriptions}">
-                <td>
-                  <strong th:text="${etudiantProfiles.get(inscription.etudiantId) != null ? etudiantProfiles.get(inscription.etudiantId).nom + ' ' + etudiantProfiles.get(inscription.etudiantId).prenom : 'Étudiant'}">Nom Prénom</strong>
-                  <br/>
-                  <small th:text="${etudiantProfiles.get(inscription.etudiantId) != null ? etudiantProfiles.get(inscription.etudiantId).matricule : ''}">Matricule</small>
-                </td>
-                <td th:each="type : ${evaluationTypes}">
-                  <span th:if="${etudiantNotesByType.get(inscription.etudiantId) != null && etudiantNotesByType.get(inscription.etudiantId).get(type) != null}"
-                        th:text="${etudiantNotesByType.get(inscription.etudiantId).get(type).valeur} + '/' + ${etudiantNotesByType.get(inscription.etudiantId).get(type).sur}">Note</span>
-                  <span th:if="${etudiantNotesByType.get(inscription.etudiantId) == null || etudiantNotesByType.get(inscription.etudiantId).get(type) == null}" 
-                        style="color:var(--txt3);">-</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        
+        <div>
+          <select id="matiereSelect" class="form-control" style="width:auto;padding:8px 12px;" onchange="filterByMatiere()">
+            <option value="">Toutes les matières</option>
+            <option th:each="affectation : ${affectations}" 
+                    th:if="${affectation.classeId == classeId}"
+                    th:value="${affectation.matiereId}" 
+                    th:text="${matiereNames.get(affectation.matiereId)}">Matière</option>
+          </select>
+          <a th:each="affectation : ${affectations}" 
+             th:if="${affectation.classeId == classeId}"
+             th:href="@{/professeur/saisir_notes/{classeId}/{affectationId}(classeId=${classeId}, affectationId=${affectation.id})}"
+             class="btn btn-primary" style="margin-left: 10px;">
+            <i class="fas fa-plus"></i> Saisir des notes
+          </a>
         </div>
       </div>
+  
+      <div class="table-wrapper">
+        <table id="summaryNotesTable">
+          <thead>
+            <tr>
+              <th style="cursor: pointer; user-select: none;" onclick="sortSummaryTable(0, false)">
+                Élève <i class="fas fa-sort text-muted ms-1"></i>
+              </th>
+              <th th:each="type, status : ${evaluationTypes}" 
+                  style="cursor: pointer; user-select: none; text-align: center;" 
+                  th:onclick="'sortSummaryTable(' + ${status.count} + ', true)'">
+                <span th:text="${#strings.replace(type, '_', ' ').toUpperCase()}">Type d'évaluation</span>
+                <i class="fas fa-sort text-muted ms-1"></i>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="inscription : ${inscriptions}">
+              <td>
+                <strong class="student-text" th:text="${etudiantProfiles.get(inscription.etudiantId) != null ? etudiantProfiles.get(inscription.etudiantId).nom + ' ' + etudiantProfiles.get(inscription.etudiantId).prenom : 'Étudiant'}">Nom Prénom</strong>
+                <br/>
+                <small class="student-matricule" th:text="${etudiantProfiles.get(inscription.etudiantId) != null ? etudiantProfiles.get(inscription.etudiantId).matricule : ''}">Matricule</small>
+              </td>
+              <td th:each="type : ${evaluationTypes}" 
+                  style="text-align: center;"
+                  th:data-note="${etudiantNotesByType.get(inscription.etudiantId) != null && etudiantNotesByType.get(inscription.etudiantId).get(type) != null ? etudiantNotesByType.get(inscription.etudiantId).get(type).valeur : '-1'}">
+                <span th:if="${etudiantNotesByType.get(inscription.etudiantId) != null && etudiantNotesByType.get(inscription.etudiantId).get(type) != null}"
+                      th:text="${etudiantNotesByType.get(inscription.etudiantId).get(type).valeur} + '/' + ${etudiantNotesByType.get(inscription.etudiantId).get(type).sur}">Note</span>
+                <span th:if="${etudiantNotesByType.get(inscription.etudiantId) == null || etudiantNotesByType.get(inscription.etudiantId).get(type) == null}" 
+                      style="color:var(--txt3);">-</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+  
+      <div style="text-align: center; color: var(--txt3); padding: 15px 0; font-size: 0.9em; border-top: 1px solid var(--border-color, #eef2f5);">
+        Total : <span id="visibleRowsCount" th:text="${#lists.size(inscriptions)}">0</span> élève(s) affiché(s)
+      </div>
+    </div>
   </main>
 </div>
 <div th:replace="~{fragments/footer :: footer}"></div>
 
 <script>
-function filterByPeriode() {
-  const periodeId = document.getElementById('periodeSelect').value;
-  // TODO: Implement filtering by period
-  console.log('Filter by periode:', periodeId);
+let currentSortCol = -1;
+let sortAscending = true;
+
+function filterNotesTable() {
+    const input = document.getElementById("notesSearchInput");
+    const filter = input.value.toLowerCase().trim();
+    const table = document.getElementById("summaryNotesTable");
+    if (!table) return;
+    
+    const rows = table.querySelector("tbody").querySelectorAll("tr");
+    let visibleCount = 0;
+
+    rows.forEach(row => {
+        const nameText = row.querySelector(".student-text") ? row.querySelector(".student-text").innerText.toLowerCase() : "";
+        const matriculeText = row.querySelector(".student-matricule") ? row.querySelector(".student-matricule").innerText.toLowerCase() : "";
+
+        if (nameText.includes(filter) || matriculeText.includes(filter)) {
+            row.style.display = "";
+            visibleCount++;
+        } else {
+            row.style.display = "none";
+        }
+    });
+
+    const countSpan = document.getElementById("visibleRowsCount");
+    if (countSpan) countSpan.innerText = visibleCount;
 }
 
-function filterByMatiere() {
-  const matiereId = document.getElementById('matiereSelect').value;
-  // TODO: Implement filtering by subject
-  console.log('Filter by matiere:', matiereId);
+function sortSummaryTable(columnIndex, isNumeric = false) {
+    const table = document.getElementById("summaryNotesTable");
+    if (!table) return;
+    
+    const tbody = table.querySelector("tbody");
+    const rows = Array.from(tbody.querySelectorAll("tr"));
+    
+    if (currentSortCol === columnIndex) {
+        sortAscending = !sortAscending;
+    } else {
+        sortAscending = true;
+        currentSortCol = columnIndex;
+    }
+
+    const headers = table.querySelectorAll("thead th");
+    headers.forEach((th, idx) => {
+        const icon = th.querySelector("i");
+        if (icon) {
+            if (idx === columnIndex) {
+                icon.className = sortAscending ? "fas fa-sort-up text-primary ms-1" : "fas fa-sort-down text-primary ms-1";
+            } else {
+                icon.className = "fas fa-sort text-muted ms-1";
+            }
+        }
+    });
+
+    rows.sort((rowA, rowB) => {
+        if (isNumeric) {
+            const cellA = rowA.cells[columnIndex];
+            const cellB = rowB.cells[columnIndex];
+            
+            let valA = cellA ? parseFloat(cellA.getAttribute('data-note')) : -1;
+            let valB = cellB ? parseFloat(cellB.getAttribute('data-note')) : -1;
+            
+            if (isNaN(valA)) valA = -1;
+            if (isNaN(valB)) valB = -1;
+
+            return sortAscending ? (valA - valB) : (valB - valA);
+        } else {
+            const elA = rowA.cells[columnIndex].querySelector('.student-text');
+            const elB = rowB.cells[columnIndex].querySelector('.student-text');
+            
+            const txtA = elA ? elA.innerText.trim().toLowerCase() : rowA.cells[columnIndex].innerText.trim().toLowerCase();
+            const txtB = elB ? elB.innerText.trim().toLowerCase() : rowB.cells[columnIndex].innerText.trim().toLowerCase();
+            
+            return sortAscending ? txtA.localeCompare(txtB) : txtB.localeCompare(txtA);
+        }
+    });
+
+    rows.forEach(row => tbody.appendChild(row));
 }
 </script>
 </body>
