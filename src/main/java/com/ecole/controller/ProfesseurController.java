@@ -443,7 +443,7 @@ public class ProfesseurController {
                 if (valeurs.get(i) != null) {
                     Note note = new Note();
                     note.setEtudiantId(etudiantIds.get(i));
-                    note.setAffectationId(affectationId);
+                    affectationEnseignementService.findById(affectationId).ifPresent(note::setAffectation);
                     note.setPeriodeId(periodeId);
                     note.setTypeEvaluation(typeEvaluation);
                     note.setValeur(valeurs.get(i));

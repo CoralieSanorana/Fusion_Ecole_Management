@@ -7,45 +7,197 @@
   <aside class="sidebar" id="sidebar" th:replace="fragments/header :: sidebar"></aside>
   <header class="topbar" th:replace="fragments/header :: topbar"></header>
   <main class="main-content">
+
     <div class="page-header">
-        <div><h2>Mon Bulletin</h2><p>Trimestre 2 — 2025/2026</p></div>
-        <button class="btn btn-secondary"><i class="fas fa-download"></i> Télécharger PDF</button>
+      <div>
+        <h2>Mon Bulletin</h2>
+        <p th:if="${periodeSelectionnee}" th:text="${periodeSelectionnee.libelle + ' — ' + (classe != null ? classe.nom : '')}">Période — Classe</p>
+        <p th:unless="${periodeSelectionnee}">Aucune période disponible</p>
       </div>
-      <div class="bulletin">
-        <div class="bulletin-head">
-          <div>
-            <h3>BULLETIN DE NOTES</h3>
-            <p>Lycée Privé — Année 2025–2026 · Trimestre 2 · Terminale C</p>
-            <p style="margin-top:8px;font-size:14px;opacity:.8;">Élève : <strong>Rakoto Jean</strong></p>
-          </div>
-          <div class="bulletin-rank">
-            <span>Rang</span><strong>1er</strong><span>/ 32</span>
-          </div>
+      <div style="display:flex;gap:12px;align-items:center;">
+        <!-- Sélecteur de période -->
+        <form th:if="${periodes != null and not #lists.isEmpty(periodes)}" method="get" action="/etudiant/bulletin" style="display:flex;align-items:center;gap:8px;">
+          <select name="periodeId" onchange="this.form.submit()"
+                  style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--txt1);font-size:13px;cursor:pointer;">
+            <th:block th:each="p : ${periodes}">
+              <option th:value="${p.id}"
+                      th:text="${p.libelle}"
+                      th:selected="${periodeSelectionnee != null and periodeSelectionnee.id == p.id}">
+              </option>
+            </th:block>
+          </select>
+        </form>
+        <button class="btn btn-secondary" id="btn-pdf" onclick="telechargerPDF()">
+          <i class="fas fa-download"></i> <span id="btn-pdf-label">Télécharger PDF</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Bulletin principal -->
+    <div class="bulletin" id="bulletin-export" th:if="${periodeSelectionnee != null}">
+
+      <!-- En-tête -->
+      <div class="bulletin-head">
+        <div>
+          <h3>BULLETIN DE NOTES</h3>
+          <p th:text="'Année ' + (classe != null ? classe.nom : '') + ' · ' + (periodeSelectionnee != null ? periodeSelectionnee.libelle : '')">Classe · Période</p>
+          <p style="margin-top:8px;font-size:14px;opacity:.8;">
+            Élève :
+            <strong th:text="${profilEtudiant.prenom + ' ' + profilEtudiant.nom}">Nom Prénom</strong>
+            &nbsp;·&nbsp; Matricule :
+            <span th:text="${profilEtudiant.matricule}">MAT-000</span>
+          </p>
         </div>
-        <div class="bulletin-body">
-          <div class="bulletin-row header">
-            <div>Matière</div><div>Note /20</div><div>Coeff.</div><div>Appréciation</div>
-          </div>
-          <div class="bulletin-row"><div>Mathématiques</div><div class="grade-excellent">15.5</div><div>5</div><div style="font-size:12px;color:var(--success);">Très bien</div></div>
-          <div class="bulletin-row"><div>Français</div><div class="grade-good">13.0</div><div>4</div><div style="font-size:12px;color:var(--b);">Bien</div></div>
-          <div class="bulletin-row"><div>Sciences Physiques</div><div class="grade-good">14.5</div><div>4</div><div style="font-size:12px;color:var(--b);">Bien</div></div>
-          <div class="bulletin-row"><div>Histoire-Géographie</div><div class="grade-average">11.0</div><div>3</div><div style="font-size:12px;color:var(--g);">Assez bien</div></div>
-          <div class="bulletin-row"><div>SVT</div><div class="grade-excellent">16.0</div><div>3</div><div style="font-size:12px;color:var(--success);">Très bien</div></div>
-          <div class="bulletin-row"><div>Anglais</div><div class="grade-average">12.0</div><div>2</div><div style="font-size:12px;color:var(--g);">Assez bien</div></div>
-        </div>
-        <div class="bulletin-footer">
-          <div>
-            <div style="font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--txt3);">Moyenne Générale</div>
-            <div class="moy grade-excellent">14.12 / 20</div>
-          </div>
-          <div style="text-align:right;">
-            <div style="font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--txt3);">Appréciation</div>
-            <div style="font-size:13px;font-style:italic;margin-top:4px;">"Excellent élève, félicitations !"</div>
-          </div>
+        <div class="bulletin-rank">
+          <span>Rang</span>
+          <strong th:text="${rang}">1</strong>
+          <span th:text="'/ ' + ${effectif}">/ ?</span>
         </div>
       </div>
+
+      <!-- Corps : lignes de matières -->
+      <div class="bulletin-body">
+        <div class="bulletin-row header">
+          <div>Matière</div>
+          <div>Moyenne /20</div>
+          <div>Coeff.</div>
+          <div>Appréciation</div>
+        </div>
+
+        <!-- Cas : aucune note -->
+        <div th:if="${#lists.isEmpty(lignes)}" style="padding:24px;text-align:center;color:var(--txt3);grid-column:1/-1;">
+          Aucune note disponible pour cette période.
+        </div>
+
+        <!-- Lignes dynamiques -->
+        <th:block th:each="ligne : ${lignes}">
+          <div class="bulletin-row">
+            <div th:text="${ligne.matiereNom}">Matière</div>
+            <div th:class="${ligne.cssClass}" th:text="${#numbers.formatDecimal(ligne.moyenne, 1, 'COMMA', 2, 'POINT')}">0.00</div>
+            <div th:text="${ligne.coefficient}">1</div>
+            <div style="font-size:12px;" th:text="${ligne.appreciation}">Bien</div>
+          </div>
+        </th:block>
+      </div>
+
+      <!-- Pied : moyenne générale -->
+      <div class="bulletin-footer">
+        <div>
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--txt3);">Moyenne Générale</div>
+          <div class="moy" th:class="'moy ' + ${cssClassGenerale}"
+               th:text="${#numbers.formatDecimal(moyenneGenerale, 1, 'COMMA', 2, 'POINT') + ' / 20'}">0.00 / 20</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--txt3);">Appréciation</div>
+          <div style="font-size:13px;font-style:italic;margin-top:4px;"
+               th:text="${appreciationGenerale}">—</div>
+        </div>
+      </div>
+
+    </div><!-- /.bulletin -->
+
+    <!-- Message si aucune période -->
+    <div th:unless="${periodeSelectionnee != null}"
+         style="text-align:center;padding:48px;color:var(--txt3);">
+      <i class="fas fa-folder-open" style="font-size:40px;margin-bottom:16px;display:block;"></i>
+      Aucune période scolaire trouvée. Veuillez contacter l'administration.
+    </div>
+
   </main>
 </div>
 <div th:replace="~{fragments/footer :: footer}"></div>
+
+<!-- html2pdf.js via CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<style>
+  /* Styles appliqués uniquement pendant la génération PDF */
+  .bulletin-print-mode {
+    background: #ffffff !important;
+    color: #111111 !important;
+    font-family: 'Segoe UI', Arial, sans-serif !important;
+    padding: 32px !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    min-width: 680px !important;
+  }
+  .bulletin-print-mode .bulletin-head {
+    background: #1a237e !important;
+    color: #ffffff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .bulletin-print-mode .bulletin-row.header {
+    background: #e8eaf6 !important;
+    color: #1a237e !important;
+    font-weight: 700 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .bulletin-print-mode .bulletin-footer {
+    background: #f5f5f5 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .bulletin-print-mode .grade-excellent { color: #1b5e20 !important; font-weight: 700 !important; }
+  .bulletin-print-mode .grade-good      { color: #1565c0 !important; font-weight: 700 !important; }
+  .bulletin-print-mode .grade-average   { color: #e65100 !important; font-weight: 600 !important; }
+  .bulletin-print-mode .grade-low       { color: #b71c1c !important; font-weight: 600 !important; }
+  .bulletin-print-mode .moy             { font-size: 22px !important; font-weight: 800 !important; }
+</style>
+
+<script>
+function telechargerPDF() {
+  const bulletin = document.getElementById('bulletin-export');
+  if (!bulletin) return;
+
+  const btn = document.getElementById('btn-pdf');
+  const label = document.getElementById('btn-pdf-label');
+  btn.disabled = true;
+  label.textContent = 'Génération en cours…';
+
+  // Nom du fichier : bulletin_NomPrenom_Période.pdf
+  const nomEleve   = bulletin.querySelector('strong')?.textContent?.trim().replace(/\s+/g, '_') || 'eleve';
+  const periode    = document.querySelector('select[name="periodeId"] option:checked')?.textContent?.trim().replace(/\s+/g, '_') || 'periode';
+  const nomFichier = `bulletin_${nomEleve}_${periode}.pdf`;
+
+  // Appliquer le style d'impression temporairement
+  bulletin.classList.add('bulletin-print-mode');
+
+  const options = {
+    margin:      [10, 10, 10, 10],
+    filename:    nomFichier,
+    image:       { type: 'jpeg', quality: 0.98 },
+    html2canvas: {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      logging: false
+    },
+    jsPDF: {
+      unit:        'mm',
+      format:      'a4',
+      orientation: 'portrait'
+    },
+    pagebreak: { mode: 'avoid-all' }
+  };
+
+  html2pdf()
+    .set(options)
+    .from(bulletin)
+    .save()
+    .then(() => {
+      bulletin.classList.remove('bulletin-print-mode');
+      btn.disabled = false;
+      label.textContent = 'Télécharger PDF';
+    })
+    .catch(err => {
+      console.error('Erreur PDF :', err);
+      bulletin.classList.remove('bulletin-print-mode');
+      btn.disabled = false;
+      label.textContent = 'Télécharger PDF';
+    });
+}
+</script>
 </body>
 </html>

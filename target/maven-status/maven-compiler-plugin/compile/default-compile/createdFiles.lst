@@ -1,4 +1,5 @@
 com\ecole\repository\PeriodeRepository.class
+com\ecole\entity\Devoir.class
 com\ecole\dto\Directeur\AffectationDetailDTO.class
 com\ecole\service\InitializeService.class
 com\ecole\entity\Niveau.class
@@ -6,6 +7,7 @@ com\ecole\controller\ProfesseurController.class
 com\ecole\repository\EvenementInstanceRepository.class
 com\ecole\repository\MatiereRepository.class
 com\ecole\service\TypeFichierService.class
+com\ecole\repository\LeconRepository.class
 com\ecole\entity\HoraireEdt.class
 com\ecole\service\InscriptionService.class
 com\ecole\service\NoteService.class
@@ -30,6 +32,7 @@ com\ecole\service\NotificationTypeService.class
 com\ecole\entity\ProfilsSecretariat.class
 com\ecole\repository\SupportCoursRepository.class
 com\ecole\dto\Directeur\HoraireEdtSaveRequest.class
+com\ecole\entity\Lecon.class
 com\ecole\entity\ProfilsDirecteurs.class
 com\ecole\repository\ProfilsSecretariatRepository.class
 com\ecole\service\ProfilEtudiantService.class
@@ -59,6 +62,7 @@ com\ecole\service\AbsenceService.class
 com\ecole\repository\EvenementRepository.class
 com\ecole\entity\VueEmployesDetail.class
 com\ecole\service\MatiereService.class
+com\ecole\repository\DevoirRepository.class
 com\ecole\service\ProfilsProfesseursService.class
 com\ecole\entity\Notification.class
 com\ecole\repository\NotificationTypeRepository.class

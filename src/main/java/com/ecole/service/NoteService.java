@@ -70,7 +70,7 @@ public class NoteService {
         Map<Long, List<Note>> notesByMatiere = new HashMap<>();
         for (Note note : notes) {
             // Get the affectation to find the matiereId
-            AffectationEnseignement affectation = affectationEnseignementService.findById(note.getAffectationId()).orElse(null);
+            AffectationEnseignement affectation = note.getAffectation();
             if (affectation != null) {
                 Long matiereId = affectation.getMatiereId();
                 notesByMatiere.computeIfAbsent(matiereId, k -> new ArrayList<>()).add(note);

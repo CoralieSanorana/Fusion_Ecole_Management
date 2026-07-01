@@ -62,5 +62,12 @@ public class Classe {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
+    public Long getNiveauId() {
+        return niveau != null ? niveau.getId() : null;
+    }
+    public Long getAnneeScolaireId() {
+        return anneeScolaire != null ? anneeScolaire.getId() : null;
+    }
+    
     
 }

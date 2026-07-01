@@ -9,7 +9,7 @@ public class Periode {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(name = "annee_scolaire_id")
     private Integer anneeScolaireId;
@@ -37,11 +37,11 @@ public class Periode {
 
     // --- Getters et Setters ---
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
