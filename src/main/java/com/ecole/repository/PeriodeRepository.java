@@ -14,7 +14,11 @@ import org.springframework.data.repository.query.Param;
 public interface PeriodeRepository extends JpaRepository<Periode, Integer> {
     // Permet de récupérer toutes les périodes d'une année scolaire spécifique
     List<Periode> findByAnneeScolaireId(Long anneeScolaireId);
+
     @Query(value = "SELECT * FROM periodes WHERE annee_scolaire_id = :anneeScolaireId ORDER BY ordre ASC", nativeQuery = true)
     List<Periode> findByAnneeScolaire(@Param("anneeScolaireId") Long anneeScolaireId);
 
+    // Triées par ordre croissant (1, 2, 3...) — sert à isoler les 3 dernières périodes consécutives
+    // pour le module "Statistiques Élèves" (détection décrochage).
+    List<Periode> findByAnneeScolaireIdOrderByOrdreAsc(Long anneeScolaireId);
 }

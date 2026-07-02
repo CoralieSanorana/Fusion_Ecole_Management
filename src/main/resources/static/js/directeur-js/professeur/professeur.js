@@ -13,6 +13,10 @@ function syncEmployeeFields() {
   }
 }
 
+function resetFilters() {
+  window.location.href = '/directeur/professeurs';
+}
+
 // Email validation
 document.addEventListener('DOMContentLoaded', function() {
   const emailInput = document.getElementById('employee-email');
@@ -90,6 +94,45 @@ document.addEventListener('DOMContentLoaded', function() {
           })
           .catch(error => {
             console.error('Error checking phone:', error);
+          });
+      }, 500);
+    });
+  }
+
+  // Password validation
+  const passwordInput = document.getElementById('employee-password');
+  const passwordFeedback = document.getElementById('employee-password-feedback');
+  let passwordCheckTimeout;
+
+  if (passwordInput) {
+    passwordInput.addEventListener('input', function() {
+      clearTimeout(passwordCheckTimeout);
+      const password = this.value;
+      
+      if (password === '') {
+        if (passwordFeedback) {
+          passwordFeedback.textContent = '';
+          passwordFeedback.style.color = '';
+        }
+        return;
+      }
+
+      passwordCheckTimeout = setTimeout(() => {
+        fetch('/directeur/employes/check-password?password=' + encodeURIComponent(password))
+          .then(response => response.json())
+          .then(data => {
+            if (passwordFeedback) {
+              if (data.valid) {
+                passwordFeedback.textContent = data.message;
+                passwordFeedback.style.color = '#16a34a';
+              } else {
+                passwordFeedback.textContent = data.message;
+                passwordFeedback.style.color = '#b91c1c';
+              }
+            }
+          })
+          .catch(error => {
+            console.error('Error checking password:', error);
           });
       }, 500);
     });

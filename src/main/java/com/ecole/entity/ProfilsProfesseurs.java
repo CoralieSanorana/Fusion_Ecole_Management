@@ -17,6 +17,7 @@ public class ProfilsProfesseurs {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Column(nullable = false)
     private String matricule;
     private String nom;
     private String prenom;
