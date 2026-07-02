@@ -56,9 +56,9 @@ public class StatistiquesElevesService {
             return reponseVide(seuilBaisse, seuilAbsence);
         }
 
-        List<Integer> periodeIds = periodesAnalyse.stream().map(Periode::getId).toList();
-        Integer premierePeriodeId  = periodeIds.get(0);
-        Integer dernierePeriodeId  = periodeIds.get(periodeIds.size() - 1);
+        List<Long> periodeIds = periodesAnalyse.stream().map(Periode::getId).toList();
+        Long premierePeriodeId  = periodeIds.get(0);
+        Long dernierePeriodeId  = periodeIds.get(periodeIds.size() - 1);
         LocalDate dateDebutPlage = periodesAnalyse.get(0).getDateDebut();
         LocalDate dateFinPlage   = periodesAnalyse.get(periodesAnalyse.size() - 1).getDateFin();
 
@@ -74,7 +74,7 @@ public class StatistiquesElevesService {
         }
 
         // 4) Récupérer les moyennes générales (matiere_id IS NULL) pour ces périodes/inscriptions
-        Map<Long, Map<Integer, BigDecimal>> moyennesParEtudiant = chargerMoyennes(periodeIds, inscriptionIds);
+        Map<Long, Map<Long, BigDecimal>> moyennesParEtudiant = chargerMoyennes(periodeIds, inscriptionIds);
 
         // 5) Construire les points étudiant par étudiant, classe par classe (les absences se calculent par classe)
         Map<Long, List<EleveStatPoint>> pointsParClasse = new LinkedHashMap<>(); // classeId -> points
@@ -109,10 +109,10 @@ public class StatistiquesElevesService {
                 String photoUrl    = (String) row[5];
                 String classeNom   = (String) row[7];
 
-                Map<Integer, BigDecimal> moyennesEtudiant = moyennesParEtudiant.getOrDefault(etudiantId, Map.of());
-                List<BigDecimal> moyennesOrdonnees = periodeIds.stream()
-                        .map(moyennesEtudiant::get)
-                        .toList();
+                Map<Long, BigDecimal> moyennesEtudiant = moyennesParEtudiant.getOrDefault(etudiantId, Map.of());
+            List<BigDecimal> moyennesOrdonnees = periodeIds.stream()
+                    .map(moyennesEtudiant::get)
+                    .toList();
 
                 BigDecimal moyenneRecente   = moyennesEtudiant.get(dernierePeriodeId);
                 BigDecimal moyennePremiere  = moyennesEtudiant.get(premierePeriodeId);
@@ -254,7 +254,7 @@ public class StatistiquesElevesService {
      * à periodeFinId (ou à la dernière période disponible si null).
      * S'il y a moins de 3 périodes disponibles, renvoie celles qui existent.
      */
-    private List<Periode> resoudrePeriodesConsecutives(Long anneeScolaireId, Integer periodeFinId) {
+    private List<Periode> resoudrePeriodesConsecutives(Long anneeScolaireId, Long periodeFinId) {
         List<Periode> toutes = periodeRepo.findByAnneeScolaireIdOrderByOrdreAsc(anneeScolaireId);
         if (toutes.isEmpty()) {
             return toutes;
@@ -272,12 +272,12 @@ public class StatistiquesElevesService {
         return toutes.subList(indexDebut, indexFin + 1);
     }
 
-    private Map<Long, Map<Integer, BigDecimal>> chargerMoyennes(List<Integer> periodeIds, List<Long> inscriptionIds) {
+    private Map<Long, Map<Long, BigDecimal>> chargerMoyennes(List<Long> periodeIds, List<Long> inscriptionIds) {
         List<Object[]> rows = moyenneRepo.findMoyennesGeneralesParPeriodes(periodeIds, inscriptionIds);
-        Map<Long, Map<Integer, BigDecimal>> resultat = new HashMap<>();
+        Map<Long, Map<Long, BigDecimal>> resultat = new HashMap<>();
         for (Object[] row : rows) {
             Long etudiantId   = ((Number) row[0]).longValue();
-            Integer periodeId = ((Number) row[2]).intValue();
+            Long periodeId = ((Number) row[2]).longValue();
             BigDecimal valeur = row[3] != null ? new BigDecimal(row[3].toString()) : null;
             resultat.computeIfAbsent(etudiantId, k -> new HashMap<>()).put(periodeId, valeur);
         }

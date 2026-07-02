@@ -12,19 +12,19 @@ public class Moyenne {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(name = "etudiant_id")
-    private Integer etudiantId;
+    private Long etudiantId;
 
     @Column(name = "inscription_id")
-    private Integer inscriptionId;
+    private Long inscriptionId;
 
     @Column(name = "periode_id")
-    private Integer periodeId;
+    private Long periodeId;
 
     @Column(name = "matiere_id")
-    private Integer matiereId;
+    private Long matiereId;
 
     @Column(precision = 5, scale = 2)
     private BigDecimal valeur;
@@ -42,43 +42,43 @@ public class Moyenne {
         calculatedAt = LocalDateTime.now();
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public Integer getEtudiantId() {
+    public Long getEtudiantId() {
         return etudiantId;
     }
 
-    public void setEtudiantId(Integer etudiantId) {
+    public void setEtudiantId(Long etudiantId) {
         this.etudiantId = etudiantId;
     }
 
-    public Integer getInscriptionId() {
+    public Long getInscriptionId() {
         return inscriptionId;
     }
 
-    public void setInscriptionId(Integer inscriptionId) {
+    public void setInscriptionId(Long inscriptionId) {
         this.inscriptionId = inscriptionId;
     }
 
-    public Integer getPeriodeId() {
+    public Long getPeriodeId() {
         return periodeId;
     }
 
-    public void setPeriodeId(Integer periodeId) {
+    public void setPeriodeId(Long periodeId) {
         this.periodeId = periodeId;
     }
 
-    public Integer getMatiereId() {
+    public Long getMatiereId() {
         return matiereId;
     }
 
-    public void setMatiereId(Integer matiereId) {
+    public void setMatiereId(Long matiereId) {
         this.matiereId = matiereId;
     }
 

@@ -23,7 +23,7 @@ public interface MoyenneRepository extends JpaRepository<Moyenne, Long> {
               AND m.periode_id IN (:periodeIds)
               AND m.inscription_id IN (:inscriptionIds)
             """, nativeQuery = true)
-    List<Object[]> findMoyennesGeneralesParPeriodes(@Param("periodeIds") List<Integer> periodeIds,
+    List<Object[]> findMoyennesGeneralesParPeriodes(@Param("periodeIds") List<Long> periodeIds,
                                                       @Param("inscriptionIds") List<Long> inscriptionIds);
 }
 

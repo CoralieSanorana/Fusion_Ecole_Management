@@ -570,7 +570,7 @@ public class DirecteurController {
     public ResponseEntity<StatistiquesElevesResponse> getStatistiquesEleves(
             @RequestParam(required = false) Long anneeScolaireId,
             @RequestParam(required = false) Long classeId,
-            @RequestParam(required = false) Integer periodeFinId,
+            @RequestParam(required = false) Long periodeFinId,
             @RequestParam(required = false) Double seuilBaisseMoyenne,
             @RequestParam(required = false) Double seuilTauxAbsence
     ) {

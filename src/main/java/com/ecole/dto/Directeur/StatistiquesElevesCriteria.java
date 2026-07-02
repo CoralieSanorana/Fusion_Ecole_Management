@@ -23,7 +23,7 @@ public class StatistiquesElevesCriteria {
      * Les 2 périodes précédentes (ordre-1, ordre-2) sont automatiquement incluses.
      * Si null → la dernière période disponible (ordre max) de l'année scolaire est utilisée.
      */
-    private Integer periodeFinId;
+    private Long periodeFinId;
 
     // ── Seuils (paramétrables, avec valeurs par défaut) ────────────
     /** Baisse de moyenne (en points/20) déclenchant une alerte. Défaut : 2.0 */

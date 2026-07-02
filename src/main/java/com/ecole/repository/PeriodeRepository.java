@@ -11,7 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 @Repository
-public interface PeriodeRepository extends JpaRepository<Periode, Integer> {
+public interface PeriodeRepository extends JpaRepository<Periode, Long> {
     // Permet de récupérer toutes les périodes d'une année scolaire spécifique
     List<Periode> findByAnneeScolaireId(Long anneeScolaireId);
 
