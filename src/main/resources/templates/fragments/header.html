@@ -74,10 +74,13 @@
     </nav>
 
     <!-- Secretariat nav -->
-    <nav class="nav-section" id="nav-secretariat" style="display:none">
+    <nav class="nav-section" sec:authorize="hasRole('SECRETARIAT')">
       <p class="nav-section-title">Secrétariat</p>
       <a th:href="@{/secretariat/paiement}" class="nav-item">
         <i class="fas fa-plus-circle"></i> Ajouter Paiement
+      </a>
+      <a th:href="@{/secretariat/paiements}" class="nav-item">
+        <i class="fas fa-list"></i> Liste des paiements
       </a>
       <a th:href="@{/secretariat/bilan}" class="nav-item">
         <i class="fas fa-chart-bar"></i> Bilan de paiement
@@ -85,12 +88,9 @@
       <a th:href="@{/secretariat/eleves}" class="nav-item">
         <i class="fas fa-users"></i> Liste des élèves
       </a>
-      <a th:href="@{/secretariat/profil}" class="nav-item">
-        <i class="fas fa-id-card"></i> Profils élèves
-      </a>
       <p class="nav-section-title">Général</p>
       <a th:href="@{/communs/actualites}" class="nav-item">
-        <i class="fas fa-newspaper"></i> Actualités <span class="nav-badge">3</span>
+        <i class="fas fa-newspaper"></i> Actualités
       </a>
     </nav>
 

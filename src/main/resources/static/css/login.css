@@ -1,0 +1,392 @@
+/* ==========================================================================
+   PAGE LOGIN — SPLIT DESIGN (Inspiré de StageLink aux couleurs de l'école)
+   ========================================================================== */
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-body);
+    background-color: var(--bg);
+    color: var(--txt);
+    min-height: 100vh;
+    display: flex;
+    overflow-x: hidden;
+    transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+
+/* Conteneur principal en Split-Screen */
+.login-split-container {
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
+}
+
+/* --------------------------------------------------------------------------
+   COLONNE GAUCHE : Visuelle & Statisques (Électrique / Graphique)
+   -------------------------------------------------------------------------- */
+.login-visual-panel {
+    flex: 1;
+    background: linear-gradient(135deg, var(--b2) 0%, var(--ink) 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: var(--sp-2xl);
+    color: #FFFFFF;
+    position: relative;
+    text-align: center;
+}
+
+/* Gestion du mode sombre pour le panneau de gauche */
+[data-theme="dark"] .login-visual-panel {
+    background: linear-gradient(135deg, var(--ink2) 0%, var(--ink) 100%);
+    border-right: 1px solid var(--border);
+}
+
+.brand-wrapper {
+    margin-bottom: var(--sp-2xl);
+}
+
+.brand-logo-box {
+    width: 64px;
+    height: 64px;
+    background-color: var(--g);
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--r-md);
+    margin: 0 auto var(--sp-md) auto;
+    box-shadow: var(--sh-g);
+}
+
+.brand-title {
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 var(--sp-xs) 0;
+    letter-spacing: -0.5px;
+}
+
+.brand-subtitle {
+    font-size: 1.1rem;
+    color: var(--lt-text3);
+    max-width: 320px;
+    margin: 0;
+}
+
+/* Grille des statistiques de l'école */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--sp-md);
+    width: 100%;
+    max-width: 500px;
+    margin-top: var(--sp-xl);
+}
+
+.stat-box {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--r-md);
+    padding: var(--sp-md) var(--sp-sm);
+    backdrop-filter: blur(8px);
+}
+
+.stat-number {
+    font-family: var(--font-mono);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--g);
+    display: block;
+    margin-bottom: var(--sp-xs);
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+
+/* --------------------------------------------------------------------------
+   COLONNE DROITE : Le Formulaire de Connexion (Agrandi)
+   -------------------------------------------------------------------------- */
+.login-form-panel {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: var(--sp-2xl);
+    background-color: var(--bg);
+}
+
+.login-card {
+    background-color: var(--surf);
+    border: 1px solid var(--border);
+    border-radius: var(--r-xl);
+    padding: var(--sp-2xl);
+    width: 100%;
+    max-width: 480px; /* Élargi pour être plus confortable */
+    box-shadow: var(--sh-lg);
+    transition: background-color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+
+.login-card h2 {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--txt);
+    margin-top: 0;
+    margin-bottom: var(--sp-xs);
+    text-align: center;
+}
+
+.login-card .welcome-text {
+    text-align: center;
+    color: var(--txt2);
+    font-size: 0.95rem;
+    margin-bottom: var(--sp-xl);
+}
+
+/* SSO / Boutons d'authentification tiers */
+.sso-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--sp-md);
+    margin-bottom: var(--sp-lg);
+}
+
+.btn-sso {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--sp-sm);
+    background-color: var(--surf2);
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    padding: var(--sp-sm) var(--sp-md);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--txt);
+    cursor: pointer;
+    transition: all var(--dur) var(--ease);
+}
+
+.btn-sso:hover {
+    border-color: var(--b);
+    background-color: var(--surf);
+}
+
+/* Séparateur "ou" */
+.separator {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: var(--txt3);
+    font-size: 0.85rem;
+    margin-bottom: var(--sp-lg);
+}
+
+.separator::before, .separator::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid var(--border);
+}
+
+.separator:not(:empty)::before { margin-right: .75em; }
+.separator:not(:empty)::after { margin-left: .75em; }
+
+/* Groupes de formulaires */
+.form-group {
+    margin-bottom: var(--sp-lg);
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--txt);
+    margin-bottom: var(--sp-sm);
+}
+
+.form-control {
+    width: 100%;
+    box-sizing: border-box;
+    padding: var(--sp-md);
+    background-color: var(--surf2);
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--txt);
+    transition: all var(--dur) var(--ease);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--b);
+    box-shadow: 0 0 0 3px var(--b3);
+}
+
+/* Mode sombre spécifique aux inputs (surcharge au besoin) */
+[data-theme="dark"] .form-control {
+    background: var(--ink2);
+    border-color: var(--ink4);
+}
+[data-theme="dark"] .form-control:focus {
+    border-color: var(--g);
+    box-shadow: 0 0 0 3px var(--g3);
+}
+
+/* Password wrapper */
+.password-wrapper {
+    position: relative;
+}
+
+.toggle-password-btn {
+    position: absolute;
+    right: var(--sp-md);
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--txt3);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 0;
+}
+
+.toggle-password-btn:hover {
+    color: var(--txt);
+}
+
+.eye-icon {
+    width: 20px;
+    height: 20px;
+}
+
+/* Options supplémentaires (Se souvenir de moi) */
+.form-options {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--sp-lg);
+    font-size: 0.9rem;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-sm);
+    color: var(--txt2);
+    cursor: pointer;
+}
+
+.checkbox-label input {
+    accent-color: var(--b);
+    width: 16px;
+    height: 16px;
+}
+
+/* Bouton principal de connexion */
+.btn-submit {
+    width: 100%;
+    padding: var(--sp-md);
+    background-color: var(--b);
+    color: #FFFFFF;
+    border: none;
+    border-radius: var(--r-sm);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--dur) var(--ease);
+    box-shadow: var(--sh-sm);
+}
+
+.btn-submit:hover {
+    background-color: var(--b2);
+    box-shadow: var(--sh-b);
+}
+
+[data-theme="dark"] .btn-submit {
+    background-color: var(--g);
+    color: var(--ink);
+}
+[data-theme="dark"] .btn-submit:hover {
+    background-color: var(--g2);
+    box-shadow: var(--sh-g);
+}
+
+/* Comptes de test en bas de carte */
+.compte-test {
+    margin-top: var(--sp-xl);
+    padding: var(--sp-md);
+    background-color: var(--surf2);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    font-size: 0.85rem;
+}
+
+.compte-test p {
+    margin: 0 0 var(--sp-xs) 0;
+    color: var(--txt2);
+}
+
+.compte-test ul {
+    margin: 0;
+    padding-left: var(--sp-md);
+    color: var(--txt2);
+}
+
+.compte-test code {
+    font-family: var(--font-mono);
+    background-color: var(--surf);
+    padding: 2px 6px;
+    border-radius: var(--r-xs);
+    color: rgb(49, 136, 18);
+}
+
+/* Alertes d'erreurs sémantiques */
+.alert {
+    padding: var(--sp-md);
+    border-radius: var(--r-sm);
+    margin-bottom: var(--sp-md);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+.alert-danger {
+    background-color: rgba(255, 59, 92, 0.1);
+    border: 1px solid var(--danger);
+    color: var(--danger);
+}
+.alert-success {
+    background-color: rgba(0, 212, 110, 0.1);
+    border: 1px solid var(--success);
+    color: var(--success);
+}
+
+/* --------------------------------------------------------------------------
+   RESPONSIVE : Switch vers une colonne sur mobile
+   -------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+    .login-split-container {
+        flex-direction: column;
+    }
+    .login-visual-panel {
+        padding: var(--sp-xl) var(--sp-md);
+    }
+    .stats-grid {
+        max-width: 100%;
+    }
+    .login-form-panel {
+        padding: var(--sp-xl) var(--sp-md);
+    }
+}
