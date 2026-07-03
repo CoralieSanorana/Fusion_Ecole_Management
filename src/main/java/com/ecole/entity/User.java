@@ -3,7 +3,7 @@ package com.ecole.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
-
+import java.util.List;
 @Data
 @Entity
 @Table(name = "users")
@@ -22,6 +22,20 @@ public class User {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    // Dans com.ecole.entity.User.java
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    private List<UserRole> userRoles;
+
+    // Ajoutez aussi le Getter/Setter si vous n'utilisez pas Lombok, ou laissez Lombok le générer
+    public List<UserRole> getUserRoles() {
+        return userRoles;
+    }
+
+    public void setUserRoles(List<UserRole> userRoles) {
+        this.userRoles = userRoles;
+    }
 
     public Long getId() {
         return id;

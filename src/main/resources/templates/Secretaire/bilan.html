@@ -7,49 +7,185 @@
   <aside class="sidebar" id="sidebar" th:replace="~{fragments/header :: sidebar}"></aside>
   <header class="topbar" th:replace="~{fragments/header :: topbar}"></header>
   <main class="main-content">
+
     <div class="page-header">
-        <div><h2>Bilan de Paiement</h2><p>Taux de recouvrement par mois et par classe</p></div>
-        <select class="form-control" style="width:auto;padding:8px 16px;">
-          <option>Trimestre 1 — 2026</option><option>Trimestre 2 — 2026</option>
-        </select>
+      <div>
+        <h2>Bilan de Paiement</h2>
+        <p>Taux de recouvrement par classe — Année scolaire active</p>
       </div>
-      <div class="card">
-        <div class="card-header"><h3>Par classe — Avril 2026</h3></div>
+      <div style="display:flex;gap:8px;">
+        <a th:href="@{/secretariat/bilan/export/pdf}" class="btn btn-primary">
+          <i class="fas fa-file-pdf"></i> Export PDF
+        </a>
+        <a th:href="@{/secretariat/bilan/export/excel}" class="btn btn-primary" style="background:var(--teal);">
+          <i class="fas fa-file-excel"></i> Export Excel
+        </a>
+      </div>
+    </div>
+
+    <!-- Cartes résumé global -->
+    <div class="grid-3" style="margin-bottom:1.5rem;">
+      <div class="card" style="text-align:center;">
         <div class="card-body">
-          <div class="bilan-item" style="padding-top:0;">
-            <span class="bilan-item-label">Terminale C</span>
-            <div class="bilan-item-bar"><div class="progress-bar"><div class="progress-fill teal" style="width:95%"></div></div></div>
-            <span class="bilan-item-val">95%</span>
+          <p style="color:var(--txt3);font-size:13px;margin-bottom:4px;">Total attendu</p>
+          <h3 th:text="${#numbers.formatDecimal(bilan.totalAttenduGlobal, 0, 'COMMA', 0, 'POINT') + ' Ar'}">0 Ar</h3>
+        </div>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div class="card-body">
+          <p style="color:var(--txt3);font-size:13px;margin-bottom:4px;">Total encaissé</p>
+          <h3 style="color:var(--teal);"
+              th:text="${#numbers.formatDecimal(bilan.totalEncaisseGlobal, 0, 'COMMA', 0, 'POINT') + ' Ar'}">0 Ar</h3>
+        </div>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div class="card-body">
+          <p style="color:var(--txt3);font-size:13px;margin-bottom:4px;">Reste à encaisser</p>
+          <h3 style="color:var(--danger);"
+              th:text="${#numbers.formatDecimal(bilan.resteAEncaisser, 0, 'COMMA', 0, 'POINT') + ' Ar'}">0 Ar</h3>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+
+      <!-- Tableau par classe -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Recouvrement par classe</h3>
+        </div>
+        <div class="card-body">
+          <div th:each="ligne : ${bilan.lignes}" class="bilan-item">
+            <span class="bilan-item-label" th:text="${ligne.nomClasse}">Classe</span>
+            <div class="bilan-item-bar">
+              <div class="progress-bar">
+                <div class="progress-fill"
+                     th:classappend="${ligne.pourcentage >= 80 ? 'teal' : (ligne.pourcentage >= 50 ? 'amber' : 'rose')}"
+                     th:style="'width:' + ${ligne.pourcentage} + '%'">
+                </div>
+              </div>
+            </div>
+            <span class="bilan-item-val"
+                  th:text="${#numbers.formatDecimal(ligne.pourcentage, 1, 1) + '%'}">
+            </span>
           </div>
-          <div class="bilan-item">
-            <span class="bilan-item-label">Terminale D</span>
-            <div class="bilan-item-bar"><div class="progress-bar"><div class="progress-fill teal" style="width:88%"></div></div></div>
-            <span class="bilan-item-val">88%</span>
-          </div>
-          <div class="bilan-item">
-            <span class="bilan-item-label">1ère A</span>
-            <div class="bilan-item-bar"><div class="progress-bar"><div class="progress-fill amber" style="width:76%"></div></div></div>
-            <span class="bilan-item-val">76%</span>
-          </div>
-          <div class="bilan-item">
-            <span class="bilan-item-label">1ère B</span>
-            <div class="bilan-item-bar"><div class="progress-bar"><div class="progress-fill amber" style="width:70%"></div></div></div>
-            <span class="bilan-item-val">70%</span>
-          </div>
-          <div class="bilan-item">
-            <span class="bilan-item-label">Seconde A</span>
-            <div class="bilan-item-bar"><div class="progress-bar"><div class="progress-fill rose" style="width:58%"></div></div></div>
-            <span class="bilan-item-val">58%</span>
-          </div>
-          <div class="bilan-item">
-            <span class="bilan-item-label">Seconde B</span>
-            <div class="bilan-item-bar"><div class="progress-bar"><div class="progress-fill rose" style="width:51%"></div></div></div>
-            <span class="bilan-item-val">51%</span>
+
+          <!-- Ligne total -->
+          <div class="bilan-item" style="border-top:1px solid var(--border);margin-top:8px;padding-top:12px;">
+            <span class="bilan-item-label"><strong>TOTAL</strong></span>
+            <div class="bilan-item-bar">
+              <div class="progress-bar">
+                <div class="progress-fill teal"
+                     th:style="'width:' + ${bilan.pourcentageGlobal} + '%'">
+                </div>
+              </div>
+            </div>
+            <span class="bilan-item-val">
+              <strong th:text="${#numbers.formatDecimal(bilan.pourcentageGlobal, 1, 1) + '%'}"></strong>
+            </span>
           </div>
         </div>
       </div>
+
+      <!-- Camembert Chart.js -->
+      <div class="card">
+        <div class="card-header"><h3>Répartition globale</h3></div>
+        <div class="card-body" style="display:flex;flex-direction:column;align-items:center;gap:1rem;">
+          <canvas id="camembert" width="260" height="260"></canvas>
+          <div style="display:flex;gap:16px;font-size:13px;">
+            <span><span style="display:inline-block;width:12px;height:12px;background:#1d9e75;border-radius:50%;margin-right:4px;"></span>Encaissé</span>
+            <span><span style="display:inline-block;width:12px;height:12px;background:#e74c3c;border-radius:50%;margin-right:4px;"></span>Restant</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Tableau détaillé -->
+    <div class="card" style="margin-top:1.5rem;">
+      <div class="card-header"><h3>Détail par classe</h3></div>
+      <div class="card-body" style="padding:0;">
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <thead>
+            <tr style="background:var(--surface2);">
+              <th style="padding:10px 16px;text-align:left;">Classe</th>
+              <th style="padding:10px 16px;text-align:right;">Attendu (Ar)</th>
+              <th style="padding:10px 16px;text-align:right;">Encaissé (Ar)</th>
+              <th style="padding:10px 16px;text-align:center;">Élèves</th>
+              <th style="padding:10px 16px;text-align:center;">Soldés</th>
+              <th style="padding:10px 16px;text-align:center;">Impayés</th>
+              <th style="padding:10px 16px;text-align:center;">Taux</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="ligne, stat : ${bilan.lignes}"
+                th:style="${stat.odd ? 'background:var(--surface2)' : ''}">
+              <td style="padding:10px 16px;font-weight:500;" th:text="${ligne.nomClasse}"></td>
+              <td style="padding:10px 16px;text-align:right;"
+                  th:text="${#numbers.formatDecimal(ligne.totalAttendu, 0, 'COMMA', 0, 'POINT')}"></td>
+              <td style="padding:10px 16px;text-align:right;"
+                  th:text="${#numbers.formatDecimal(ligne.totalEncaisse, 0, 'COMMA', 0, 'POINT')}"></td>
+              <td style="padding:10px 16px;text-align:center;" th:text="${ligne.nombreEleves}"></td>
+              <td style="padding:10px 16px;text-align:center;color:var(--teal);" th:text="${ligne.nombreSoldes}"></td>
+              <td style="padding:10px 16px;text-align:center;color:var(--danger);" th:text="${ligne.nombreImpayes}"></td>
+              <td style="padding:10px 16px;text-align:center;">
+                <span th:text="${#numbers.formatDecimal(ligne.pourcentage, 1, 1) + '%'}"
+                      th:style="${ligne.pourcentage >= 80 ? 'color:var(--teal);font-weight:600' :
+                                 (ligne.pourcentage >= 50 ? 'color:orange;font-weight:600' :
+                                 'color:var(--danger);font-weight:600')}">
+                </span>
+              </td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr style="background:var(--surface2);font-weight:600;border-top:2px solid var(--border);">
+              <td style="padding:10px 16px;">TOTAL</td>
+              <td style="padding:10px 16px;text-align:right;"
+                  th:text="${#numbers.formatDecimal(bilan.totalAttenduGlobal, 0, 'COMMA', 0, 'POINT')}"></td>
+              <td style="padding:10px 16px;text-align:right;"
+                  th:text="${#numbers.formatDecimal(bilan.totalEncaisseGlobal, 0, 'COMMA', 0, 'POINT')}"></td>
+              <td colspan="3"></td>
+              <td style="padding:10px 16px;text-align:center;color:var(--teal);"
+                  th:text="${#numbers.formatDecimal(bilan.pourcentageGlobal, 1, 1) + '%'}"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
   </main>
 </div>
 <div th:replace="~{fragments/footer :: footer}"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script th:inline="javascript">
+  const encaisse  = [[${bilan.totalEncaisseGlobal}]];
+  const restant   = [[${bilan.resteAEncaisser}]];
+
+  new Chart(document.getElementById('camembert'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Encaissé', 'Restant'],
+      datasets: [{
+        data: [encaisse, restant],
+        backgroundColor: ['#1d9e75', '#e74c3c'],
+        borderWidth: 2,
+        borderColor: '#ffffff'
+      }]
+    },
+    options: {
+      responsive: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ctx.label + ' : ' + ctx.parsed.toLocaleString() + ' Ar'
+          }
+        }
+      },
+      cutout: '65%'
+    }
+  });
+</script>
 </body>
 </html>

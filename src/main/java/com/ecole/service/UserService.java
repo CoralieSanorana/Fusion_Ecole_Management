@@ -67,4 +67,8 @@ public class UserService {
 
         return profil;
     }
+
+    public User getUser(String email) {
+        return userRepository.findByEmail(email).orElse(null);
+    } 
 }

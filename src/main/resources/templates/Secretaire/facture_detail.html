@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head">
+  <style>
+    @media print {
+      .sidebar, .topbar, .no-print { display: none !important; }
+      .main-content { margin: 0 !important; padding: 0 !important; }
+      .facture-card { box-shadow: none !important; border: none !important; }
+    }
+  </style>
+</head>
+<body>
+<canvas id="particle-canvas"></canvas>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar" th:replace="fragments/header :: sidebar"></aside>
+  <header class="topbar" th:replace="fragments/header :: topbar"></header>
+  <main class="main-content">
+
+    <!-- Boutons actions -->
+    <div class="no-print" style="display:flex;gap:8px;margin-bottom:1.5rem;">
+      <a th:href="@{/secretariat/paiements}" class="btn">
+        <i class="fas fa-arrow-left"></i> Retour
+      </a>
+     <a th:href="@{/secretariat/paiements/groupe/{ref}/pdf(ref=${reference})}" class="btn btn-primary">
+         <i class="fas fa-file-pdf"></i> Exporter PDF
+     </a>
+      <button onclick="window.print()" class="btn btn-primary"
+              style="background:var(--teal);">
+        <i class="fas fa-print"></i> Imprimer
+      </button>
+    </div>
+
+    <!-- Facture -->
+    <div class="card facture-card" style="max-width:680px;margin:0 auto;">
+      <div class="card-body" style="padding:2rem;">
+
+        <!-- En-tête école -->
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:1rem;">
+          <div style="width:60px;height:60px;background:#0f6e56;border-radius:8px;
+                      display:flex;align-items:center;justify-content:center;
+                      font-size:28px;font-weight:700;color:#fff;flex-shrink:0;">E</div>
+          <div>
+            <h2 style="margin:0;color:#0f6e56;font-size:20px;">LycéePro</h2>
+            <p style="margin:0;font-size:12px;color:var(--txt3);">
+              Antananarivo, Madagascar &nbsp;|&nbsp; contact@lycee.mg &nbsp;|&nbsp; 020 22 000 00
+            </p>
+          </div>
+        </div>
+
+        <!-- Ligne verte -->
+        <div style="height:3px;background:#0f6e56;border-radius:2px;margin-bottom:1rem;"></div>
+
+        <!-- Bannière reçu -->
+        <div style="display:grid;grid-template-columns:2fr 1fr;margin-bottom:1.5rem;">
+          <div style="background:#0f6e56;padding:14px 16px;border-radius:8px 0 0 8px;">
+            <div style="color:#fff;font-size:16px;font-weight:700;">REÇU DE PAIEMENT</div>
+            <div style="color:rgba(255,255,255,.8);font-size:12px;"
+                 th:text="'N° ' + ${reference}"></div>
+          </div>
+          <div style="background:#e1f5ee;padding:14px 16px;border-radius:0 8px 8px 0;text-align:right;">
+            <div style="font-size:11px;color:#555;">Date</div>
+            <div style="font-size:14px;font-weight:700;color:#0f6e56;"
+                 th:text="${#temporals.format(paiement.datePaiement, 'dd/MM/yyyy')}"></div>
+          </div>
+        </div>
+
+        <!-- Infos élève -->
+        <div style="margin-bottom:1.5rem;">
+          <div style="font-size:11px;font-weight:700;color:#0f6e56;
+                      text-transform:uppercase;margin-bottom:8px;letter-spacing:1px;">
+            Élève
+          </div>
+          <table style="width:100%;border-collapse:collapse;font-size:13px;">
+            <tr style="background:#f5f5f5;">
+              <td style="padding:7px 10px;color:#666;">Nom complet</td>
+              <td style="padding:7px 10px;font-weight:600;"
+                  th:text="${#strings.toUpperCase(paiement.inscription.etudiant.nom)
+                            + ' ' + paiement.inscription.etudiant.prenom}"></td>
+            </tr>
+            <tr>
+              <td style="padding:7px 10px;color:#666;">Matricule</td>
+              <td style="padding:7px 10px;font-weight:600;"
+                  th:text="${paiement.inscription.etudiant.matricule}"></td>
+            </tr>
+            <tr style="background:#f5f5f5;">
+              <td style="padding:7px 10px;color:#666;">Classe</td>
+              <td style="padding:7px 10px;font-weight:600;"
+                  th:text="${paiement.inscription.classe.nom}"></td>
+            </tr>
+            <tr>
+              <td style="padding:7px 10px;color:#666;">Année scolaire</td>
+              <td style="padding:7px 10px;font-weight:600;"
+                  th:text="${paiement.inscription.anneeScolaire.libelle}"></td>
+            </tr>
+            <tr style="background:#f5f5f5;">
+              <td style="padding:7px 10px;color:#666;">Tranche</td>
+              <td style="padding:7px 10px;font-weight:600;"
+                  th:text="'Tranche ' + ${paiement.echeance.numeroTranche}"></td>
+            </tr>
+            <tr>
+              <td style="padding:7px 10px;color:#666;">Date limite</td>
+              <td style="padding:7px 10px;font-weight:600;"
+                  th:text="${#temporals.format(paiement.echeance.dateLimite, 'dd/MM/yyyy')}"></td>
+            </tr>
+          </table>
+        </div>
+
+        <!-- Tableau lignes paiement -->
+        <div style="margin-bottom:1.5rem;">
+          <div style="font-size:11px;font-weight:700;color:#0f6e56;
+                      text-transform:uppercase;margin-bottom:8px;letter-spacing:1px;">
+            Détail du paiement
+          </div>
+          <table style="width:100%;border-collapse:collapse;font-size:13px;">
+            <thead>
+              <tr style="background:#0f6e56;color:#fff;">
+                <th style="padding:8px 10px;text-align:center;width:40px;">#</th>
+                <th style="padding:8px 10px;text-align:left;">Mode de paiement</th>
+                <th style="padding:8px 10px;text-align:right;">Montant (Ar)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="l, stat : ${lignes}"
+                  th:style="${stat.odd ? 'background:#f5f5f5' : ''}">
+                <td style="padding:7px 10px;text-align:center;"
+                    th:text="${stat.count}"></td>
+                <td style="padding:7px 10px;text-transform:uppercase;"
+                    th:text="${l.modePaiement}"></td>
+                <td style="padding:7px 10px;text-align:right;font-weight:600;"
+                    th:text="${#numbers.formatDecimal(l.montant, 0, 'COMMA', 0, 'POINT')}"></td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr style="background:#e1f5ee;">
+                <td colspan="2"
+                    style="padding:10px;font-weight:700;color:#0f6e56;">TOTAL PAYÉ</td>
+                <td style="padding:10px;text-align:right;font-size:18px;
+                           font-weight:700;color:#0f6e56;"
+                    th:text="${#numbers.formatDecimal(total, 0, 'COMMA', 0, 'POINT') + ' Ar'}"></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <!-- Statut -->
+        <div th:if="${paiement.echeance.estSoldee}"
+             style="background:#e1f5ee;border-radius:8px;padding:12px;
+                    text-align:center;color:#0f6e56;font-weight:700;margin-bottom:1.5rem;">
+          ✔ ÉCHÉANCE SOLDÉE
+        </div>
+        <div th:unless="${paiement.echeance.estSoldee}"
+             style="background:#fff3dc;border-radius:8px;padding:12px;
+                    text-align:center;color:#854f0b;font-weight:700;margin-bottom:1.5rem;">
+          ⏳ PAIEMENT PARTIEL — Échéance non soldée
+        </div>
+
+        <!-- Signatures -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-bottom:1.5rem;">
+          <div>
+            <p style="font-size:12px;color:#666;">Signature élève / parent</p>
+            <div style="border-bottom:1px solid #ccc;margin-top:2.5rem;"></div>
+          </div>
+          <div>
+            <p style="font-size:12px;color:#666;">Cachet et signature secrétariat</p>
+            <div style="border-bottom:1px solid #ccc;margin-top:2.5rem;"></div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div style="background:#0f6e56;border-radius:6px;padding:8px;
+                    text-align:center;color:#fff;font-size:11px;font-style:italic;">
+          Ce reçu est un document officiel. Veuillez le conserver précieusement.
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

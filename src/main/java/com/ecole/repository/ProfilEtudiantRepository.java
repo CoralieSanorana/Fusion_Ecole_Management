@@ -40,4 +40,31 @@ public interface ProfilEtudiantRepository
             ORDER BY pe.nom ASC
             """, nativeQuery = true)
     List<Object[]> findAvecInscription(@Param("anneeId") Long anneeId);
+
+    List<ProfilEtudiant> findByIsArchivedFalse();
+
+    boolean existsByMatricule(String matricule);
+
+    @Query("SELECT e FROM ProfilEtudiant e WHERE e.isArchived = false AND (" +
+           "LOWER(e.nom) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(e.prenom) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(e.matricule) LIKE LOWER(CONCAT('%', :search, '%')))")
+    List<ProfilEtudiant> searchByNomOrPrenomOrMatricule(@Param("search") String search);
+
+    // Recherche par classe — via relation @ManyToOne
+    @Query("SELECT e FROM ProfilEtudiant e " +
+       "JOIN Inscription i ON i.etudiant = e " +
+       "WHERE e.isArchived = false " +
+       "AND i.statut = 'active' " +
+       "AND i.classeId = :classeId") 
+    List<ProfilEtudiant> findByClasseId(@Param("classeId") Long classeId);
+
+    // Recherche par niveau — via nom de classe
+    @Query("SELECT e FROM ProfilEtudiant e " +
+       "JOIN Inscription i ON i.etudiant = e " +
+       "JOIN Classe c ON i.classeId = c.id " + // <-- On fait la jointure explicite avec l'entité Classe ici
+       "WHERE e.isArchived = false " +
+       "AND i.statut = 'active' " +
+       "AND LOWER(c.nom) LIKE LOWER(CONCAT('%', :niveau, '%'))") // <-- On utilise c.nom au lieu de i.classe.nom
+    List<ProfilEtudiant> findByNiveau(@Param("niveau") String niveau);
 }

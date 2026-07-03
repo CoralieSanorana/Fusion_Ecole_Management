@@ -8,11 +8,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.ecole.entity.AnneeScolaire;
 import com.ecole.entity.Inscription;
+import com.ecole.entity.ProfilEtudiant;
 
 @Repository
 public interface InscriptionRepository extends JpaRepository<Inscription, Long> {
     List<Inscription> findByClasseId(Long classeId);
+    
     @Query(value = "SELECT * FROM inscriptions WHERE etudiant_id = :etudiantId AND statut = 'active'", nativeQuery = true)
     List<Inscription> findActiveByEtudiant(@Param("etudiantId") Long etudiantId);
 
@@ -20,7 +23,17 @@ public interface InscriptionRepository extends JpaRepository<Inscription, Long> 
     List<Inscription> findActiveByClasse(@Param("classeId") Long classeId);
 
     Optional<Inscription> findByEtudiantIdAndAnneeScolaireId(Long etudiantId, Long anneeId);
+    
+    @Query("SELECT i FROM Inscription i " +
+          "JOIN AnneeScolaire a ON i.anneeScolaireId = a.id " +
+          "WHERE a = :anneeScolaire AND i.statut = :statut")
+    List<Inscription> findByAnneeScolaireAndStatut(
+        @Param("anneeScolaire") AnneeScolaire anneeScolaire, 
+        @Param("statut") String statut
+    );
+    
     long countByAnneeScolaireIdAndStatut(Long anneeId, String statut);
+    
     List<Inscription> findByEtudiantId(Long etudiantId);
 
     /**
@@ -51,5 +64,16 @@ public interface InscriptionRepository extends JpaRepository<Inscription, Long> 
             """, nativeQuery = true)
     List<Object[]> findElevesActifsPourStatistiques(@Param("anneeId") Long anneeId,
                                                       @Param("classeId") Long classeId);
+    Optional<Inscription> findByEtudiantAndStatut(ProfilEtudiant etudiant, String statut);
+
+    @Query(value = """
+            SELECT i.* FROM inscriptions i
+            JOIN annees_scolaires a ON a.id = i.annee_scolaire_id
+            WHERE i.etudiant_id = :etudiantId
+              AND a.est_active = true
+            LIMIT 1
+            """, nativeQuery = true)
+    Optional<Inscription> findActiveByEtudiantId(@Param("etudiantId") Long etudiantId);
+
 }
 

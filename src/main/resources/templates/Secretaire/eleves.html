@@ -7,65 +7,250 @@
   <aside class="sidebar" id="sidebar" th:replace="fragments/header :: sidebar"></aside>
   <header class="topbar" th:replace="fragments/header :: topbar"></header>
   <main class="main-content">
+
+    <!-- Flash messages -->
+    <div th:if="${successMessage}" style="margin-bottom:var(--sp-md);padding:var(--sp-md);background:#d1fae5;border:1px solid #6ee7b7;border-radius:8px;color:#065f46;">
+      <i class="fas fa-check-circle"></i> <span th:text="${successMessage}"></span>
+    </div>
+    <div th:if="${errorMessage}" style="margin-bottom:var(--sp-md);padding:var(--sp-md);background:#fee2e2;border:1px solid #fca5a5;border-radius:8px;color:#991b1b;">
+      <i class="fas fa-exclamation-circle"></i> <span th:text="${errorMessage}"></span>
+    </div>
+
     <div class="page-header">
-        <div><h2>Liste des Élèves</h2><p>203 élèves inscrits pour l'année 2025–2026</p></div>
-        <button class="btn btn-primary" onclick="openModal('modal-add-eleve')"><i class="fas fa-plus"></i> Nouvel élève</button>
+      <div>
+        <h2>Liste des Élèves</h2>
+        <p th:text="'Année scolaire active – ' + ${#lists.size(eleves)} + ' élève(s) trouvé(s)'"></p>
       </div>
+      <button class="btn btn-primary" onclick="openModal('modal-add-eleve')">
+        <i class="fas fa-plus"></i> Nouvel élève
+      </button>
+    </div>
 
-      <div style="display:flex;gap:var(--sp-md);margin-bottom:var(--sp-lg);flex-wrap:wrap;align-items:center;">
-        <div class="filter-pills">
-          <div class="pill active">Tous</div>
-          <div class="pill">Seconde</div>
-          <div class="pill">1ère</div>
-          <div class="pill">Terminale</div>
-        </div>
-        <div style="display:flex;gap:var(--sp-sm);margin-left:auto;">
-          <select class="form-control" style="width:auto;padding:8px 12px;font-size:13px;">
-            <option>Toutes les salles</option><option>Seconde A</option><option>Seconde B</option>
-            <option>1ère A</option><option>1ère B</option><option>Terminale C</option>
-          </select>
-          <input type="text" class="form-control" placeholder="Rechercher un élève…" style="width:220px;"/>
-        </div>
+    <!-- Filtres niveau + recherche -->
+    <div style="display:flex;gap:var(--sp-md);margin-bottom:var(--sp-lg);flex-wrap:wrap;align-items:center;">
+      <div class="filter-pills">
+        <a th:href="@{/secretariat/eleves}"
+           th:class="${niveauActif == null and classeIdActif == null and search == null} ? 'pill active' : 'pill'">Tous</a>
+        <a th:href="@{/secretariat/eleves(niveau='Seconde')}"
+           th:class="${niveauActif == 'Seconde'} ? 'pill active' : 'pill'">Seconde</a>
+        <a th:href="@{/secretariat/eleves(niveau='Première')}"
+           th:class="${niveauActif == 'Première'} ? 'pill active' : 'pill'">1ère</a>
+        <a th:href="@{/secretariat/eleves(niveau='Terminale')}"
+           th:class="${niveauActif == 'Terminale'} ? 'pill active' : 'pill'">Terminale</a>
       </div>
+      <form th:action="@{/secretariat/eleves}" method="get"
+            style="display:flex;gap:var(--sp-sm);margin-left:auto;align-items:center;">
+        <select name="classeId" class="form-control" style="width:auto;padding:8px 12px;font-size:13px;"
+                onchange="this.form.submit()">
+          <option value="">Toutes les salles</option>
+          <option th:each="c : ${classes}"
+                  th:value="${c.id}"
+                  th:text="${c.nom}"
+                  th:selected="${classeIdActif == c.id}"></option>
+        </select>
+        <input type="text" name="search" class="form-control"
+               placeholder="Matricule, nom, classe…"
+               th:value="${search}"
+               style="width:220px;"/>
+        <button type="submit" class="btn btn-secondary" style="padding:8px 14px;">
+          <i class="fas fa-search"></i>
+        </button>
+      </form>
+    </div>
 
-      <div class="card">
-        <div class="table-wrapper">
-          <table>
-            <thead><tr><th>Élève</th><th>Classe</th><th>Janv.</th><th>Fév.</th><th>Mars</th><th>Avr.</th><th>Actions</th></tr></thead>
-            <tbody>
-              <tr>
-                <td><div style="display:flex;align-items:center;gap:var(--sp-md);"><div class="avatar-placeholder" style="width:32px;height:32px;background:linear-gradient(135deg,var(--g),var(--b));font-size:12px;">RJ</div>Rakoto Jean</div></td>
-                <td><span class="badge badge-navy">1ère A</span></td>
-                <td><span class="badge badge-green">✓</span></td>
-                <td><span class="badge badge-green">✓</span></td>
-                <td><span class="badge badge-green">✓</span></td>
-                <td><span class="badge badge-green">✓</span></td>
-                <td><button class="btn btn-sm btn-secondary" onclick="showPage('sec-profils')">Profil</button></td>
-              </tr>
-              <tr>
-                <td><div style="display:flex;align-items:center;gap:var(--sp-md);"><div class="avatar-placeholder" style="width:32px;height:32px;background:linear-gradient(135deg,var(--g),#4DFFA0);font-size:12px;">AM</div>Andria Miora</div></td>
-                <td><span class="badge badge-navy">Seconde B</span></td>
-                <td><span class="badge badge-green">✓</span></td>
-                <td><span class="badge badge-green">✓</span></td>
-                <td><span class="badge badge-red">✗</span></td>
-                <td><span class="badge badge-green">✓</span></td>
-                <td><button class="btn btn-sm btn-secondary" onclick="showPage('sec-profils')">Profil</button></td>
-              </tr>
-              <tr>
-                <td><div style="display:flex;align-items:center;gap:var(--sp-md);"><div class="avatar-placeholder" style="width:32px;height:32px;background:linear-gradient(135deg,var(--warn),#FFD84D);font-size:12px;">HN</div>Hery Njaka</div></td>
-                <td><span class="badge badge-navy">1ère B</span></td>
-                <td><span class="badge badge-green">✓</span></td>
-                <td><span class="badge badge-red">✗</span></td>
-                <td><span class="badge badge-red">✗</span></td>
-                <td><span class="badge badge-red">✗</span></td>
-                <td><button class="btn btn-sm btn-secondary" onclick="window.location.href='/secretariat/profil'">Profil</button></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+    <!-- Tableau -->
+    <div class="card">
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Élève</th>
+              <th>Classe</th>
+              <th>Janv.</th><th>Fév.</th><th>Mars</th><th>Avr.</th>
+              <th>Mai</th><th>Juin</th><th>Juil.</th><th>Août</th>
+              <th>Sept.</th><th>Oct.</th><th>Nov.</th><th>Déc.</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:if="${#lists.isEmpty(eleves)}">
+              <td colspan="15" style="text-align:center;color:var(--txt3);padding:var(--sp-xl);">
+                Aucun élève trouvé.
+              </td>
+            </tr>
+            <!-- Boucle sur les élèves -->
+            <tr th:each="e : ${eleves}">
+              <!-- Avatar + Nom -->
+              <td>
+                <div style="display:flex;align-items:center;gap:var(--sp-md);">
+                  <div th:if="${e.photoUrl == null}"
+                       class="avatar-placeholder"
+                       style="width:32px;height:32px;background:linear-gradient(135deg,var(--g),var(--b));font-size:12px;"
+                       th:text="${e.initiales}"></div>
+                  <img th:if="${e.photoUrl != null}"
+                       th:src="${e.photoUrl}"
+                       style="width:32px;height:32px;border-radius:50%;object-fit:cover;" alt="photo"/>
+                  <span th:text="${e.prenom + ' ' + e.nom}"></span>
+                </div>
+              </td>
+              <!-- Classe -->
+              <td><span class="badge badge-navy" th:text="${e.nomClasse ?: '—'}"></span></td>
+              
+              <!-- Mois 1 à 12 : correction avec th:block -->
+              <td>
+                <th:block th:with="p=${e.paiementsMois.get(1)}">
+                  <span th:if="${p}" class="badge badge-green">✓</span>
+                  <span th:unless="${p}" class="badge badge-red">✗</span>
+                </th:block>
+              </td>
+              <td>
+                <th:block th:with="p=${e.paiementsMois.get(2)}">
+                  <span th:if="${p}" class="badge badge-green">✓</span>
+                  <span th:unless="${p}" class="badge badge-red">✗</span>
+                </th:block>
+              </td>
+              <td>
+                <th:block th:with="p=${e.paiementsMois.get(3)}">
+                  <span th:if="${p}" class="badge badge-green">✓</span>
+                  <span th:unless="${p}" class="badge badge-red">✗</span>
+                </th:block>
+              </td>
+              <td>
+                <th:block th:with="p=${e.paiementsMois.get(4)}">
+                  <span th:if="${p}" class="badge badge-green">✓</span>
+                  <span th:unless="${p}" class="badge badge-red">✗</span>
+                </th:block>
+              </td>
+              <td>
+                <th:block th:with="p=${e.paiementsMois.get(5)}">
+                  <span th:if="${p}" class="badge badge-green">✓</span>
+                  <span th:unless="${p}" class="badge badge-red">✗</span>
+                </th:block>
+              </td>
+              <td>
+                <th:block th:with="p=${e.paiementsMois.get(6)}">
+                  <span th:if="${p}" class="badge badge-green">✓</span>
+                  <span th:unless="${p}" class="badge badge-red">✗</span>
+                </th:block>
+              </td>
+              <td>
+                <th:block th:with="p=${e.paiementsMois.get(7)}">
+                  <span th:if="${p}" class="badge badge-green">✓</span>
+                  <span th:unless="${p}" class="badge badge-red">✗</span>
+                </th:block>
+              </td>
+              <td>
+                <th:block th:with="p=${e.paiementsMois.get(8)}">
+                  <span th:if="${p}" class="badge badge-green">✓</span>
+                  <span th:unless="${p}" class="badge badge-red">✗</span>
+                </th:block>
+              </td>
+              <td>
+                <th:block th:with="p=${e.paiementsMois.get(9)}">
+                  <span th:if="${p}" class="badge badge-green">✓</span>
+                  <span th:unless="${p}" class="badge badge-red">✗</span>
+                </th:block>
+              </td>
+              <td>
+                <th:block th:with="p=${e.paiementsMois.get(10)}">
+                  <span th:if="${p}" class="badge badge-green">✓</span>
+                  <span th:unless="${p}" class="badge badge-red">✗</span>
+                </th:block>
+              </td>
+              <td>
+                <th:block th:with="p=${e.paiementsMois.get(11)}">
+                  <span th:if="${p}" class="badge badge-green">✓</span>
+                  <span th:unless="${p}" class="badge badge-red">✗</span>
+                </th:block>
+              </td>
+              <td>
+                <th:block th:with="p=${e.paiementsMois.get(12)}">
+                  <span th:if="${p}" class="badge badge-green">✓</span>
+                  <span th:unless="${p}" class="badge badge-red">✗</span>
+                </th:block>
+              </td>
+              
+              <!-- Action -->
+              <td>
+                <a th:href="@{/secretariat/profil/{id}(id=${e.id})}"
+                   class="btn btn-sm btn-secondary">Profil</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
+    </div>
+
   </main>
 </div>
+
+<!-- Modal Ajouter Élève -->
+<div class="modal-backdrop" id="modal-add-eleve">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Nouvel Élève</h3>
+      <button onclick="closeModal('modal-add-eleve')" style="color:var(--txt3);font-size:18px;">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <form action="/secretariat/eleves/ajouter" method="post">
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Prénom</label>
+            <input type="text" name="prenom" class="form-control" placeholder="Miora" required/>
+          </div>
+          <div class="form-group">
+            <label>Nom</label>
+            <input type="text" name="nom" class="form-control" placeholder="Andria" required/>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Date de naissance</label>
+            <input type="date" name="dateNaissance" class="form-control"/>
+          </div>
+          <div class="form-group">
+            <label>Classe</label>
+            <select name="classeId" class="form-control">
+              <option value="">— Choisir —</option>
+              <option th:each="c : ${classes}" th:value="${c.id}" th:text="${c.nom}"></option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nom du parent/tuteur</label>
+            <input type="text" name="nomParent" class="form-control" placeholder="Andria Pierre"/>
+          </div>
+          <div class="form-group">
+            <label>Prénom parent</label>
+            <input type="text" name="prenomParent" class="form-control" placeholder="Pierre"/>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Contact parent</label>
+            <input type="tel" name="telephoneParent" class="form-control" placeholder="034 XX XXX XX"/>
+          </div>
+          <div class="form-group">
+            <label>Quartier</label>
+            <input type="text" name="commune" class="form-control" placeholder="Tsaralalàna"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Adresse</label>
+          <input type="text" name="adresse" class="form-control" placeholder="Lot 24, …"/>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modal-add-eleve')">Annuler</button>
+        <button type="submit" class="btn btn-primary">Ajouter</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <div th:replace="~{fragments/footer :: footer}"></div>
 </body>
 </html>
