@@ -1,0 +1,12 @@
+maintenant qu'on a trouver ou se deroule les traitements apres login, 
+il faut aporter des modification dans 
+`d:\ITU\S4\Projet_Baovola\Fusion\Fusion_Ecole_Management\src\main\resources\templates\fragments\header.html` on eleve cette partie : `d:\ITU\S4\Projet_Baovola\Fusion\Fusion_Ecole_Management\src\main\resources\templates\fragments\header.html#L30-38` , et on connait le role du user connecter actuel grace a `d:\ITU\S4\Projet_Baovola\Fusion\Fusion_Ecole_Management\src\main\java\com\ecole\service\CustomUserDetailsService.java` et `d:\ITU\S4\Projet_Baovola\Fusion\Fusion_Ecole_Management\src\main\java\com\ecole\service\AuthSuccessHandler.java` , donc selon le user connecter actuel, on rend dynamique le changment du menu, si c'est un directeur son menu est `d:\ITU\S4\Projet_Baovola\Fusion\Fusion_Ecole_Management\src\main\resources\templates\fragments\header.html#L40-74` , si secretaire son menu est `d:\ITU\S4\Projet_Baovola\Fusion\Fusion_Ecole_Management\src\main\resources\templates\fragments\header.html#L76-95` , si professeur son menu est `d:\ITU\S4\Projet_Baovola\Fusion\Fusion_Ecole_Management\src\main\resources\templates\fragments\header.html#L97-119` , si etudiant, son menu est `d:\ITU\S4\Projet_Baovola\Fusion\Fusion_Ecole_Management\src\main\resources\templates\fragments\header.html#L121-140` 
+il faut voir dans `d:\ITU\S4\Projet_Baovola\Fusion\Fusion_Ecole_Management\src\main\resources\static\js\script.js` pour aussi savoir comment regler ce probleme de menu, car actuellement le menu reste figer sur le menu du directeur peut importe le role du user connecter, donc il faut corriger cela en suivant les consignes ci dessus
+
+je ne comprend pas pourquoi lorsque j'essai d'inserer un nouvel eleve @eleves.html#L187-252 , ca devrait aller ici @SecretaireController.java#L288-299  apres , mais au lieu de ca ca passe sur cette url http://localhost:4040/secretariat/eleves/ajouter avec comme message d'erreur : 403
+Accès refusé
+URL : /secretariat/eleves/ajouter
+
+04/07/2026 08:52:50
+
+il faut corriger cette partie

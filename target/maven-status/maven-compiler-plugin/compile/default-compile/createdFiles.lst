@@ -9,6 +9,7 @@ com\ecole\repository\MatiereRepository.class
 com\ecole\service\TypeFichierService.class
 com\ecole\repository\LeconRepository.class
 com\ecole\service\NoteService.class
+com\ecole\controller\GlobalControllerAdvice.class
 com\ecole\service\TypesContratsEmployesService.class
 com\ecole\entity\TypesContratsEmployes.class
 com\ecole\repository\UserRoleRepository.class

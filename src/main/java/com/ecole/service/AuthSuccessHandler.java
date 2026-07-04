@@ -38,11 +38,11 @@ public class AuthSuccessHandler implements AuthenticationSuccessHandler {
         if (hasRole(roles, "ROLE_DIRECTEUR")) {
             redirect = "/directeur/dashboard";
         } else if (hasRole(roles, "ROLE_SECRETARIAT")) {
-            redirect = "/secretariat/eleves";
+            redirect = "/secretariat/paiement";
         } else if (hasRole(roles, "ROLE_PROFESSEUR")) {
-            redirect = "/professeur/notes";
+            redirect = "/professeur/emploi";
         } else if (hasRole(roles, "ROLE_ETUDIANT")) {
-            redirect = "/etudiant/bulletin";
+            redirect = "/etudiant/emploi";
         } else {
             redirect = "/parent/suivi";
         }

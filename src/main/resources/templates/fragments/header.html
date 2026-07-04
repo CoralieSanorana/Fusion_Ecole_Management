@@ -27,18 +27,8 @@
       </div>
     </div>
 
-    <div class="role-switcher">
-      <label>Vue actuelle</label>
-      <select id="roleSelect" onchange="switchRole(this.value)">
-        <option value="directeur">👔 Directeur</option>
-        <option value="secretariat">📋 Secrétariat</option>
-        <option value="professeur">📚 Professeur</option>
-        <option value="etudiant">🎒 Étudiant</option>
-      </select>
-    </div>
-
     <!-- Directeur nav -->
-    <nav class="nav-section" id="nav-directeur">
+    <nav class="nav-section" id="nav-directeur" sec:authorize="hasRole('DIRECTEUR')">
       <p class="nav-section-title">Direction</p>
       <a th:href="@{/directeur/dashboard}" class="nav-item">
         <i class="fas fa-chart-pie"></i> Tableau de bord
@@ -74,7 +64,7 @@
     </nav>
 
     <!-- Secretariat nav -->
-    <nav class="nav-section" sec:authorize="hasRole('SECRETARIAT')">
+    <nav class="nav-section" id="nav-secretariat" sec:authorize="hasRole('SECRETARIAT')">
       <p class="nav-section-title">Secrétariat</p>
       <a th:href="@{/secretariat/paiement}" class="nav-item">
         <i class="fas fa-plus-circle"></i> Ajouter Paiement
@@ -95,7 +85,7 @@
     </nav>
 
     <!-- Professeur nav -->
-    <nav class="nav-section" id="nav-professeur" style="display:none">
+    <nav class="nav-section" id="nav-professeur" sec:authorize="hasRole('PROFESSEUR')">
       <p class="nav-section-title">Enseignement</p>
       <a th:href="@{/professeur/emploi}" class="nav-item">
         <i class="fas fa-calendar-week"></i> Emploi du temps
@@ -119,7 +109,7 @@
     </nav>
 
     <!-- Etudiant nav -->
-    <nav class="nav-section" id="nav-etudiant" style="display:none">
+    <nav class="nav-section" id="nav-etudiant" sec:authorize="hasRole('ETUDIANT')">
       <p class="nav-section-title">Mon Espace</p>
       <a th:href="@{/etudiant/emploi}" class="nav-item">
         <i class="fas fa-calendar-week"></i> Emploi du temps
@@ -141,10 +131,10 @@
 
     <div class="sidebar-footer">
       <div class="sidebar-user">
-        <div class="sidebar-avatar" id="sidebar-avatar-initials">DR</div>
+        <div class="sidebar-avatar" th:text="${currentUserInitials ?: 'US'}">DR</div>
         <div class="sidebar-user-info">
-          <strong id="sidebar-user-name">M. Rakoto</strong>
-          <small id="sidebar-user-role">Directeur</small>
+          <strong th:text="${currentUserName ?: 'Utilisateur'}">M. Rakoto</strong>
+          <small th:text="${currentUserRoleLabel ?: 'Utilisateur'}">Directeur</small>
         </div>
         <i class="fas fa-sign-out-alt" style="color:rgba(255,255,255,.3);font-size:14px;"></i>
       </div>
@@ -200,10 +190,10 @@
       </button>
       <button class="topbar-btn"><i class="fas fa-cog"></i></button>
       <div class="topbar-user" onclick="openModal('modal-profil')">
-        <div class="topbar-avatar" id="topbar-avatar-initials">DR</div>
+        <div class="topbar-avatar" th:text="${currentUserInitials ?: 'US'}">DR</div>
         <div class="topbar-user-meta">
-          <strong id="topbar-user-name">M. Rakoto</strong>
-          <small id="topbar-user-role">Directeur</small>
+          <strong th:text="${currentUserName ?: 'Utilisateur'}">M. Rakoto</strong>
+          <small th:text="${currentUserRoleLabel ?: 'Utilisateur'}">Directeur</small>
         </div>
         <i class="fas fa-chevron-down" style="font-size:10px;color:var(--txt3);"></i>
       </div>
