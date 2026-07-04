@@ -176,6 +176,7 @@
                       </div>
                   </div>
                   <form th:if="${annee != null}" method="post" action="/directeur/edt" data-edt-form>
+                      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                       <input type="hidden" name="salle_id" th:value="${selectedSalleId}">
                       <div class="modal-header">
                           <h3><i class="fas fa-calendar-plus" style="color:var(--clr-amber);margin-right:8px;"></i>Insérer l'emploi du temps</h3>
@@ -215,6 +216,7 @@
           <div th:if="${selectedNiveauId != null and selectedNiveauId > 0}" class="modal-backdrop" id="modal-edt-horaires">
               <div class="modal" style="max-width: 650px; width: 95%;">
                   <form method="post" action="/directeur/edt/save-horaires">
+                      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                       <input type="hidden" name="niveau_id" th:value="${selectedNiveauId}">
                       <input type="hidden" name="salle_id" th:value="${selectedSalleId}">
                       <div class="modal-header">
