@@ -38,7 +38,18 @@ public class SecretaireController {
 
     @GetMapping("/secretariat/paiement")
     public String paiement(Model model) {
-        List<Inscription> inscriptions = paiementService.getInscriptionsActives();
+        List<Inscription> inscriptions;
+        try {
+            inscriptions = paiementService.getInscriptionsActives();
+        } catch (RuntimeException e) {
+            inscriptions = List.of();
+            model.addAttribute("warning", "Aucune année scolaire active ou aucune inscription n'est disponible pour le moment.");
+        }
+
+        if (inscriptions.isEmpty() && !model.containsAttribute("warning")) {
+            model.addAttribute("warning", "Aucune inscription active n'est disponible pour enregistrer un paiement.");
+        }
+
         model.addAttribute("inscriptions", inscriptions);
         model.addAttribute("pageTitle", "Ajouter un Paiement");
         return "Secretaire/paiement";
@@ -158,6 +169,9 @@ public class SecretaireController {
     @GetMapping("/secretariat/bilan")
     public String bilan(Model model) {
         BilanGlobalDTO bilan = paiementService.getBilanGlobal();
+        if (bilan.getLignes() == null || bilan.getLignes().isEmpty()) {
+            model.addAttribute("warning", "Aucune année scolaire active ou aucune donnée de paiement n'est disponible pour générer un bilan.");
+        }
         model.addAttribute("bilan", bilan);
         model.addAttribute("pageTitle", "Bilan de Paiement");
         return "Secretaire/bilan";
