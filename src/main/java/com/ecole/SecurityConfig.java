@@ -40,6 +40,7 @@ public class SecurityConfig {
             .authenticationProvider(authenticationProvider())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/index", "/login", "/css/**", "/js/**").permitAll()
+                .requestMatchers("/api/**").permitAll()
                 .requestMatchers("/directeur/**").hasRole("DIRECTEUR")
                 .requestMatchers("/secretariat/**").hasRole("SECRETARIAT")
                 .requestMatchers("/professeur/**").hasRole("PROFESSEUR")
@@ -58,6 +59,9 @@ public class SecurityConfig {
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/login?logout=true")
                 .permitAll()
+            )
+            .csrf(csrf -> csrf
+                .ignoringRequestMatchers("/api/**")
             );
 
         return http.build();
