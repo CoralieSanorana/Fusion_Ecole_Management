@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.ecole.entity.AnneeScolaire;
 import com.ecole.entity.Inscription;
 import com.ecole.entity.ProfilEtudiant;
 
@@ -24,11 +23,9 @@ public interface InscriptionRepository extends JpaRepository<Inscription, Long> 
 
     Optional<Inscription> findByEtudiantIdAndAnneeScolaireId(Long etudiantId, Long anneeId);
     
-    @Query("SELECT i FROM Inscription i " +
-          "JOIN AnneeScolaire a ON i.anneeScolaireId = a.id " +
-          "WHERE a = :anneeScolaire AND i.statut = :statut")
+    @Query("SELECT i FROM Inscription i LEFT JOIN FETCH i.etudiant LEFT JOIN FETCH i.classe WHERE i.anneeScolaireId = :anneeScolaireId AND i.statut = :statut")
     List<Inscription> findByAnneeScolaireAndStatut(
-        @Param("anneeScolaire") AnneeScolaire anneeScolaire, 
+        @Param("anneeScolaireId") Long anneeScolaireId,
         @Param("statut") String statut
     );
     
