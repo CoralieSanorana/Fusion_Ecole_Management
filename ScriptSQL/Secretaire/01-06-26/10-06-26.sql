@@ -1,7 +1,7 @@
--- TRUNCATE TABLE user_roles CASCADE;
+﻿-- TRUNCATE TABLE user_roles CASCADE;
 -- TRUNCATE TABLE users CASCADE;
 
--- 1. Un user secrétaire (mot de passe : "secret123" hashé en BCrypt)
+-- 1. Un user secretaire (mot de passe : "secret123" hashe en BCrypt)
 INSERT INTO users (email, password, is_active, created_at, updated_at)
 VALUES (
     'directeur@ecole.mg',
@@ -22,7 +22,7 @@ VALUES (
     3 -- secretariat
 );
 
--- Lui donner les 2 rôles
+-- Lui donner les 2 roles
 INSERT INTO user_roles (user_id, role_id)
 VALUES (
     (SELECT id FROM users WHERE email = 'rakoto@ecole.mg'),
@@ -41,7 +41,7 @@ VALUES (
     3  -- secretariat
 );
 
--- Vérifier
+-- Verifier
 SELECT u.email, r.nom 
 FROM users u
 JOIN user_roles ur ON ur.user_id = u.id

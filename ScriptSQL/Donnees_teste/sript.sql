@@ -1,4 +1,4 @@
--- TRUNCATE TABLE user_roles CASCADE;
+﻿-- TRUNCATE TABLE user_roles CASCADE;
 -- TRUNCATE TABLE users CASCADE;
 
 INSERT INTO users (email, password, is_active, created_at, updated_at)
@@ -35,7 +35,7 @@ VALUES (
     3 -- secretariat
 );
 
--- Lui donner les 2 rôles
+-- Lui donner les 2 roles
 INSERT INTO user_roles (user_id, role_id)
 VALUES (
     (SELECT id FROM users WHERE email = 'prof@ecole.mg'),

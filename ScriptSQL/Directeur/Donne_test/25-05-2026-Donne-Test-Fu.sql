@@ -1,6 +1,6 @@
--- ============================================================
---  SEED DONNÉES TEST - MATIÈRES ET SALLES
---  À exécuter après le script de base
+﻿-- ============================================================
+--  SEED DONNeES TEST - MATIeRES ET SALLES
+--  a executer apres le script de base
 -- ============================================================
 
 BEGIN;
@@ -27,10 +27,10 @@ SELECT etab.etablissement_id, v.nom, v.code
 FROM etab
 CROSS JOIN (
 	VALUES
-		('Mathématiques', 'MATH'),
-		('Français', 'FRAN'),
+		('Mathematiques', 'MATH'),
+		('Francais', 'FRAN'),
 		('Physique-Chimie', 'PC'),
-		('Histoire-Géographie', 'HIST'),
+		('Histoire-Geographie', 'HIST'),
 		('SVT', 'SVT'),
 		('Anglais', 'ANG')
 ) AS v(nom, code)

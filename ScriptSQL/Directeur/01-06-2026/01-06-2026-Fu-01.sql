@@ -1,7 +1,7 @@
--- ============================================================
+﻿-- ============================================================
 --  MIGRATION DIRECTEUR — HORAIRES EDT PAR NIVEAU
---  - Permet d'avoir des plages horaires personnalisées par niveau
---  - Gère les contraintes uniques par niveau et globales
+--  - Permet d'avoir des plages horaires personnalisees par niveau
+--  - Gere les contraintes uniques par niveau et globales
 -- ============================================================
 
 BEGIN;
@@ -28,10 +28,10 @@ BEGIN
     END IF;
 END $$;
 
--- 2. Ajout de la colonne niveau_id si elle n'existe pas déjà
+-- 2. Ajout de la colonne niveau_id si elle n'existe pas deja
 ALTER TABLE horaire_edt ADD COLUMN IF NOT EXISTS niveau_id INT;
 
--- 3. Ajout de la contrainte de clé étrangère vers niveaux
+-- 3. Ajout de la contrainte de cle etrangere vers niveaux
 DO $$
 BEGIN
     IF NOT EXISTS (
@@ -46,9 +46,9 @@ BEGIN
     END IF;
 END $$;
 
--- 4. Création d'index uniques conditionnels pour garantir l'unicité des heures de début et fin :
---    - Une plage horaire unique à une heure donnée au niveau global (niveau_id IS NULL)
---    - Une plage horaire unique à une heure donnée pour un niveau spécifique (niveau_id IS NOT NULL)
+-- 4. Creation d'index uniques conditionnels pour garantir l'unicite des heures de debut et fin :
+--    - Une plage horaire unique a une heure donnee au niveau global (niveau_id IS NULL)
+--    - Une plage horaire unique a une heure donnee pour un niveau specifique (niveau_id IS NOT NULL)
 CREATE UNIQUE INDEX IF NOT EXISTS idx_horaire_edt_unique_global 
 ON horaire_edt (heure_debut, heure_fin) 
 WHERE niveau_id IS NULL;
@@ -57,7 +57,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_horaire_edt_unique_level
 ON horaire_edt (niveau_id, heure_debut, heure_fin) 
 WHERE niveau_id IS NOT NULL;
 
--- 5. Création d'un index sur niveau_id pour optimiser les performances des requêtes
+-- 5. Creation d'un index sur niveau_id pour optimiser les performances des requetes
 CREATE INDEX IF NOT EXISTS idx_horaire_edt_niveau_id ON horaire_edt(niveau_id);
 
 COMMIT;

@@ -1,21 +1,21 @@
--- ============================================================
--- SECTION 1 — AUTHENTIFICATION & RÔLES
--- Commun à toutes les équipes.
--- Chaque acteur (étudiant, prof, secrétaire, directeur, parent…)
--- possède un compte "users" + un profil dédié dans sa propre table.
+﻿-- ============================================================
+-- SECTION 1 — AUTHENTIFICATION & RoLES
+-- Commun a toutes les equipes.
+-- Chaque acteur (etudiant, prof, secretaire, directeur, parent…)
+-- possede un compte "users" + un profil dedie dans sa propre table.
 -- ============================================================
 
--- Comptes d'accès unifiés pour tous les acteurs du système
+-- Comptes d'acces unifies pour tous les acteurs du systeme
 CREATE TABLE users (
     id            SERIAL PRIMARY KEY,
     email         VARCHAR(255) UNIQUE NOT NULL,
     password      VARCHAR(255) NOT NULL,         -- bcrypt via CI4 Password helper
-    is_active     BOOLEAN   DEFAULT TRUE,        -- désactivation sans suppression physique
+    is_active     BOOLEAN   DEFAULT TRUE,        -- desactivation sans suppression physique
     last_login    TIMESTAMP,
     created_at    TIMESTAMP DEFAULT NOW(),
     updated_at    TIMESTAMP DEFAULT NOW()
 );
--- Rôles disponibles dans le système
+-- Roles disponibles dans le systeme
 -- Valeurs attendues : 'super_admin', 'directeur', 'secretariat',
 -- 'comptable', 'professeur', 'etudiant', 'parent'
 CREATE TABLE roles (
@@ -25,16 +25,16 @@ CREATE TABLE roles (
     created_at  TIMESTAMP DEFAULT NOW()
 );
 
--- Liaison utilisateurs ↔ rôles (many-to-many)
--- Un utilisateur peut cumuler plusieurs rôles (ex : prof + parent)
+-- Liaison utilisateurs ↔ roles (many-to-many)
+-- Un utilisateur peut cumuler plusieurs roles (ex : prof + parent)
 CREATE TABLE user_roles (
     user_id INT REFERENCES users(id) ON DELETE CASCADE,
     role_id INT REFERENCES roles(id) ON DELETE CASCADE,
     PRIMARY KEY (user_id, role_id)
 );
 
--- Permissions granulaires associées aux rôles
--- Permet de contrôler des actions précises sans changer de rôle
+-- Permissions granulaires associees aux roles
+-- Permet de controler des actions precises sans changer de role
 -- ex : 'notes.write', 'finances.approve', 'edt.edit'
 CREATE TABLE permissions (
     id          SERIAL PRIMARY KEY,

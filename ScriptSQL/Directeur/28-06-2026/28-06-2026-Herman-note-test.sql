@@ -1,22 +1,22 @@
--- =============================================================
+﻿-- =============================================================
 -- statistiques_eleves_test.sql
--- Données de test pour le module "Statistiques Élèves" (détection décrochage).
+-- Donnees de test pour le module "Statistiques eleves" (detection decrochage).
 --
--- Prérequis (déjà créés normalement via l'application) :
+-- Prerequis (deja crees normalement via l'application) :
 --   etablissement id=1, niveau id=1, classe id=1, une annee_scolaire
---   marquée est_active = TRUE.
---   Les 25 étudiants + inscriptions du fichier
---   28-06-2026-Herman-etudiants_test.sql doivent être exécutés AVANT
---   ce script (classe_id=1, même année scolaire active).
+--   marquee est_active = TRUE.
+--   Les 25 etudiants + inscriptions du fichier
+--   28-06-2026-Herman-etudiants_test.sql doivent etre executes AVANT
+--   ce script (classe_id=1, meme annee scolaire active).
 --
--- Ce script crée : 3 périodes, 3 matières, 1 professeur, ses
--- affectations + emploi du temps, un an de séances, des absences
--- différenciées par profil d'élève, et les moyennes générales par
--- période, afin d'obtenir des cas Rouge / Jaune / Normal réalistes.
+-- Ce script cree : 3 periodes, 3 matieres, 1 professeur, ses
+-- affectations + emploi du temps, un an de seances, des absences
+-- differenciees par profil d'eleve, et les moyennes generales par
+-- periode, afin d'obtenir des cas Rouge / Jaune / Normal realistes.
 --
--- Répartition des 25 étudiants (ETU20240001 → ETU20240025) :
---   0001-0005 : ROUGE  (grosse baisse de moyenne ET absentéisme élevé)
---   0006-0010 : JAUNE  (absentéisme élevé, moyenne stable)
+-- Repartition des 25 etudiants (ETU20240001 → ETU20240025) :
+--   0001-0005 : ROUGE  (grosse baisse de moyenne ET absenteisme eleve)
+--   0006-0010 : JAUNE  (absenteisme eleve, moyenne stable)
 --   0011-0015 : JAUNE  (grosse baisse de moyenne, peu d'absences)
 --   0016-0025 : NORMAL (stable, peu d'absences)
 -- =============================================================
@@ -59,19 +59,19 @@ DECLARE
     v_moy_p1 NUMERIC; v_moy_p2 NUMERIC; v_moy_p3 NUMERIC;
 BEGIN
 
-    -- ── 1) Résoudre l'année scolaire active ─────────────────────────
+    -- ── 1) Resoudre l'annee scolaire active ─────────────────────────
     SELECT id, date_debut, date_fin INTO v_annee_id, v_annee_debut, v_annee_fin
     FROM annees_scolaires
     WHERE est_active = TRUE
     LIMIT 1;
 
     IF v_annee_id IS NULL THEN
-        RAISE EXCEPTION 'Aucune année scolaire active trouvée. Créez-en une via l''application avant de lancer ce script.';
+        RAISE EXCEPTION 'Aucune annee scolaire active trouvee. Creez-en une via l''application avant de lancer ce script.';
     END IF;
 
     v_len_jours := (v_annee_fin - v_annee_debut) / 3;
 
-    -- ── 2) Créer les 3 périodes (si pas déjà présentes) ─────────────
+    -- ── 2) Creer les 3 periodes (si pas deja presentes) ─────────────
     v_p1_debut := v_annee_debut;
     v_p1_fin   := v_annee_debut + v_len_jours;
     v_p2_debut := v_p1_fin + 1;
@@ -89,32 +89,32 @@ BEGIN
     SELECT id INTO v_p2_id FROM periodes WHERE annee_scolaire_id = v_annee_id AND ordre = 2;
     IF v_p2_id IS NULL THEN
         INSERT INTO periodes (annee_scolaire_id, libelle, type, ordre, date_debut, date_fin, date_publication_notes, est_cloturee)
-        VALUES (v_annee_id, '2ème Trimestre', 'trimestre', 2, v_p2_debut, v_p2_fin, v_p2_fin, true)
+        VALUES (v_annee_id, '2eme Trimestre', 'trimestre', 2, v_p2_debut, v_p2_fin, v_p2_fin, true)
         RETURNING id INTO v_p2_id;
     END IF;
 
     SELECT id INTO v_p3_id FROM periodes WHERE annee_scolaire_id = v_annee_id AND ordre = 3;
     IF v_p3_id IS NULL THEN
         INSERT INTO periodes (annee_scolaire_id, libelle, type, ordre, date_debut, date_fin, date_publication_notes, est_cloturee)
-        VALUES (v_annee_id, '3ème Trimestre', 'trimestre', 3, v_p3_debut, v_p3_fin, v_p3_fin, false)
+        VALUES (v_annee_id, '3eme Trimestre', 'trimestre', 3, v_p3_debut, v_p3_fin, v_p3_fin, false)
         RETURNING id INTO v_p3_id;
     END IF;
 
-    -- Toujours relire les dates réelles (au cas où les périodes existaient déjà avant ce script)
+    -- Toujours relire les dates reelles (au cas ou les periodes existaient deja avant ce script)
     SELECT date_debut, date_fin INTO v_p1_debut, v_p1_fin FROM periodes WHERE id = v_p1_id;
     SELECT date_debut, date_fin INTO v_p2_debut, v_p2_fin FROM periodes WHERE id = v_p2_id;
     SELECT date_debut, date_fin INTO v_p3_debut, v_p3_fin FROM periodes WHERE id = v_p3_id;
 
-    -- ── 3) Matières de test ──────────────────────────────────────────
+    -- ── 3) Matieres de test ──────────────────────────────────────────
     SELECT id INTO v_mat_math_id FROM matieres WHERE etablissement_id = v_etab_id AND code = 'MATH';
     IF v_mat_math_id IS NULL THEN
-        INSERT INTO matieres (etablissement_id, nom, code) VALUES (v_etab_id, 'Mathématiques', 'MATH')
+        INSERT INTO matieres (etablissement_id, nom, code) VALUES (v_etab_id, 'Mathematiques', 'MATH')
         RETURNING id INTO v_mat_math_id;
     END IF;
 
     SELECT id INTO v_mat_fran_id FROM matieres WHERE etablissement_id = v_etab_id AND code = 'FRAN';
     IF v_mat_fran_id IS NULL THEN
-        INSERT INTO matieres (etablissement_id, nom, code) VALUES (v_etab_id, 'Français', 'FRAN')
+        INSERT INTO matieres (etablissement_id, nom, code) VALUES (v_etab_id, 'Francais', 'FRAN')
         RETURNING id INTO v_mat_fran_id;
     END IF;
 
@@ -138,7 +138,7 @@ BEGIN
         RETURNING id INTO v_prof_id;
     END IF;
 
-    -- ── 5) Affectations d'enseignement (une par matière, sur la classe 1) ─
+    -- ── 5) Affectations d'enseignement (une par matiere, sur la classe 1) ─
     SELECT id INTO v_aff_math_id FROM affectations_enseignement
         WHERE matiere_id = v_mat_math_id AND classe_id = v_classe_id AND annee_scolaire_id = v_annee_id;
     IF v_aff_math_id IS NULL THEN
@@ -163,7 +163,7 @@ BEGIN
         RETURNING id INTO v_aff_svt_id;
     END IF;
 
-    -- ── 6) Emploi du temps : 1 créneau hebdo par matière ──────────────
+    -- ── 6) Emploi du temps : 1 creneau hebdo par matiere ──────────────
     SELECT id INTO v_edt_math_id FROM emploi_du_temps WHERE affectation_id = v_aff_math_id;
     IF v_edt_math_id IS NULL THEN
         INSERT INTO emploi_du_temps (affectation_id, salle_id, jour_semaine, heure_debut, heure_fin)
@@ -185,7 +185,7 @@ BEGIN
         RETURNING id INTO v_edt_svt_id;
     END IF;
 
-    -- ── 7) Génération des séances (1 par semaine et par matière, sur les 3 périodes) ─
+    -- ── 7) Generation des seances (1 par semaine et par matiere, sur les 3 periodes) ─
     INSERT INTO seances (emploi_du_temps_id, date_seance, heure_debut, heure_fin, a_eu_lieu)
     SELECT v_edt_math_id, d::date, '08:00', '10:00', true
     FROM generate_series(v_p1_debut, v_p3_fin, interval '7 days') AS d
@@ -211,9 +211,9 @@ BEGIN
     FROM seances
     WHERE emploi_du_temps_id IN (v_edt_math_id, v_edt_fran_id, v_edt_svt_id);
 
-    RAISE NOTICE 'Total séances générées pour la classe % : %', v_classe_id, v_total_seances;
+    RAISE NOTICE 'Total seances generees pour la classe % : %', v_classe_id, v_total_seances;
 
-    -- ── 8) Moyennes générales + absences, par profil d'élève ──────────
+    -- ── 8) Moyennes generales + absences, par profil d'eleve ──────────
     -- Rang 1..25 dans l'ordre du matricule (ETU20240001 → ETU20240025)
     v_rank := 0;
     FOR rec IN
@@ -226,14 +226,14 @@ BEGIN
         v_rank := v_rank + 1;
 
         IF v_rank BETWEEN 1 AND 5 THEN
-            -- ROUGE : grosse baisse (≥2 pts) ET absentéisme élevé (≥15%)
+            -- ROUGE : grosse baisse (≥2 pts) ET absenteisme eleve (≥15%)
             v_moy_p1 := 14.5 - (v_rank * 0.2);
             v_moy_p2 := v_moy_p1 - 1.8;
             v_moy_p3 := v_moy_p2 - 1.7;              -- delta total ≈ 3.5 pts
             v_nb_absences := round(v_total_seances * (0.18 + (v_rank * 0.02)));  -- ~18-26%
 
         ELSIF v_rank BETWEEN 6 AND 10 THEN
-            -- JAUNE (absence seule) : absentéisme élevé, moyenne stable
+            -- JAUNE (absence seule) : absenteisme eleve, moyenne stable
             v_moy_p1 := 12.0 + (v_rank * 0.1);
             v_moy_p2 := v_moy_p1 - 0.3;
             v_moy_p3 := v_moy_p2 - 0.3;               -- delta total < 1 pt
@@ -254,13 +254,13 @@ BEGIN
             v_nb_absences := round(v_total_seances * (0.02 + ((v_rank - 15) * 0.004))); -- ~2-6%
         END IF;
 
-        -- Bornes de sécurité /20
+        -- Bornes de securite /20
         v_moy_p1 := GREATEST(LEAST(v_moy_p1, 20), 0);
         v_moy_p2 := GREATEST(LEAST(v_moy_p2, 20), 0);
         v_moy_p3 := GREATEST(LEAST(v_moy_p3, 20), 0);
         v_nb_absences := GREATEST(LEAST(v_nb_absences, v_total_seances), 0);
 
-        -- Moyennes générales (matiere_id NULL) pour les 3 périodes
+        -- Moyennes generales (matiere_id NULL) pour les 3 periodes
         INSERT INTO moyennes (etudiant_id, inscription_id, periode_id, matiere_id, valeur, effectif_classe)
         VALUES
             (rec.etudiant_id, rec.inscription_id, v_p1_id, NULL, ROUND(v_moy_p1, 2), 25),
@@ -269,7 +269,7 @@ BEGIN
         ON CONFLICT (etudiant_id, inscription_id, periode_id, matiere_id)
         DO UPDATE SET valeur = EXCLUDED.valeur, effectif_classe = EXCLUDED.effectif_classe, calculated_at = NOW();
 
-        -- Absences : on prend les N premières séances (chronologiquement) non déjà marquées pour cet élève
+        -- Absences : on prend les N premieres seances (chronologiquement) non deja marquees pour cet eleve
         INSERT INTO absences (seance_id, etudiant_id, type, saisi_par)
         SELECT s.id, rec.etudiant_id, 'non_justifiee', v_prof_user_id
         FROM seances s
@@ -283,7 +283,7 @@ BEGIN
 
     END LOOP;
 
-    RAISE NOTICE 'Données de test "Statistiques Élèves" générées avec succès pour l''année scolaire id=%.', v_annee_id;
+    RAISE NOTICE 'Donnees de test "Statistiques eleves" generees avec succes pour l''annee scolaire id=%.', v_annee_id;
 
 END $$;
 

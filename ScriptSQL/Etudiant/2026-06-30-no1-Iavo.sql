@@ -1,4 +1,4 @@
-CREATE TABLE devoirs (
+﻿CREATE TABLE devoirs (
     id                SERIAL PRIMARY KEY,
     matiere_id        INT REFERENCES matieres(id),
     professeur_id     INT REFERENCES profils_professeurs(id),
