@@ -9,13 +9,16 @@ com/ecole/service/SupportCoursService.class
 com/ecole/entity/UserRole.class
 com/ecole/repository/ProfilsDirecteursRepository.class
 com/ecole/service/NiveauService.class
+com/ecole/api/NotificationRestController.class
 com/ecole/controller/HomeController.class
 com/ecole/entity/VueEmployesDetail.class
 com/ecole/service/MatiereService.class
+com/ecole/entity/Actualite.class
 com/ecole/service/ProfilsProfesseursService.class
 com/ecole/dto/Directeur/NiveauAlerte.class
 com/ecole/dto/Directeur/AffectationDetailDTO.class
 com/ecole/service/CoefficientService.class
+com/ecole/service/ActualiteService.class
 com/ecole/repository/RoleRepository.class
 com/ecole/repository/TypeFichierRepository.class
 com/ecole/repository/SupportCoursRepository.class
@@ -28,6 +31,7 @@ com/ecole/repository/UserRoleRepository.class
 com/ecole/repository/AbsenceRepository.class
 com/ecole/entity/Absence.class
 com/ecole/SecurityConfig.class
+com/ecole/repository/ActualiteRepository.class
 com/ecole/dto/Directeur/StatistiquesElevesCriteria.class
 com/ecole/repository/ProfilEtudiantRepository.class
 com/ecole/service/EleveService.class
@@ -53,6 +57,7 @@ com/ecole/service/EdtService.class
 com/ecole/controller/GlobalControllerAdvice.class
 com/ecole/repository/NoteRepository.class
 com/ecole/service/NotificationService.class
+com/ecole/dto/ActualiteDTO.class
 com/ecole/controller/ProfesseurController.class
 com/ecole/dto/Secretaire/AjoutEleveDTO.class
 com/ecole/dto/Secretaire/BilanGlobalDTO.class
@@ -123,8 +128,10 @@ com/ecole/entity/UserRoleId.class
 com/ecole/entity/ProfilsProfesseurs.class
 com/ecole/repository/NotificationTypeRepository.class
 com/ecole/repository/ProfilsComptablesRepository.class
+com/ecole/dto/NotificationDTO.class
 com/ecole/entity/TypeFichier.class
 com/ecole/entity/Inscription.class
+com/ecole/api/ActualiteRestController.class
 com/ecole/controller/SecretaireController.class
 com/ecole/service/UserService.class
 com/ecole/service/SalleService.class

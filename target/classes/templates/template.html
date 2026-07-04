@@ -1082,7 +1082,7 @@
   <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
-      <div class="sidebar-brand-icon">🎓</div>
+      <div class="sidebar-brand-icon"><i class="fas fa-graduation-cap"></i></div>
       <div class="sidebar-brand-text">
         <h1>LycéePro</h1>
         <span>Gestion Scolaire</span>
@@ -1092,10 +1092,10 @@
     <div class="role-switcher">
       <label>Vue actuelle</label>
       <select id="roleSelect" onchange="switchRole(this.value)">
-        <option value="directeur">👔 Directeur</option>
-        <option value="secretariat">📋 Secrétariat</option>
-        <option value="professeur">📚 Professeur</option>
-        <option value="etudiant">🎒 Étudiant</option>
+        <option value="directeur">Directeur</option>
+        <option value="secretariat">Secrétariat</option>
+        <option value="professeur">Professeur</option>
+        <option value="etudiant">Étudiant</option>
       </select>
     </div>
 
@@ -1219,28 +1219,28 @@
             <span style="font-size:12px;color:var(--g);cursor:pointer;">Tout lire</span>
           </div>
           <div class="notif-item unread">
-            <div class="notif-item-icon" style="background:rgba(0,255,133,.08);color:var(--g);">💰</div>
+            <div class="notif-item-icon" style="background:rgba(0,255,133,.08);color:var(--g);"><i class="fas fa-coins"></i></div>
             <div class="notif-item-text">
               <strong>Nouveau paiement reçu</strong>
               <small>Rakoto Jean — 1ère A — il y a 10 min</small>
             </div>
           </div>
           <div class="notif-item unread">
-            <div class="notif-item-icon" style="background:rgba(0,212,110,.1);color:var(--success);">📝</div>
+            <div class="notif-item-icon" style="background:rgba(0,212,110,.1);color:var(--success);"><i class="fas fa-clipboard-check"></i></div>
             <div class="notif-item-text">
               <strong>Notes publiées — Maths</strong>
               <small>Prof. Rabe — il y a 30 min</small>
             </div>
           </div>
           <div class="notif-item">
-            <div class="notif-item-icon" style="background:rgba(10,77,255,.1);color:var(--b);">📣</div>
+            <div class="notif-item-icon" style="background:rgba(10,77,255,.1);color:var(--b);"><i class="fas fa-bullhorn"></i></div>
             <div class="notif-item-text">
               <strong>Réunion parents-profs</strong>
               <small>Vendredi 19 avril 2026 — 9h00</small>
             </div>
           </div>
           <div class="notif-item">
-            <div class="notif-item-icon" style="background:rgba(255,59,92,.1);color:var(--danger);">⚠️</div>
+            <div class="notif-item-icon" style="background:rgba(255,59,92,.1);color:var(--danger);"><i class="fas fa-triangle-exclamation"></i></div>
             <div class="notif-item-text">
               <strong>3 élèves n'ont pas payé</strong>
               <small>Mois d'Avril — action requise</small>
@@ -1269,7 +1269,7 @@
     <section class="page-section active" id="dir-dashboard">
       <div class="page-header">
         <div>
-          <h2>Bonjour, M. Rakoto 👋</h2>
+          <h2>Bonjour, M. Rakoto </h2>
           <p>Vue d'ensemble de l'établissement — Avril 2026</p>
         </div>
         <div class="page-header-actions">
@@ -1376,28 +1376,28 @@
         <div class="card-body" style="padding:var(--sp-lg);">
           <div class="timeline">
             <div class="timeline-item">
-              <div class="timeline-dot" style="background:rgba(0,255,133,.08);color:var(--g);">💰</div>
+              <div class="timeline-dot" style="background:rgba(0,255,133,.08);color:var(--g);"><i class="fas fa-coins"></i></div>
               <div class="timeline-content">
                 <strong>Paiement reçu — Rakoto Jean (1ère A)</strong>
                 <small>Aujourd'hui à 09h14 — 80 000 Ar</small>
               </div>
             </div>
             <div class="timeline-item">
-              <div class="timeline-dot" style="background:rgba(0,212,110,.1);color:var(--success);">📝</div>
+              <div class="timeline-dot" style="background:rgba(0,212,110,.1);color:var(--success);"><i class="fas fa-clipboard-check"></i></div>
               <div class="timeline-content">
                 <strong>Notes publiées — Mathématiques Terminale C</strong>
                 <small>Hier à 16h30 — Par Prof. Rabe</small>
               </div>
             </div>
             <div class="timeline-item">
-              <div class="timeline-dot" style="background:rgba(10,77,255,.1);color:var(--b);">👤</div>
+              <div class="timeline-dot" style="background:rgba(10,77,255,.1);color:var(--b);"><i class="fas fa-user-plus"></i></div>
               <div class="timeline-content">
                 <strong>Nouvel élève inscrit — Andria Miora</strong>
                 <small>14 Avril 2026 — Classe Seconde B</small>
               </div>
             </div>
             <div class="timeline-item">
-              <div class="timeline-dot" style="background:rgba(255,59,92,.1);color:var(--danger);">📣</div>
+              <div class="timeline-dot" style="background:rgba(255,59,92,.1);color:var(--danger);"><i class="fas fa-bullhorn"></i></div>
               <div class="timeline-content">
                 <strong>Actualité publiée — Réunion parents-profs</strong>
                 <small>12 Avril 2026 — Par Secrétariat</small>
@@ -1679,7 +1679,7 @@
                 <option>Mobile Money</option>
               </select>
             </div>
-            <button class="btn btn-primary" style="width:100%;" onclick="showToast('✅ Paiement enregistré avec succès !')">
+            <button class="btn btn-primary" style="width:100%;" onclick="showToast(' Paiement enregistré avec succès !')">
               <i class="fas fa-save"></i> Enregistrer le paiement
             </button>
           </div>
@@ -1926,7 +1926,7 @@
           <select class="form-control" style="width:auto;padding:8px 12px;">
             <option>Trimestre 2</option><option>Trimestre 1</option>
           </select>
-          <button class="btn btn-primary" onclick="showToast('📊 Notes enregistrées !')"><i class="fas fa-save"></i> Enregistrer</button>
+          <button class="btn btn-primary" onclick="showToast(' Notes enregistrées !')"><i class="fas fa-save"></i> Enregistrer</button>
         </div>
       </div>
       <div class="card">
@@ -2021,7 +2021,7 @@
                 <label>Description</label>
                 <textarea class="form-control" rows="4" placeholder="Instructions détaillées…" style="resize:vertical;"></textarea>
               </div>
-              <button class="btn btn-primary" style="width:100%;" onclick="showToast('📚 Devoir publié !')">
+              <button class="btn btn-primary" style="width:100%;" onclick="showToast(' Devoir publié !')">
                 <i class="fas fa-paper-plane"></i> Publier
               </button>
             </div>
@@ -2036,7 +2036,7 @@
         <div><h2>Bulletins — Terminale C</h2><p>Salle dont vous êtes titulaire</p></div>
         <div class="page-header-actions">
           <select class="form-control" style="width:auto;padding:8px 12px;"><option>Trimestre 2</option></select>
-          <button class="btn btn-primary" onclick="showToast('📋 Bulletins publiés pour Terminale C !')"><i class="fas fa-share"></i> Publier les bulletins</button>
+          <button class="btn btn-primary" onclick="showToast(' Bulletins publiés pour Terminale C !')"><i class="fas fa-share"></i> Publier les bulletins</button>
         </div>
       </div>
       <div class="bulletin">
@@ -2309,7 +2309,7 @@
                   <button class="btn btn-sm btn-secondary"><i class="fas fa-image"></i> Photo</button>
                   <button class="btn btn-sm btn-secondary" onclick="openModal('modal-sondage')"><i class="fas fa-poll"></i> Sondage</button>
                 </div>
-                <button class="btn btn-sm btn-primary" onclick="showToast('📣 Actualité publiée !')"><i class="fas fa-paper-plane"></i> Publier</button>
+                <button class="btn btn-sm btn-primary" onclick="showToast('<i class="fas fa-bullhorn"></i> Actualité publiée !')"><i class="fas fa-paper-plane"></i> Publier</button>
               </div>
             </div>
           </div>
@@ -2318,7 +2318,7 @@
 
       <div class="grid-3">
         <div class="news-card">
-          <div class="news-card-image">📢</div>
+          <div class="news-card-image"><i class="fas fa-bullhorn"></i></div>
           <div class="news-card-body">
             <div class="news-meta">
               <span class="badge badge-navy">Direction</span>
@@ -2329,7 +2329,7 @@
           </div>
         </div>
         <div class="news-card">
-          <div class="news-card-image">🏆</div>
+          <div class="news-card-image"><i class="fas fa-trophy"></i></div>
           <div class="news-card-body">
             <div class="news-meta">
               <span class="badge badge-amber">Évènement</span>
@@ -2340,7 +2340,7 @@
           </div>
         </div>
         <div class="news-card">
-          <div class="news-card-image" style="background:linear-gradient(135deg,var(--g),#4DFFA0);">📝</div>
+          <div class="news-card-image" style="background:linear-gradient(135deg,var(--g),#4DFFA0);"><i class="fas fa-clipboard-check"></i></div>
           <div class="news-card-body">
             <div class="news-meta">
               <span class="badge badge-green">Examens</span>
@@ -2390,7 +2390,7 @@
       </div>
       <div class="card">
         <div class="notif-item unread">
-          <div class="notif-item-icon" style="background:rgba(0,255,133,.08);color:var(--g);">💰</div>
+          <div class="notif-item-icon" style="background:rgba(0,255,133,.08);color:var(--g);"><i class="fas fa-coins"></i></div>
           <div class="notif-item-text" style="flex:1;">
             <strong>Nouveau paiement reçu — Rakoto Jean</strong>
             <small>1ère A — 80 000 Ar — il y a 10 min</small>
@@ -2398,7 +2398,7 @@
           <span class="badge badge-amber">Nouveau</span>
         </div>
         <div class="notif-item unread">
-          <div class="notif-item-icon" style="background:rgba(0,212,110,.1);color:var(--success);">📝</div>
+          <div class="notif-item-icon" style="background:rgba(0,212,110,.1);color:var(--success);"><i class="fas fa-clipboard-check"></i></div>
           <div class="notif-item-text" style="flex:1;">
             <strong>Notes publiées — Mathématiques Terminale C</strong>
             <small>Par Prof. Rabe — il y a 30 min</small>
@@ -2406,21 +2406,21 @@
           <span class="badge badge-amber">Nouveau</span>
         </div>
         <div class="notif-item">
-          <div class="notif-item-icon" style="background:rgba(10,77,255,.1);color:var(--b);">📣</div>
+          <div class="notif-item-icon" style="background:rgba(10,77,255,.1);color:var(--b);"><i class="fas fa-bullhorn"></i></div>
           <div class="notif-item-text" style="flex:1;">
             <strong>Réunion parents-profs programmée</strong>
             <small>Vendredi 19 avril 2026 — 9h00</small>
           </div>
         </div>
         <div class="notif-item">
-          <div class="notif-item-icon" style="background:rgba(255,59,92,.1);color:var(--danger);">⚠️</div>
+          <div class="notif-item-icon" style="background:rgba(255,59,92,.1);color:var(--danger);"><i class="fas fa-triangle-exclamation"></i></div>
           <div class="notif-item-text" style="flex:1;">
             <strong>3 élèves n'ont pas payé l'écolage d'Avril</strong>
             <small>Action requise — 16 Avril 2026</small>
           </div>
         </div>
         <div class="notif-item">
-          <div class="notif-item-icon" style="background:rgba(0,212,110,.1);color:var(--success);">🏆</div>
+          <div class="notif-item-icon" style="background:rgba(0,212,110,.1);color:var(--success);"><i class="fas fa-trophy"></i></div>
           <div class="notif-item-text" style="flex:1;">
             <strong>Bulletin du Trimestre 2 publié</strong>
             <small>Terminale C — 10 Avril 2026</small>
@@ -2454,7 +2454,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal('modal-profil')">Annuler</button>
-      <button class="btn btn-primary" onclick="closeModal('modal-profil');showToast('✅ Profil mis à jour !')">Enregistrer</button>
+      <button class="btn btn-primary" onclick="closeModal('modal-profil');showToast(' Profil mis à jour !')">Enregistrer</button>
     </div>
   </div>
 </div>
@@ -2483,7 +2483,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal('modal-add-prof')">Annuler</button>
-      <button class="btn btn-primary" onclick="closeModal('modal-add-prof');showToast('👨‍🏫 Professeur ajouté !')">Ajouter</button>
+      <button class="btn btn-primary" onclick="closeModal('modal-add-prof');showToast('Professeur ajouté !')">Ajouter</button>
     </div>
   </div>
 </div>
@@ -2515,7 +2515,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal('modal-add-eleve')">Annuler</button>
-      <button class="btn btn-primary" onclick="closeModal('modal-add-eleve');showToast('🎒 Élève inscrit !')">Inscrire</button>
+      <button class="btn btn-primary" onclick="closeModal('modal-add-eleve');showToast(' Élève inscrit !')">Inscrire</button>
     </div>
   </div>
 </div>
@@ -2538,7 +2538,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal('modal-sondage')">Annuler</button>
-      <button class="btn btn-primary" onclick="closeModal('modal-sondage');showToast('📊 Sondage publié !')">Publier</button>
+      <button class="btn btn-primary" onclick="closeModal('modal-sondage');showToast(' Sondage publié !')">Publier</button>
     </div>
   </div>
 </div>
@@ -2561,7 +2561,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal('modal-devoir')">Annuler</button>
-      <button class="btn btn-primary" onclick="closeModal('modal-devoir');showToast('📚 Devoir publié !')">Publier</button>
+      <button class="btn btn-primary" onclick="closeModal('modal-devoir');showToast(' Devoir publié !')">Publier</button>
     </div>
   </div>
 </div>
@@ -2583,7 +2583,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal('modal-news')">Annuler</button>
-      <button class="btn btn-primary" onclick="closeModal('modal-news');showToast('📣 Actualité publiée !')">Publier</button>
+      <button class="btn btn-primary" onclick="closeModal('modal-news');showToast('<i class="fas fa-bullhorn"></i> Actualité publiée !')">Publier</button>
     </div>
   </div>
 </div>
@@ -2801,7 +2801,7 @@
     isDark = !isDark;
     document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
     themeToggle.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
-    showToast(isDark ? '🌙 Thème sombre activé' : '☀️ Thème clair activé');
+    showToast(isDark ? 'Thème sombre activé' : 'Thème clair activé');
   });
 
   /* ============================================================
@@ -2885,7 +2885,7 @@
   /* Init */
   window.addEventListener('DOMContentLoaded', () => {
     showPage('dir-dashboard');
-    setTimeout(() => showToast('👋 Bienvenue sur LycéePro !'), 800);
+    setTimeout(() => showToast(' Bienvenue sur LycéePro !'), 800);
   });
 </script>
 </body>

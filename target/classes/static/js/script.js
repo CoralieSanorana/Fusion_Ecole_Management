@@ -154,7 +154,7 @@
     isDark = !isDark;
     document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
     themeToggle.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
-    showToast(isDark ? '🌙 Thème sombre activé' : '☀️ Thème clair activé');
+    showToast(isDark ? 'Thème sombre activé' : 'Thème clair activé');
   });
 
   /* ============================================================
@@ -246,5 +246,5 @@
       }
     });
 
-    setTimeout(() => showToast('👋 Bienvenue sur LycéePro !'), 800);
+    setTimeout(() => showToast('Bienvenue sur LycéePro !'), 800);
   });

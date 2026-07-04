@@ -1,6 +1,8 @@
 /home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/EcoleApplication.java
 /home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/GenerateHash.java
 /home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/SecurityConfig.java
+/home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/api/ActualiteRestController.java
+/home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/api/NotificationRestController.java
 /home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/controller/CommunsController.java
 /home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/controller/DirecteurController.java
 /home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/controller/EtudiantController.java
@@ -9,6 +11,7 @@
 /home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/controller/HomeController.java
 /home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/controller/ProfesseurController.java
 /home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/controller/SecretaireController.java
+/home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/dto/ActualiteDTO.java
 /home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/dto/Directeur/AffectationDetailDTO.java
 /home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/dto/Directeur/ClasseStatistique.java
 /home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/dto/Directeur/CreneauDTO.java
@@ -20,6 +23,7 @@
 /home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/dto/Directeur/NiveauAlerte.java
 /home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/dto/Directeur/StatistiquesElevesCriteria.java
 /home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/dto/Directeur/StatistiquesElevesResponse.java
+/home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/dto/NotificationDTO.java
 /home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/dto/Secretaire/AjoutEleveDTO.java
 /home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/dto/Secretaire/BilanClasseDTO.java
 /home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/dto/Secretaire/BilanGlobalDTO.java
@@ -28,6 +32,7 @@
 /home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/dto/Secretaire/PaiementGroupeDTO.java
 /home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/dto/Secretaire/PaiementHistoriqueDTO.java
 /home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/entity/Absence.java
+/home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/entity/Actualite.java
 /home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/entity/AffectationEnseignement.java
 /home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/entity/AnneeScolaire.java
 /home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/entity/Classe.java
@@ -70,6 +75,7 @@
 /home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/entity/UserRoleId.java
 /home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/entity/VueEmployesDetail.java
 /home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/repository/AbsenceRepository.java
+/home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/repository/ActualiteRepository.java
 /home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/repository/AffectationEnseignementRepository.java
 /home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/repository/AnneeScolaireRepository.java
 /home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/repository/ClasseRepository.java
@@ -111,6 +117,7 @@
 /home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/repository/UserRoleRepository.java
 /home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/repository/VueEmployesDetailRepository.java
 /home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/service/AbsenceService.java
+/home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/service/ActualiteService.java
 /home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/service/AffectationEnseignementService.java
 /home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/service/AnneeScolaireService.java
 /home/itiela/Documents/Bao/Fusion/src/main/java/com/ecole/service/AuthSuccessHandler.java

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.springframework.org/schema/security">
 <head th:replace="fragments/header :: head"></head>
 <body>
 <canvas id="particle-canvas"></canvas>
@@ -9,62 +9,119 @@
   <main class="main-content">
     <div class="page-header">
         <div><h2>Actualités</h2><p>Nouvelles et événements de l'établissement</p></div>
-        <button class="btn btn-primary" onclick="openModal('modal-news')"><i class="fas fa-plus"></i> Publier une actualité</button>
+        <th:block sec:authorize="hasRole('DIRECTEUR') or hasRole('SECRETARIAT')">
+          <button class="btn btn-primary" onclick="openModal('modal-news')"><i class="fas fa-plus"></i> Publier une actualité</button>
+        </th:block>
       </div>
 
-      <!-- Publication form (for authorized roles) -->
+      <!-- Publication form (for authorized roles only) -->
+      <th:block sec:authorize="hasRole('DIRECTEUR') or hasRole('SECRETARIAT')">
       <div class="card" style="margin-bottom:var(--sp-xl);border-left:3px solid var(--g);">
         <div class="card-body">
           <div style="display:flex;gap:var(--sp-md);align-items:flex-start;">
             <div class="avatar-placeholder" style="width:40px;height:40px;background:linear-gradient(135deg,var(--g),var(--b));font-size:15px;">DR</div>
             <div style="flex:1;">
-              <textarea class="form-control" rows="3" placeholder="Partagez une actualité avec l'école…" style="resize:none;"></textarea>
+              <textarea id="contenuActualite" class="form-control" rows="3" placeholder="Partagez une actualité avec l'école…" style="resize:none;"></textarea>
               <div style="margin-top:var(--sp-sm);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--sp-sm);">
                 <div style="display:flex;gap:var(--sp-sm);">
-                  <button class="btn btn-sm btn-secondary"><i class="fas fa-image"></i> Photo</button>
-                  <button class="btn btn-sm btn-secondary" onclick="openModal('modal-sondage')"><i class="fas fa-poll"></i> Sondage</button>
+                  <input type="text" id="titreActualite" class="form-control" placeholder="Titre de l'actualité" style="width: 200px;">
+                  <select id="categorieActualite" class="form-control" style="width: 150px;">
+                    <option value="">Sélectionner une catégorie</option>
+                    <option value="Direction">Direction</option>
+                    <option value="Événement">Événement</option>
+                    <option value="Examens">Examens</option>
+                    <option value="Important">Important</option>
+                  </select>
                 </div>
-                <button class="btn btn-sm btn-primary" onclick="showToast('📣 Actualité publiée !')"><i class="fas fa-paper-plane"></i> Publier</button>
+                <button class="btn btn-sm btn-primary" onclick="publierActualite()"><i class="fas fa-paper-plane"></i> Publier</button>
               </div>
             </div>
           </div>
         </div>
       </div>
+      </th:block>
+
+      <script>
+      function publierActualite() {
+          const titre = document.getElementById('titreActualite').value.trim();
+          const contenu = document.getElementById('contenuActualite').value.trim();
+          const categorie = document.getElementById('categorieActualite').value.trim();
+          
+          if (!titre || !contenu || !categorie) {
+              alert('Veuillez remplir tous les champs');
+              return;
+          }
+          
+          const data = {
+              titre: titre,
+              contenu: contenu,
+              categorie: categorie,
+              auteurNom: 'Directeur Principal',
+              iconeClasse: 'fas fa-bullhorn'
+          };
+          
+          // Obtenir le token CSRF du meta tag
+          const token = document.querySelector('meta[name="_csrf"]')?.getAttribute('content') || '';
+          const header = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content') || 'X-CSRF-TOKEN';
+          
+          const headers = {
+              'Content-Type': 'application/json'
+          };
+          
+          if (token) {
+              headers[header] = token;
+          }
+          
+          fetch('/api/actualites', {
+              method: 'POST',
+              headers: headers,
+              body: JSON.stringify(data)
+          })
+          .then(response => {
+              if (response.ok) {
+                  alert('Actualité publiée avec succès!');
+                  document.getElementById('titreActualite').value = '';
+                  document.getElementById('contenuActualite').value = '';
+                  document.getElementById('categorieActualite').value = '';
+                  // Recharger après 500ms pour laisser le temps au serveur
+                  setTimeout(() => location.reload(), 500);
+              } else if (response.status === 403) {
+                  alert('Accès refusé - Veuillez vous connecter');
+              } else {
+                  response.text().then(text => {
+                      console.error('Erreur serveur:', text);
+                      alert('Erreur lors de la publication: ' + response.status);
+                  });
+              }
+          })
+          .catch(error => {
+              console.error('Erreur réseau:', error);
+              alert('Erreur de connexion au serveur');
+          });
+      }
+      </script>
 
       <div class="grid-3">
-        <div class="news-card">
-          <div class="news-card-image">📢</div>
-          <div class="news-card-body">
-            <div class="news-meta">
-              <span class="badge badge-navy">Direction</span>
-              <span>12 Avril 2026</span>
+        <th:block th:each="actualite : ${actualites}">
+          <div class="news-card">
+            <div class="news-card-image">
+              <i th:class="${actualite.iconeClasse} ?: 'fas fa-newspaper'"></i>
             </div>
-            <h4>Réunion Parents-Professeurs</h4>
-            <p>La réunion parents-professeurs du 2ème trimestre se tiendra vendredi 19 avril à 9h dans la grande salle.</p>
-          </div>
-        </div>
-        <div class="news-card">
-          <div class="news-card-image">🏆</div>
-          <div class="news-card-body">
-            <div class="news-meta">
-              <span class="badge badge-amber">Évènement</span>
-              <span>10 Avril 2026</span>
+            <div class="news-card-body">
+              <div class="news-meta">
+                <span class="badge" th:classappend="${actualite.categorie == 'Direction' ? 'badge-navy' : actualite.categorie == 'Événement' ? 'badge-amber' : actualite.categorie == 'Examens' ? 'badge-green' : 'badge-secondary'}" th:text="${actualite.categorie}"></span>
+                <span th:text="${#temporals.format(actualite.datePublication, 'dd MMMM yyyy')}"></span>
+              </div>
+              <h4 th:text="${actualite.titre}"></h4>
+              <p th:text="${actualite.contenu}"></p>
             </div>
-            <h4>Concours National de Maths</h4>
-            <p>Félicitations à nos élèves de Terminale C qui ont remporté la 2ème place au concours régional de mathématiques !</p>
           </div>
-        </div>
-        <div class="news-card">
-          <div class="news-card-image" style="background:linear-gradient(135deg,var(--g),#4DFFA0);">📝</div>
-          <div class="news-card-body">
-            <div class="news-meta">
-              <span class="badge badge-green">Examens</span>
-              <span>8 Avril 2026</span>
-            </div>
-            <h4>Calendrier des Examens T2</h4>
-            <p>Le calendrier des examens du deuxième trimestre est disponible. Les examens se dérouleront du 5 au 16 mai.</p>
-          </div>
-        </div>
+        </th:block>
+      </div>
+      
+      <!-- Message si pas d'actualités -->
+      <div th:if="${#lists.isEmpty(actualites)}" class="card" style="text-align: center; padding: 2rem;">
+        <p style="color: var(--txt3); margin: 0;">Aucune actualité pour le moment</p>
       </div>
 
       <!-- Sondage -->
