@@ -150,3 +150,41 @@ WHERE NOT EXISTS (
     SELECT 1 FROM profils_etudiants pe
     WHERE pe.user_id = (SELECT id FROM users WHERE email = 'etudiant@ecole.mg')
 );
+
+-- Insertion des actualités de test
+INSERT INTO actualites (titre, contenu, categorie, auteur_id, auteur_nom, icone_classe, date_publication, est_active, created_at, updated_at)
+SELECT 'Réunion Parents-Professeurs', 'La réunion parents-professeurs du 2ème trimestre se tiendra vendredi 19 avril à 9h dans la grande salle.', 'Direction', 1, 'Directeur Principal', 'fas fa-bullhorn', NOW(), true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM actualites WHERE titre = 'Réunion Parents-Professeurs');
+
+INSERT INTO actualites (titre, contenu, categorie, auteur_id, auteur_nom, icone_classe, date_publication, est_active, created_at, updated_at)
+SELECT 'Concours National de Maths', 'Félicitations à nos élèves de Terminale C qui ont remporté la 2ème place au concours régional de mathématiques !', 'Événement', 1, 'Directeur Principal', 'fas fa-trophy', NOW() - INTERVAL '2 days', true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM actualites WHERE titre = 'Concours National de Maths');
+
+INSERT INTO actualites (titre, contenu, categorie, auteur_id, auteur_nom, icone_classe, date_publication, est_active, created_at, updated_at)
+SELECT 'Calendrier des Examens T2', 'Le calendrier des examens du deuxième trimestre est disponible. Les examens se dérouleront du 5 au 16 mai.', 'Examens', 1, 'Directeur Principal', 'fas fa-clipboard-list', NOW() - INTERVAL '4 days', true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM actualites WHERE titre = 'Calendrier des Examens T2');
+
+-- Insertion des notifications de test
+INSERT INTO notification_types (code, libelle, template_message)
+SELECT 'PAYMENT_RECEIVED', 'Paiement reçu', 'Nouveau paiement reçu de {student_name}'
+WHERE NOT EXISTS (SELECT 1 FROM notification_types WHERE code = 'PAYMENT_RECEIVED');
+
+INSERT INTO notification_types (code, libelle, template_message)
+SELECT 'GRADES_PUBLISHED', 'Notes publiées', 'Les notes de {subject} ont été publiées'
+WHERE NOT EXISTS (SELECT 1 FROM notification_types WHERE code = 'GRADES_PUBLISHED');
+
+INSERT INTO notification_types (code, libelle, template_message)
+SELECT 'ANNOUNCEMENT', 'Annonce', '{message}'
+WHERE NOT EXISTS (SELECT 1 FROM notification_types WHERE code = 'ANNOUNCEMENT');
+
+INSERT INTO notifications (user_id, type_id, titre, message, est_lu, created_at)
+SELECT 1, (SELECT id FROM notification_types WHERE code = 'PAYMENT_RECEIVED'), 'Nouveau paiement reçu — Rakoto Jean', '1ère A — 80 000 Ar — il y a 10 min', false, NOW()
+WHERE NOT EXISTS (SELECT 1 FROM notifications WHERE titre = 'Nouveau paiement reçu — Rakoto Jean');
+
+INSERT INTO notifications (user_id, type_id, titre, message, est_lu, created_at)
+SELECT 1, (SELECT id FROM notification_types WHERE code = 'GRADES_PUBLISHED'), 'Notes publiées — Mathématiques Terminale C', 'Par Prof. Rabe — il y a 30 min', false, NOW() - INTERVAL '30 minutes'
+WHERE NOT EXISTS (SELECT 1 FROM notifications WHERE titre = 'Notes publiées — Mathématiques Terminale C');
+
+INSERT INTO notifications (user_id, type_id, titre, message, est_lu, created_at)
+SELECT 1, (SELECT id FROM notification_types WHERE code = 'ANNOUNCEMENT'), 'Réunion parents-profs programmée', 'Vendredi 19 avril 2026 — 9h00', true, NOW() - INTERVAL '1 day'
+WHERE NOT EXISTS (SELECT 1 FROM notifications WHERE titre = 'Réunion parents-profs programmée');
