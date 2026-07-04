@@ -210,7 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
     statBeneficeNet.textContent = formatMoney(kpis.beneficeNet);
     statResume.innerHTML = `<i class="fas fa-arrow-up"></i> ${payload.selectedMonthLabel || ''}`;
 
-    chartTitle.textContent = `Recettes mensuelles - ${payload.anneeScolaireLibelle || ''}`.trim();
+    chartTitle.textContent = `Recettes vs dépenses - ${payload.anneeScolaireLibelle || ''}`.trim();
     renderChart(payload.serieMensuelle || []);
     renderTransactions(payload.transactions || []);
     renderDonut(kpis);

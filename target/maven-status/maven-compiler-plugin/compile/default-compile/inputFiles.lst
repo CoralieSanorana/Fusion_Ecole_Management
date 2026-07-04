@@ -34,6 +34,7 @@ D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\dto\S
 D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\dto\Secretaire\EleveProfilDTO.java
 D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\dto\Secretaire\PaiementGroupeDTO.java
 D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\dto\Secretaire\PaiementHistoriqueDTO.java
+D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\dto\Secretaire\PeriodeOptionDTO.java
 D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\EcoleApplication.java
 D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\entity\Absence.java
 D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\entity\Actualite.java
@@ -42,6 +43,7 @@ D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\entit
 D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\entity\Classe.java
 D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\entity\Coefficient.java
 D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\entity\ContratsEmployes.java
+D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\entity\Depense.java
 D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\entity\Devoir.java
 D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\entity\Echeance.java
 D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\entity\Echeancier.java
@@ -72,6 +74,7 @@ D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\entit
 D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\entity\Seance.java
 D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\entity\SupportCours.java
 D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\entity\TitulaireClasse.java
+D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\entity\TypeDepense.java
 D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\entity\TypeFichier.java
 D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\entity\TypesContratsEmployes.java
 D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\entity\User.java
@@ -86,6 +89,7 @@ D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\repos
 D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\repository\ClasseRepository.java
 D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\repository\CoefficientRepository.java
 D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\repository\ContratsEmployesRepository.java
+D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\repository\DepenseRepository.java
 D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\repository\DevoirRepository.java
 D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\repository\EcheanceRepository.java
 D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\repository\EcheancierRepository.java
@@ -116,6 +120,7 @@ D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\repos
 D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\repository\SeanceRepository.java
 D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\repository\SupportCoursRepository.java
 D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\repository\TitulaireClasseRepository.java
+D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\repository\TypeDepenseRepository.java
 D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\repository\TypeFichierRepository.java
 D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\repository\TypesContratsEmployesRepository.java
 D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\repository\UserRepository.java
@@ -130,6 +135,7 @@ D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\servi
 D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\service\ClasseService.java
 D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\service\CoefficientService.java
 D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\service\CustomUserDetailsService.java
+D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\service\DepenseService.java
 D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\service\DirecteurDashboardService.java
 D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\service\EdtService.java
 D:\S4\BAOVOLA\Spring-Ecole\Fusion_Ecole_Management\src\main\java\com\ecole\service\EleveService.java

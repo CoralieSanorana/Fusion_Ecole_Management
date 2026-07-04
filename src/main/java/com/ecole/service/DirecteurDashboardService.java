@@ -2,9 +2,11 @@ package com.ecole.service;
 
 import com.ecole.dto.Directeur.*;
 import com.ecole.entity.AnneeScolaire;
+import com.ecole.entity.Depense;
 import com.ecole.entity.Paiement;
 import com.ecole.entity.VueEmployesDetail;
 import com.ecole.repository.AnneeScolaireRepository;
+import com.ecole.repository.DepenseRepository;
 import com.ecole.repository.InscriptionRepository;
 import com.ecole.repository.PaiementRepository;
 import lombok.RequiredArgsConstructor;
@@ -47,6 +49,7 @@ public class DirecteurDashboardService {
     private final AnneeScolaireRepository anneeScolaireRepository;
     private final InscriptionRepository inscriptionRepository;
     private final PaiementRepository paiementRepository;
+    private final DepenseRepository depenseRepository;
     private final EmployeService employeService;
 
     public DashboardResponseDTO getDashboard(Long anneeScolaireId, String moisSelectionne) {
@@ -215,15 +218,20 @@ public class DirecteurDashboardService {
             return BigDecimal.ZERO;
         }
 
-        LocalDate debutMois = mois.atDay(1);
-        LocalDate finMois = mois.atEndOfMonth();
+        return depenseRepository.sumTotalByAnneeScolaireAndDateBetween(
+                annee.getId(),
+                mois.atDay(1),
+                mois.atEndOfMonth());
+    }
 
-        return employeService.getProfesseurs().stream()
-                .filter(this::isEligibleForSalaryExpense)
-                .filter(e -> periodeActiveSurMois(e, debutMois, finMois))
-                .map(VueEmployesDetail::getSalaireMensuel)
-                .filter(Objects::nonNull)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    public List<Depense> listerDepenses(AnneeScolaire annee, YearMonth mois) {
+        if (annee == null || mois == null) {
+            return List.of();
+        }
+        return depenseRepository.findByAnneeScolaire_IdAndDateDepenseBetweenOrderByDateDepenseDesc(
+                annee.getId(),
+                mois.atDay(1),
+                mois.atEndOfMonth());
     }
 
     public List<VueEmployesDetail> getProfesseursActifs(AnneeScolaire annee, YearMonth mois) {
@@ -323,12 +331,46 @@ public class DirecteurDashboardService {
         summary.setWidthPercentage(100);
         summary.setWidths(new float[] { 1.2f, 1.8f });
         addSummaryCell(summary, "Recettes du mois", formatMoney(dashboard.getKpis().getRecettesTotal()), border, label, value);
-        addSummaryCell(summary, "Dépenses salaires professeurs", formatMoney(dashboard.getKpis().getDepensesSalairesProfesseurs()), border, label, value);
+        addSummaryCell(summary, "Dépenses du mois", formatMoney(dashboard.getKpis().getDepensesSalairesProfesseurs()), border, label, value);
         addSummaryCell(summary, "Bénéfice net", formatMoney(dashboard.getKpis().getBeneficeNet()), border, label, value);
         addSummaryCell(summary, "Transactions uniques", String.valueOf(dashboard.getKpis().getTransactionsTotal()), border, label, value);
         addSummaryCell(summary, "Élèves ayant payé", String.valueOf(dashboard.getKpis().getElevesPayes()), border, label, value);
         addSummaryCell(summary, "Professeurs actifs", String.valueOf(dashboard.getKpis().getProfesseursActifs()), border, label, value);
         doc.add(summary);
+
+        addSectionTitle(doc, "Dépenses détaillées", section, 8);
+        PdfPTable depenseTable = new PdfPTable(6);
+        depenseTable.setWidthPercentage(100);
+        depenseTable.setWidths(new float[] { 1.0f, 1.4f, 2.6f, 0.9f, 0.9f, 1.1f });
+        addHeaderCell(depenseTable, "Date", accent, whiteBold);
+        addHeaderCell(depenseTable, "Type", accent, whiteBold);
+        addHeaderCell(depenseTable, "Description", accent, whiteBold);
+        addHeaderCell(depenseTable, "P.U.", accent, whiteBold);
+        addHeaderCell(depenseTable, "Qté", accent, whiteBold);
+        addHeaderCell(depenseTable, "Total", accent, whiteBold);
+
+        List<Depense> depensesMois = listerDepenses(findAnnee(dashboard.getAnneeScolaireId()), YearMonth.parse(dashboard.getSelectedMonth()));
+        if (depensesMois.isEmpty()) {
+            PdfPCell emptyDepense = new PdfPCell(new Phrase("Aucune dépense enregistrée pour la période sélectionnée.", label));
+            emptyDepense.setColspan(6);
+            emptyDepense.setHorizontalAlignment(Element.ALIGN_CENTER);
+            emptyDepense.setPadding(12);
+            emptyDepense.setBorderColor(border);
+            depenseTable.addCell(emptyDepense);
+        } else {
+            boolean alternate = false;
+            for (Depense depense : depensesMois) {
+                BaseColor rowBg = alternate ? new BaseColor(250, 250, 250) : BaseColor.WHITE;
+                addBodyCell(depenseTable, depense.getDateDepense() != null ? depense.getDateDepense().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "—", rowBg, border, label);
+                addBodyCell(depenseTable, depense.getTypeDepense() != null ? depense.getTypeDepense().getLibelle() : "—", rowBg, border, label);
+                addBodyCell(depenseTable, depense.getDescription(), rowBg, border, label);
+                addBodyCell(depenseTable, formatMoney(depense.getPrixUnitaire()), rowBg, border, value);
+                addBodyCell(depenseTable, formatQuantity(depense.getQuantite()), rowBg, border, value);
+                addBodyCell(depenseTable, formatMoney(depense.getTotal()), rowBg, border, value);
+                alternate = !alternate;
+            }
+        }
+        doc.add(depenseTable);
 
         addSectionTitle(doc, "Répartition des mois", section, 12);
         PdfPTable months = new PdfPTable(4);
@@ -341,7 +383,7 @@ public class DirecteurDashboardService {
             cell.setBackgroundColor(point.isSelected() ? accentLight : BaseColor.WHITE);
             cell.addElement(new Paragraph(point.getLabel(), new Font(Font.FontFamily.HELVETICA, 11, Font.BOLD, accent)));
             cell.addElement(new Paragraph("Recettes: " + formatMoney(point.getRecettes()), label));
-            cell.addElement(new Paragraph("Salaires: " + formatMoney(point.getDepensesSalairesProfesseurs()), label));
+            cell.addElement(new Paragraph("Dépenses: " + formatMoney(point.getDepensesSalairesProfesseurs()), label));
             cell.addElement(new Paragraph("Net: " + formatMoney(point.getBeneficeNet()), value));
             months.addCell(cell);
         }
@@ -410,7 +452,7 @@ public class DirecteurDashboardService {
         table.setWidths(new float[] { 1f, 1f, 1f });
 
         addKpiCell(table, "Recettes", formatMoney(kpis != null ? kpis.getRecettesTotal() : BigDecimal.ZERO), accent, whiteBold);
-        addKpiCell(table, "Dépenses salaires", formatMoney(kpis != null ? kpis.getDepensesSalairesProfesseurs() : BigDecimal.ZERO), accent, whiteBold);
+        addKpiCell(table, "Dépenses", formatMoney(kpis != null ? kpis.getDepensesSalairesProfesseurs() : BigDecimal.ZERO), accent, whiteBold);
         addKpiCell(table, "Bénéfice net", formatMoney(kpis != null ? kpis.getBeneficeNet() : BigDecimal.ZERO), accent, whiteBold);
         doc.add(table);
     }
@@ -467,6 +509,17 @@ public class DirecteurDashboardService {
         footer.setAlignment(Element.ALIGN_CENTER);
         footer.setSpacingBefore(14);
         doc.add(footer);
+    }
+
+    private AnneeScolaire findAnnee(Long anneeId) {
+        if (anneeId == null) {
+            return null;
+        }
+        return anneeScolaireRepository.findById(anneeId).orElse(null);
+    }
+
+    private String formatQuantity(BigDecimal quantity) {
+        return String.format(Locale.FRANCE, "%s", quantity != null ? quantity.stripTrailingZeros().toPlainString() : "0");
     }
 
     private String formatMoney(BigDecimal amount) {
