@@ -36,6 +36,15 @@
             <h3>Liste des Élèves — <span th:text="${classe}">Classe</span></h3>
         </div>
         <div class="card-body">
+            <!-- Filters -->
+            <div style="display:flex;gap:10px;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--border);">
+                <input type="text" id="filter-nom" placeholder="Filtrer par nom" class="form-control" style="flex:1;">
+                <input type="text" id="filter-matricule" placeholder="Filtrer par matricule" class="form-control" style="flex:1;">
+                <button type="button" onclick="clearFilters()" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Effacer
+                </button>
+            </div>
+            
             <form th:action="@{/professeur/absences/save}" method="post">
                 <input type="hidden" name="emploiDuTempsId" th:value="${emploiDuTempsId}">
                 <input type="hidden" name="matiere" th:value="${matiere}">
@@ -44,6 +53,13 @@
                 <input type="hidden" name="heureDebut" th:value="${heureDebut}">
                 <input type="hidden" name="heureFin" th:value="${heureFin}">
                 <input type="hidden" name="classeId" th:value="${classeId}">
+                
+                <!-- Submit button moved to top -->
+                <div class="form-actions" style="margin-bottom:20px;">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Enregistrer les absences
+                    </button>
+                </div>
                 
                 <div class="table-wrapper">
                     <table>
@@ -55,8 +71,11 @@
                                 <th>Absent</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr th:each="inscription : ${inscriptions}">
+                        <tbody id="students-table-body">
+                            <tr th:each="inscription : ${inscriptions}" class="student-row" 
+                                data-nom="${etudiantProfiles.get(inscription.etudiantId) != null ? etudiantProfiles.get(inscription.etudiantId).nom : ''}" 
+                                data-prenom="${etudiantProfiles.get(inscription.etudiantId) != null ? etudiantProfiles.get(inscription.etudiantId).prenom : ''}" 
+                                data-matricule="${etudiantProfiles.get(inscription.etudiantId) != null ? etudiantProfiles.get(inscription.etudiantId).matricule : ''}">
                                 <td th:text="${etudiantProfiles.get(inscription.etudiantId) != null ? etudiantProfiles.get(inscription.etudiantId).matricule : ''}">Matricule</td>
                                 <td th:text="${etudiantProfiles.get(inscription.etudiantId) != null ? etudiantProfiles.get(inscription.etudiantId).nom : 'Étudiant'}">Nom</td>
                                 <td th:text="${etudiantProfiles.get(inscription.etudiantId) != null ? etudiantProfiles.get(inscription.etudiantId).prenom : ''}">Prénom</td>
@@ -71,9 +90,14 @@
                     </table>
                 </div>
                 
-                <div class="form-actions" style="margin-top:20px;">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Enregistrer les absences
+                <!-- Pagination -->
+                <div class="pagination" style="margin-top:20px;display:flex;justify-content:center;align-items:center;gap:10px;">
+                    <button type="button" onclick="changePage(-1)" class="btn btn-secondary" id="prev-btn" disabled>
+                        <i class="fas fa-chevron-left"></i> Précédent
+                    </button>
+                    <span id="page-info">Page 1 sur 1</span>
+                    <button type="button" onclick="changePage(1)" class="btn btn-secondary" id="next-btn" disabled>
+                        Suivant <i class="fas fa-chevron-right"></i>
                     </button>
                 </div>
             </form>
@@ -99,6 +123,81 @@
             window.location.href = '/professeur/emploi';
         }, 2000);
     }
+
+    // Filter and Pagination
+    let currentPage = 1;
+    const itemsPerPage = 10;
+    let filteredRows = [];
+
+    function filterTable() {
+        const nomFilter = document.getElementById('filter-nom').value.toLowerCase();
+        const matriculeFilter = document.getElementById('filter-matricule').value.toLowerCase();
+        const rows = document.querySelectorAll('.student-row');
+        
+        filteredRows = [];
+        rows.forEach(row => {
+            const nom = row.dataset.nom.toLowerCase();
+            const prenom = row.dataset.prenom.toLowerCase();
+            const matricule = row.dataset.matricule.toLowerCase();
+            
+            const matchesNom = nom.includes(nomFilter) || prenom.includes(nomFilter);
+            const matchesMatricule = matricule.includes(matriculeFilter);
+            
+            if (matchesNom && matchesMatricule) {
+                filteredRows.push(row);
+            }
+        });
+        
+        currentPage = 1;
+        updatePagination();
+    }
+
+    function updatePagination() {
+        const rows = document.querySelectorAll('.student-row');
+        rows.forEach(row => row.style.display = 'none');
+        
+        const start = (currentPage - 1) * itemsPerPage;
+        const end = start + itemsPerPage;
+        
+        for (let i = start; i < end && i < filteredRows.length; i++) {
+            filteredRows[i].style.display = '';
+        }
+        
+        const totalPages = Math.ceil(filteredRows.length / itemsPerPage) || 1;
+        document.getElementById('page-info').textContent = `Page ${currentPage} sur ${totalPages}`;
+        
+        document.getElementById('prev-btn').disabled = currentPage === 1;
+        document.getElementById('next-btn').disabled = currentPage === totalPages;
+    }
+
+    function changePage(delta) {
+        currentPage += delta;
+        updatePagination();
+    }
+
+    function clearFilters() {
+        document.getElementById('filter-nom').value = '';
+        document.getElementById('filter-matricule').value = '';
+        filterTable();
+    }
+
+    // Initialize filters and pagination
+    document.addEventListener('DOMContentLoaded', function() {
+        const nomFilter = document.getElementById('filter-nom');
+        const matriculeFilter = document.getElementById('filter-matricule');
+        
+        if (nomFilter) {
+            nomFilter.addEventListener('input', filterTable);
+        }
+        if (matriculeFilter) {
+            matriculeFilter.addEventListener('input', filterTable);
+        }
+        
+        // Initialize with all rows
+        const rows = document.querySelectorAll('.student-row');
+        filteredRows = Array.from(rows);
+        updatePagination();
+    });
 </script>
 </body>
 </html>
