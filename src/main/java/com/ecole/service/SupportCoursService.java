@@ -23,7 +23,7 @@ public class SupportCoursService {
         return supportCoursRepository.findAll();
     }
 
-    public Optional<SupportCours> findById(Long id) {
+    public Optional<SupportCours> findById(Integer id) {
         return supportCoursRepository.findById(id);
     }
 
@@ -31,7 +31,7 @@ public class SupportCoursService {
         return supportCoursRepository.save(supportCours);
     }
 
-    public void deleteById(Long id) {
+    public void deleteById(Integer id) {
         supportCoursRepository.deleteById(id);
     }
 
