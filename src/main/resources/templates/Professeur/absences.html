@@ -38,7 +38,7 @@
         <div class="card-body">
             <!-- Filters -->
             <div style="display:flex;gap:10px;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--border);">
-                <input type="text" id="filter-nom" placeholder="Filtrer par nom" class="form-control" style="flex:1;">
+                <input type="text" id="filter-nom" placeholder="Filtrer par nom ou prénom" class="form-control" style="flex:1;">
                 <input type="text" id="filter-matricule" placeholder="Filtrer par matricule" class="form-control" style="flex:1;">
                 <button type="button" onclick="clearFilters()" class="btn btn-secondary">
                     <i class="fas fa-times"></i> Effacer
@@ -73,9 +73,9 @@
                         </thead>
                         <tbody id="students-table-body">
                             <tr th:each="inscription : ${inscriptions}" class="student-row" 
-                                data-nom="${etudiantProfiles.get(inscription.etudiantId) != null ? etudiantProfiles.get(inscription.etudiantId).nom : ''}" 
-                                data-prenom="${etudiantProfiles.get(inscription.etudiantId) != null ? etudiantProfiles.get(inscription.etudiantId).prenom : ''}" 
-                                data-matricule="${etudiantProfiles.get(inscription.etudiantId) != null ? etudiantProfiles.get(inscription.etudiantId).matricule : ''}">
+                                th:data-nom="${etudiantProfiles.get(inscription.etudiantId) != null ? etudiantProfiles.get(inscription.etudiantId).nom : ''}" 
+                                th:data-prenom="${etudiantProfiles.get(inscription.etudiantId) != null ? etudiantProfiles.get(inscription.etudiantId).prenom : ''}" 
+                                th:data-matricule="${etudiantProfiles.get(inscription.etudiantId) != null ? etudiantProfiles.get(inscription.etudiantId).matricule : ''}">
                                 <td th:text="${etudiantProfiles.get(inscription.etudiantId) != null ? etudiantProfiles.get(inscription.etudiantId).matricule : ''}">Matricule</td>
                                 <td th:text="${etudiantProfiles.get(inscription.etudiantId) != null ? etudiantProfiles.get(inscription.etudiantId).nom : 'Étudiant'}">Nom</td>
                                 <td th:text="${etudiantProfiles.get(inscription.etudiantId) != null ? etudiantProfiles.get(inscription.etudiantId).prenom : ''}">Prénom</td>
@@ -140,8 +140,8 @@
             const prenom = row.dataset.prenom.toLowerCase();
             const matricule = row.dataset.matricule.toLowerCase();
             
-            const matchesNom = nom.includes(nomFilter) || prenom.includes(nomFilter);
-            const matchesMatricule = matricule.includes(matriculeFilter);
+            const matchesNom = !nomFilter || nom.includes(nomFilter) || prenom.includes(nomFilter);
+            const matchesMatricule = !matriculeFilter || matricule.includes(matriculeFilter);
             
             if (matchesNom && matchesMatricule) {
                 filteredRows.push(row);

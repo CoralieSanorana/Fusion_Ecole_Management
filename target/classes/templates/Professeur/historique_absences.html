@@ -109,7 +109,7 @@
     <div class="card" style="margin-bottom:20px;">
         <div class="card-body">
             <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                <input type="text" id="filter-nom" placeholder="Filtrer par nom" class="form-control" style="flex:1;min-width:200px;">
+                <input type="text" id="filter-nom" placeholder="Filtrer par nom ou prénom" class="form-control" style="flex:1;min-width:200px;">
                 <input type="text" id="filter-matricule" placeholder="Filtrer par matricule" class="form-control" style="flex:1;min-width:200px;">
                 <input type="date" id="filter-date" class="form-control" style="flex:1;min-width:200px;">
                 <button type="button" onclick="clearFilters()" class="btn btn-secondary">
@@ -196,8 +196,8 @@
                 const prenom = item.dataset.prenom.toLowerCase();
                 const matricule = item.dataset.matricule.toLowerCase();
                 
-                const matchesNom = nom.includes(nomFilter) || prenom.includes(nomFilter);
-                const matchesMatricule = matricule.includes(matriculeFilter);
+                const matchesNom = !nomFilter || nom.includes(nomFilter) || prenom.includes(nomFilter);
+                const matchesMatricule = !matriculeFilter || matricule.includes(matriculeFilter);
                 const matchesDate = !dateFilter || seanceDate === dateFilter;
                 
                 if (matchesNom && matchesMatricule && matchesDate) {
