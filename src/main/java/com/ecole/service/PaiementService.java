@@ -54,7 +54,7 @@ public class PaiementService {
         // Retourner toutes les inscriptions actives de l'année en cours
         public List<Inscription> getInscriptionsActives() {
                 AnneeScolaire annee = getAnneeActive();
-                return inscriptionRepository.findByAnneeScolaireAndStatut(annee, "active");
+                return inscriptionRepository.findByAnneeScolaireAndStatut(annee.getId(), "active");
         }
 
         // Retourner les échéances non soldées d'une inscription
@@ -136,7 +136,7 @@ public class PaiementService {
         public BilanGlobalDTO getBilanGlobal() {
                 AnneeScolaire annee = getAnneeActive();
                 List<Inscription> inscriptions = inscriptionRepository
-                                .findByAnneeScolaireAndStatut(annee, "active");
+                                .findByAnneeScolaireAndStatut(annee.getId(), "active");
 
                 // Regrouper par classe
                 Map<String, List<Inscription>> parClasse = new java.util.LinkedHashMap<>();

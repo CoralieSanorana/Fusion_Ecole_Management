@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="fr" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/header :: head"></head>
+
+<head th:replace="~{fragments/header :: head}"></head>
+
 <body>
-<canvas id="particle-canvas"></canvas>
-<div class="app-shell">
-  <aside class="sidebar" id="sidebar" th:replace="fragments/header :: sidebar"></aside>
-  <header class="topbar" th:replace="fragments/header :: topbar"></header>
-  <main class="main-content">
+  <canvas id="particle-canvas"></canvas>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar" th:replace="~{fragments/header :: sidebar}"></aside>
+    <header class="topbar" th:replace="~{fragments/header :: topbar}"></header>
+    <main class="main-content">
 
     <div class="page-header">
       <div>
@@ -35,7 +37,7 @@
                 <option value="">— Sélectionner un élève —</option>
                 <option th:each="insc : ${inscriptions}"
                         th:value="${insc.id}"
-                        th:text="${insc.etudiant.nom + ' ' + insc.etudiant.prenom + ' — ' + insc.classe.nom}">
+                        th:text="${(insc.etudiant != null ? insc.etudiant.nom + ' ' + insc.etudiant.prenom : 'Inconnu') + ' — ' + (insc.classe != null ? insc.classe.nom : 'Classe inconnue')}">
                 </option>
               </select>
             </div>
