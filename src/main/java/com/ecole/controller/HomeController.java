@@ -11,6 +11,11 @@ public class HomeController {
         return "index";  // Affiche la page index.html
     }
 
+    @GetMapping("/login")
+    public String login() {
+        return "index";
+    }
+
     @GetMapping("/error")
     public String error() {
         return "error";  // Va chercher templates/error.html

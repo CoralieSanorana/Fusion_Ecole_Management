@@ -136,8 +136,13 @@
           <strong th:text="${currentUserName ?: 'Utilisateur'}">M. Rakoto</strong>
           <small th:text="${currentUserRoleLabel ?: 'Utilisateur'}">Directeur</small>
         </div>
-        <i class="fas fa-sign-out-alt" style="color:rgba(255,255,255,.3);font-size:14px;"></i>
       </div>
+      <form th:action="@{/logout}" method="post" style="margin-top:12px;">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+        <button type="submit" class="nav-item" style="width:100%;justify-content:flex-start;border:0;background:rgba(255,255,255,.06);cursor:pointer;">
+          <i class="fas fa-sign-out-alt"></i> Déconnexion
+        </button>
+      </form>
     </div>
   </aside>
 
