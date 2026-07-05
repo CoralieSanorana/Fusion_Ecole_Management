@@ -158,17 +158,22 @@ document.addEventListener('DOMContentLoaded', () => {
     transactions.forEach(transaction => {
       const item = document.createElement('div');
       item.className = 'timeline-item';
+      const isExpense = transaction.transactionType === 'DEPENSE';
+      const iconClass = isExpense ? 'fa-receipt' : 'fa-check-circle';
+      const dotColor = isExpense ? 'rgba(20, 184, 166, .08)' : 'rgba(37,99,235,.08)';
+      const dotText = isExpense ? 'var(--clr-teal)' : 'var(--b)';
+      const detailText = transaction.libelleSecondaire || transaction.echeanceLabel || '';
       item.innerHTML = `
-        <div class="timeline-dot" style="background:rgba(37,99,235,.08);color:var(--b);"><i class="fas fa-receipt"></i></div>
+        <div class="timeline-dot" style="background:${dotColor};color:${dotText};"><i class="fas ${iconClass}"></i></div>
         <div class="timeline-content" style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;width:100%;">
           <div>
-            <strong>${escapeHtml(transaction.etudiantNom)}${transaction.classeNom ? ' — ' + escapeHtml(transaction.classeNom) : ''}</strong>
-            <small>${escapeHtml(transaction.echeanceLabel || 'Paiement')} · ${escapeHtml(transaction.dateLibelle || '')}</small>
-            <div style="margin-top:4px;font-size:12px;color:var(--txt3);">${escapeHtml(transaction.referenceTransaction || 'Sans référence')} · ${escapeHtml(transaction.matricule || '')}</div>
+            <strong>${escapeHtml(transaction.libellePrincipal || transaction.etudiantNom || 'Transaction')}</strong>
+            <small>${escapeHtml(detailText || (isExpense ? 'Dépense' : 'Paiement'))} · ${escapeHtml(transaction.dateLibelle || '')}</small>
+            <div style="margin-top:4px;font-size:12px;color:var(--txt3);">${escapeHtml(transaction.referenceTransaction || 'Sans référence')} ${isExpense ? '' : '· ' + escapeHtml(transaction.matricule || '')}</div>
           </div>
           <div style="text-align:right;white-space:nowrap;">
             <strong style="font-size:14px;">${formatMoney(transaction.montant)} Ar</strong>
-            <div style="font-size:12px;color:var(--txt3);">${escapeHtml(transaction.modePaiement || 'Mode inconnu')}</div>
+            <div style="font-size:12px;color:var(--txt3);">${escapeHtml(isExpense ? (transaction.modePaiement || 'Dépense') : (transaction.modePaiement || 'Mode inconnu'))}</div>
           </div>
         </div>`;
       transactionsContainer.appendChild(item);
