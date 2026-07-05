@@ -3,6 +3,7 @@ package com.ecole.controller;
 import com.ecole.dto.Secretaire.*;
 import com.ecole.entity.*;
 import com.ecole.service.EleveService;
+import com.ecole.service.DepenseService;
 import com.ecole.service.PaiementService;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -21,6 +22,7 @@ import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +35,9 @@ public class SecretaireController {
 
     @Autowired
     private EleveService eleveService;
+
+    @Autowired
+    private DepenseService depenseService;
 
     // ─── PAIEMENT ────────────────────────────────────────────────
 
@@ -177,6 +182,76 @@ public class SecretaireController {
         return "Secretaire/bilan";
     }
 
+    @GetMapping("/secretariat/depenses")
+    public String depenses(
+            @RequestParam(required = false) Long anneeScolaireId,
+            @RequestParam(required = false) String periode,
+            Model model) {
+        List<AnneeScolaire> annees = depenseService.getAnneesScolaires();
+        Long selectedAnneeId = anneeScolaireId;
+        if (selectedAnneeId == null) {
+            selectedAnneeId = annees.stream()
+                    .filter(a -> Boolean.TRUE.equals(a.getEstActive()))
+                    .map(AnneeScolaire::getId)
+                    .findFirst()
+                    .orElse(annees.isEmpty() ? null : annees.get(0).getId());
+        }
+
+        YearMonth selectedPeriode = selectedAnneeId != null
+                ? depenseService.resolvePeriode(periode, selectedAnneeId)
+                : YearMonth.now();
+
+        List<Depense> depenses = selectedAnneeId != null
+                ? depenseService.getDepenses(selectedAnneeId, selectedPeriode)
+                : List.of();
+
+        model.addAttribute("anneesScolaires", annees);
+        model.addAttribute("periodes", selectedAnneeId != null ? depenseService.getPeriodes(selectedAnneeId) : List.of());
+        model.addAttribute("typesDepenses", depenseService.getTypesDepenses());
+        model.addAttribute("depenses", depenses);
+        model.addAttribute("totalDepenses", selectedAnneeId != null ? depenseService.totalDepenses(selectedAnneeId, selectedPeriode) : BigDecimal.ZERO);
+        model.addAttribute("selectedAnneeId", selectedAnneeId);
+        model.addAttribute("selectedPeriode", selectedPeriode != null ? selectedPeriode.toString() : null);
+        model.addAttribute("pageTitle", "Dépenses");
+        model.addAttribute("currentRole", "secretariat");
+        return "Secretaire/depenses";
+    }
+
+    @PostMapping("/secretariat/depenses")
+    public String enregistrerDepense(
+            @RequestParam(required = false) Long anneeScolaireId,
+            @RequestParam(required = false) String periode,
+            @RequestParam Long typeDepenseId,
+            @RequestParam String description,
+            @RequestParam BigDecimal prixUnitaire,
+            @RequestParam BigDecimal quantite,
+            @RequestParam(required = false) LocalDate dateDepense,
+            RedirectAttributes redirectAttributes) {
+        try {
+            depenseService.saveDepense(anneeScolaireId, typeDepenseId, description, prixUnitaire, quantite, dateDepense);
+            redirectAttributes.addFlashAttribute("success", "Dépense enregistrée avec succès.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return buildDepenseRedirect(anneeScolaireId, periode);
+    }
+
+    @PostMapping("/secretariat/depenses/types")
+    public String enregistrerTypeDepense(
+            @RequestParam(required = false) Long anneeScolaireId,
+            @RequestParam(required = false) String periode,
+            @RequestParam String libelle,
+            @RequestParam(required = false) String description,
+            RedirectAttributes redirectAttributes) {
+        try {
+            depenseService.saveTypeDepense(libelle, description);
+            redirectAttributes.addFlashAttribute("success", "Type de dépense ajouté avec succès.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return buildDepenseRedirect(anneeScolaireId, periode);
+    }
+
     @GetMapping("/secretariat/bilan/export/pdf")
     public void exportPdf(HttpServletResponse response) throws Exception {
         BilanGlobalDTO bilan = paiementService.getBilanGlobal();
@@ -220,6 +295,19 @@ public class SecretaireController {
         model.addAttribute("search", search);
         model.addAttribute("pageTitle", "Liste des Élèves");
         return "Secretaire/eleves";
+    }
+
+    private String buildDepenseRedirect(Long anneeScolaireId, String periode) {
+        StringBuilder redirect = new StringBuilder("redirect:/secretariat/depenses");
+        boolean first = true;
+        if (anneeScolaireId != null) {
+            redirect.append(first ? "?" : "&").append("anneeScolaireId=").append(anneeScolaireId);
+            first = false;
+        }
+        if (periode != null && !periode.isBlank()) {
+            redirect.append(first ? "?" : "&").append("periode=").append(periode);
+        }
+        return redirect.toString();
     }
 
     @GetMapping("/secretariat/profil/{id}")

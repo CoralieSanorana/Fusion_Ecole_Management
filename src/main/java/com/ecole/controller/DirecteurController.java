@@ -2,6 +2,7 @@ package com.ecole.controller;
 
 import com.ecole.entity.*;
 import com.ecole.service.EdtService;
+import com.ecole.service.DirecteurDashboardService;
 import com.ecole.service.InitializeService;
 import com.ecole.service.EmployeService;
 import com.ecole.service.EtudiantFilterService;
@@ -10,6 +11,8 @@ import com.ecole.dto.Directeur.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -30,6 +33,7 @@ public class DirecteurController {
     private final EdtService edtService;
     private final InitializeService initializeService;
     private final EmployeService employeService;
+    private final DirecteurDashboardService directeurDashboardService;
     private final com.ecole.service.MatiereService matiereService;
     private final com.ecole.service.TypesContratsEmployesService typesContratsEmployesService;
     private final EtudiantFilterService filterService;
@@ -40,7 +44,42 @@ public class DirecteurController {
     public String dashboard(Model model) {
         model.addAttribute("pageTitle", "Tableau de bord");
         model.addAttribute("currentRole", "directeur");
+        model.addAttribute("dashboardEndpoint", "/api/directeur/dashboard");
         return "directeur/dashboard";
+    }
+
+    @GetMapping("/api/directeur/dashboard")
+    @ResponseBody
+    public ResponseEntity<com.ecole.dto.Directeur.DashboardResponseDTO> getDashboard(
+            @RequestParam(required = false) Long anneeScolaireId,
+            @RequestParam(required = false) String mois) {
+        return ResponseEntity.ok(directeurDashboardService.getDashboard(anneeScolaireId, mois));
+    }
+
+    @GetMapping("/api/directeur/dashboard/export/transactions.pdf")
+    @ResponseBody
+    public ResponseEntity<byte[]> exportDashboardTransactionsPdf(
+            @RequestParam(required = false) Long anneeScolaireId,
+            @RequestParam(required = false) String mois) throws Exception {
+        DashboardResponseDTO dashboard = directeurDashboardService.getDashboard(anneeScolaireId, mois);
+        byte[] pdf = directeurDashboardService.exportTransactionsPdf(dashboard);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + buildExportFilename("transactions-dashboard", dashboard))
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
+    }
+
+    @GetMapping("/api/directeur/dashboard/export/bilan.pdf")
+    @ResponseBody
+    public ResponseEntity<byte[]> exportDashboardBilanPdf(
+            @RequestParam(required = false) Long anneeScolaireId,
+            @RequestParam(required = false) String mois) throws Exception {
+        DashboardResponseDTO dashboard = directeurDashboardService.getDashboard(anneeScolaireId, mois);
+        byte[] pdf = directeurDashboardService.exportDashboardPdf(dashboard);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + buildExportFilename("bilan-dashboard", dashboard))
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
     }
 
     @GetMapping("/directeur/finances")
@@ -582,5 +621,12 @@ public class DirecteurController {
         if (seuilTauxAbsence != null) criteria.setSeuilTauxAbsence(seuilTauxAbsence);
 
         return ResponseEntity.ok(statistiquesElevesService.analyser(criteria));
+    }
+
+    private String buildExportFilename(String prefix, DashboardResponseDTO dashboard) {
+        String suffix = dashboard != null && dashboard.getSelectedMonth() != null
+                ? dashboard.getSelectedMonth()
+                : java.time.YearMonth.now().toString();
+        return prefix + "-" + suffix.replaceAll("[^0-9A-Za-z_-]", "-") + ".pdf";
     }
 }
