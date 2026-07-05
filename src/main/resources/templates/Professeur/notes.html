@@ -1,12 +1,36 @@
 <!DOCTYPE html>
 <html lang="fr" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/header :: head"></head>
+<head th:replace="fragments/header :: head">
+<style>
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #print-area, #print-area * {
+    visibility: visible;
+  }
+  #print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 20px;
+  }
+  .card-header, .form-actions, .pagination, #filter-nom, #filter-matricule, 
+  #filter-note-min, #filter-note-max, #notesSearchInput, #matiereSelect,
+  .card-body button, .card-body input, .card-body select, .sidebar, .topbar,
+  #particle-canvas, .page-header, .card-body {
+    display: none !important;
+  }
+}
+</style>
+</head>
 <body>
 <canvas id="particle-canvas"></canvas>
 <div class="app-shell">
   <aside class="sidebar" id="sidebar" th:replace="fragments/header :: sidebar"></aside>
-  <header class="topbar" th:replace="fragments/header :: topbar"></header>
-  <main class="main-content">
+  <header class="topbar" id="topbar" th:replace="fragments/header :: topbar"></header>
+  <main class="main-content" id="main-content">
     <div class="page-header">
         <div><h2>Notes des Élèves</h2><p>Saisie et gestion des notes</p></div>
       </div>
@@ -51,7 +75,21 @@
               <i class="fas fa-arrow-left"></i> Retour aux classes
             </a>
           </div>
+        </div>
 
+        <!-- Filters -->
+        <div class="card-body" style="padding-bottom:0;">
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">
+            <input type="text" id="filter-nom" placeholder="Filtrer par nom ou prénom" class="form-control" style="flex:1;min-width:200px;">
+            <input type="text" id="filter-matricule" placeholder="Filtrer par matricule" class="form-control" style="flex:1;min-width:200px;">
+            <input type="number" id="filter-note-min" placeholder="Note min" class="form-control" style="flex:1;min-width:150px;" min="0" step="0.5">
+            <input type="number" id="filter-note-max" placeholder="Note max" class="form-control" style="flex:1;min-width:150px;" min="0" step="0.5">
+            <button type="button" onclick="clearStudentFilters()" class="btn btn-secondary">
+              <i class="fas fa-times"></i> Effacer
+            </button>
+          </div>
+        </div>
+        
         <div style="padding: 15px; border-bottom: 1px solid var(--border-color, #eef2f5);">
           <div style="display: flex; gap: 10px; max-width: 500px;">
             <input type="text" id="notesSearchInput" class="form-control" 
@@ -74,11 +112,15 @@
              class="btn btn-primary" style="margin-left: 10px;">
             <i class="fas fa-plus"></i> Saisir des notes
           </a>
+          <a th:href="@{/professeur/notes/classe/{classeId}/pdf(classeId=${classeId})}" class="btn btn-secondary" style="margin-left: 10px;">
+            <i class="fas fa-file-pdf"></i> Export PDF
+          </a>
         </div>
       </div>
   
-      <div class="table-wrapper">
-        <table id="summaryNotesTable">
+      <div id="print-area">
+        <div class="table-wrapper">
+          <table id="summaryNotesTable">
           <thead>
             <tr>
               <th style="cursor: pointer; user-select: none;" onclick="sortSummaryTable(0, false)">
@@ -92,8 +134,11 @@
               </th>
             </tr>
           </thead>
-          <tbody>
-            <tr th:each="inscription : ${inscriptions}">
+          <tbody id="students-table-body">
+            <tr th:each="inscription : ${inscriptions}" class="student-row"
+                th:data-nom="${etudiantProfiles.get(inscription.etudiantId) != null ? etudiantProfiles.get(inscription.etudiantId).nom : ''}"
+                th:data-prenom="${etudiantProfiles.get(inscription.etudiantId) != null ? etudiantProfiles.get(inscription.etudiantId).prenom : ''}"
+                th:data-matricule="${etudiantProfiles.get(inscription.etudiantId) != null ? etudiantProfiles.get(inscription.etudiantId).matricule : ''}">
               <td>
                 <strong class="student-text" th:text="${etudiantProfiles.get(inscription.etudiantId) != null ? etudiantProfiles.get(inscription.etudiantId).nom + ' ' + etudiantProfiles.get(inscription.etudiantId).prenom : 'Étudiant'}">Nom Prénom</strong>
                 <br/>
@@ -111,8 +156,20 @@
           </tbody>
         </table>
       </div>
+      </div>
   
-      <div style="text-align: center; color: var(--txt3); padding: 15px 0; font-size: 0.9em; border-top: 1px solid var(--border-color, #eef2f5);">
+      <!-- Pagination for students -->
+      <div th:if="${inscriptions != null}" class="pagination" style="margin-top:20px;display:flex;justify-content:center;align-items:center;gap:10px;">
+        <button type="button" onclick="changeStudentPage(-1)" class="btn btn-secondary" id="student-prev-btn" disabled>
+          <i class="fas fa-chevron-left"></i> Précédent
+        </button>
+        <span id="student-page-info">Page 1 sur 1</span>
+        <button type="button" onclick="changeStudentPage(1)" class="btn btn-secondary" id="student-next-btn" disabled>
+          Suivant <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+  
+      <div th:if="${inscriptions != null}" style="text-align: center; color: var(--txt3); padding: 15px 0; font-size: 0.9em; border-top: 1px solid var(--border-color, #eef2f5);">
         Total : <span id="visibleRowsCount" th:text="${#lists.size(inscriptions)}">0</span> élève(s) affiché(s)
       </div>
     </div>
@@ -123,6 +180,100 @@
 <script>
 let currentSortCol = -1;
 let sortAscending = true;
+
+// Student filters and pagination
+let currentStudentPage = 1;
+const studentItemsPerPage = 10;
+let filteredStudentRows = [];
+
+function filterStudentTable() {
+    const nomFilterEl = document.getElementById('filter-nom');
+    const matriculeFilterEl = document.getElementById('filter-matricule');
+    const noteMinEl = document.getElementById('filter-note-min');
+    const noteMaxEl = document.getElementById('filter-note-max');
+    
+    if (!nomFilterEl || !matriculeFilterEl || !noteMinEl || !noteMaxEl) return;
+    
+    const nomFilter = nomFilterEl.value.toLowerCase();
+    const matriculeFilter = matriculeFilterEl.value.toLowerCase();
+    const noteMin = parseFloat(noteMinEl.value) || 0;
+    const noteMax = parseFloat(noteMaxEl.value) || Infinity;
+    
+    const rows = document.querySelectorAll('.student-row');
+    filteredStudentRows = [];
+    
+    rows.forEach(row => {
+        const nom = row.dataset.nom.toLowerCase();
+        const prenom = row.dataset.prenom.toLowerCase();
+        const matricule = row.dataset.matricule.toLowerCase();
+        
+        const matchesNom = !nomFilter || nom.includes(nomFilter) || prenom.includes(nomFilter);
+        const matchesMatricule = !matriculeFilter || matricule.includes(matriculeFilter);
+        
+        // Check if any note falls within the range by looking at data-note attributes in cells
+        let matchesNote = !noteMin && !noteMax;
+        if (!matchesNote) {
+            const noteCells = row.querySelectorAll('td[data-note]');
+            matchesNote = Array.from(noteCells).some(cell => {
+                const noteValue = parseFloat(cell.dataset.note);
+                if (isNaN(noteValue) || noteValue < 0) return false;
+                return noteValue >= noteMin && noteValue <= noteMax;
+            });
+        }
+        
+        if (matchesNom && matchesMatricule && matchesNote) {
+            filteredStudentRows.push(row);
+        }
+    });
+    
+    currentStudentPage = 1;
+    updateStudentPagination();
+}
+
+function updateStudentPagination() {
+    const rows = document.querySelectorAll('.student-row');
+    rows.forEach(row => row.style.display = 'none');
+    
+    const start = (currentStudentPage - 1) * studentItemsPerPage;
+    const end = start + studentItemsPerPage;
+    
+    for (let i = start; i < end && i < filteredStudentRows.length; i++) {
+        filteredStudentRows[i].style.display = '';
+    }
+    
+    const totalPages = Math.ceil(filteredStudentRows.length / studentItemsPerPage) || 1;
+    const pageInfo = document.getElementById('student-page-info');
+    if (pageInfo) {
+        pageInfo.textContent = `Page ${currentStudentPage} sur ${totalPages}`;
+    }
+    
+    const prevBtn = document.getElementById('student-prev-btn');
+    const nextBtn = document.getElementById('student-next-btn');
+    if (prevBtn) prevBtn.disabled = currentStudentPage === 1;
+    if (nextBtn) nextBtn.disabled = currentStudentPage === totalPages;
+}
+
+function changeStudentPage(delta) {
+    currentStudentPage += delta;
+    updateStudentPagination();
+}
+
+function clearStudentFilters() {
+    const nomFilter = document.getElementById('filter-nom');
+    const matriculeFilter = document.getElementById('filter-matricule');
+    const noteMin = document.getElementById('filter-note-min');
+    const noteMax = document.getElementById('filter-note-max');
+    
+    if (nomFilter) nomFilter.value = '';
+    if (matriculeFilter) matriculeFilter.value = '';
+    if (noteMin) noteMin.value = '';
+    if (noteMax) noteMax.value = '';
+    filterStudentTable();
+}
+
+function exportPDF() {
+    window.print();
+}
 
 function filterNotesTable() {
     const input = document.getElementById("notesSearchInput");
@@ -200,6 +351,35 @@ function sortSummaryTable(columnIndex, isNumeric = false) {
 
     rows.forEach(row => tbody.appendChild(row));
 }
+
+// Initialize student filters and pagination
+document.addEventListener('DOMContentLoaded', function() {
+    // Student filters
+    const nomFilter = document.getElementById('filter-nom');
+    const matriculeFilter = document.getElementById('filter-matricule');
+    const noteMin = document.getElementById('filter-note-min');
+    const noteMax = document.getElementById('filter-note-max');
+    
+    if (nomFilter) {
+        nomFilter.addEventListener('input', filterStudentTable);
+    }
+    if (matriculeFilter) {
+        matriculeFilter.addEventListener('input', filterStudentTable);
+    }
+    if (noteMin) {
+        noteMin.addEventListener('input', filterStudentTable);
+    }
+    if (noteMax) {
+        noteMax.addEventListener('input', filterStudentTable);
+    }
+    
+    // Initialize student rows only if they exist
+    const studentRows = document.querySelectorAll('.student-row');
+    if (studentRows.length > 0) {
+        filteredStudentRows = Array.from(studentRows);
+        updateStudentPagination();
+    }
+});
 </script>
 </body>
 </html>
