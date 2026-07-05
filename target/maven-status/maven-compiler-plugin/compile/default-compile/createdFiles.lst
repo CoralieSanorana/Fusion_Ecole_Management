@@ -14,6 +14,7 @@ com\ecole\controller\GlobalControllerAdvice.class
 com\ecole\service\TypesContratsEmployesService.class
 com\ecole\entity\TypesContratsEmployes.class
 com\ecole\repository\UserRoleRepository.class
+com\ecole\repository\TypeDepenseRepository.class
 com\ecole\repository\NiveauRepository.class
 com\ecole\entity\Absence.class
 com\ecole\service\HoraireEdtService.class
@@ -26,6 +27,8 @@ com\ecole\service\ClasseService.class
 com\ecole\dto\Directeur\EtudiantFilterResult.class
 com\ecole\dto\Secretaire\BilanClasseDTO.class
 com\ecole\service\NotificationTypeService.class
+com\ecole\dto\Secretaire\PeriodeOptionDTO.class
+com\ecole\entity\TypeDepense.class
 com\ecole\repository\SupportCoursRepository.class
 com\ecole\service\EtudiantSpecification.class
 com\ecole\dto\Directeur\HoraireEdtSaveRequest.class
@@ -69,6 +72,7 @@ com\ecole\service\EleveService.class
 com\ecole\entity\Paiement.class
 com\ecole\dto\Secretaire\EleveListeDTO.class
 com\ecole\entity\TypeFichier.class
+com\ecole\service\DepenseService.class
 com\ecole\controller\HomeController.class
 com\ecole\entity\Seance.class
 com\ecole\repository\InscriptionRepository.class
@@ -86,6 +90,7 @@ com\ecole\service\AnneeScolaireService.class
 com\ecole\dto\Directeur\NiveauAlerte.class
 com\ecole\entity\ProfilEtudiant.class
 com\ecole\service\EmployeService.class
+com\ecole\repository\DepenseRepository.class
 com\ecole\repository\EmploiDuTempsRepository.class
 com\ecole\entity\Actualite.class
 com\ecole\entity\AnneeScolaire.class
@@ -127,6 +132,7 @@ com\ecole\service\SupportCoursService.class
 com\ecole\controller\FragmentController.class
 com\ecole\controller\SecretaireController.class
 com\ecole\service\MatiereService.class
+com\ecole\entity\Depense.class
 com\ecole\service\ProfilsProfesseursService.class
 com\ecole\service\PaiementService.class
 com\ecole\repository\NotificationTypeRepository.class
