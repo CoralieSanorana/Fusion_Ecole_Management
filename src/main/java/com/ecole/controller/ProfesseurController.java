@@ -700,6 +700,46 @@ public class ProfesseurController {
         return "redirect:/professeur/devoirs/details?affectationId=" + support.getAffectationId();
     }
 
+@GetMapping("/professeur/devoirs/details/pdf/{supportId}")
+    public void exporterSupportPDF(@PathVariable Long supportId, HttpServletResponse response) throws IOException {
+        SupportCours support = supportCoursService.findById(supportId).orElse(null);
+        if (support == null) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment; filename=cours_" + supportId + ".pdf");
+
+        Document document = new Document(PageSize.A4);
+        PdfWriter.getInstance(document, response.getOutputStream());
+
+        document.open();
+
+        Font fontTitle = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18);
+        Font fontHeader = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14);
+        Font fontNormal = FontFactory.getFont(FontFactory.HELVETICA, 12);
+
+        Paragraph title = new Paragraph("Détails du Cours", fontTitle);
+        title.setAlignment(Paragraph.ALIGN_CENTER);
+        title.setSpacingAfter(20);
+        document.add(title);
+
+        document.add(new Paragraph("Titre: " + (support.getTitre() != null ? support.getTitre() : "N/A"), fontHeader));
+        document.add(new Paragraph("Type: " + (support.getTypeContenu() != null ? support.getTypeContenu() : "N/A"), fontNormal));
+        document.add(new Paragraph("Description: " + (support.getDescription() != null ? support.getDescription() : "N/A"), fontNormal));
+        
+        if (support.getDateLimite() != null) {
+            document.add(new Paragraph("Date limite: " + support.getDateLimite().toString(), fontNormal));
+        }
+        
+        if (support.getCreatedAt() != null) {
+            document.add(new Paragraph("Date de publication: " + support.getCreatedAt().toString(), fontNormal));
+        }
+
+        document.close();
+    }
+
     @GetMapping("/professeur/bulletins")
     public String bulletins(Model model) {
         model.addAttribute("pageTitle", "Bulletins");
