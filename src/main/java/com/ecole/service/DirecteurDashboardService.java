@@ -80,9 +80,16 @@ public class DirecteurDashboardService {
                 .filter(p -> p.getDatePaiement() != null)
                 .collect(Collectors.groupingBy(p -> YearMonth.from(p.getDatePaiement()), LinkedHashMap::new, Collectors.toList()));
 
+        Map<YearMonth, List<Depense>> depensesParMois = depenseRepository.findByAnneeScolaire_IdAndDateDepenseBetweenOrderByDateDepenseDesc(
+                        annee.getId(), annee.getDateDebut(), annee.getDateFin())
+                .stream()
+                .filter(d -> d.getDateDepense() != null)
+                .collect(Collectors.groupingBy(d -> YearMonth.from(d.getDateDepense()), LinkedHashMap::new, Collectors.toList()));
+
         List<DashboardMonthlyStatDTO> serieMensuelle = new ArrayList<>();
         for (YearMonth mois : moisDeAnnee) {
             List<Paiement> paiementsDuMois = paiementsParMois.getOrDefault(mois, List.of());
+            List<Depense> depensesDuMois = depensesParMois.getOrDefault(mois, List.of());
             BigDecimal depensesMois = calculerDepensesSalairesProfesseurs(annee, mois);
             DashboardMonthlyStatDTO point = new DashboardMonthlyStatDTO();
             point.setValue(mois.toString());
@@ -90,17 +97,18 @@ public class DirecteurDashboardService {
             point.setRecettes(sommeMontants(paiementsDuMois));
             point.setDepensesSalairesProfesseurs(depensesMois);
             point.setBeneficeNet(point.getRecettes().subtract(depensesMois));
-            point.setTransactions(compterTransactions(paiementsDuMois));
+            point.setTransactions(compterTransactions(paiementsDuMois, depensesDuMois));
             point.setElevesPayes(compterElevesPayes(paiementsDuMois));
             point.setSelected(mois.equals(moisSelection));
             serieMensuelle.add(point);
         }
 
         List<Paiement> paiementsSelectionnes = paiementsParMois.getOrDefault(moisSelection, List.of());
+        List<Depense> depensesSelectionnees = depensesParMois.getOrDefault(moisSelection, List.of());
         BigDecimal depensesSelection = calculerDepensesSalairesProfesseurs(annee, moisSelection);
-        List<DashboardTransactionDTO> transactions = construireTransactions(paiementsSelectionnes);
+        List<DashboardTransactionDTO> transactions = construireTransactions(paiementsSelectionnes, depensesSelectionnees);
 
-        DashboardKpisDTO kpis = construireKpis(paiementsSelectionnes, annee, moisSelection, depensesSelection);
+        DashboardKpisDTO kpis = construireKpis(paiementsSelectionnes, depensesSelectionnees, annee, moisSelection, depensesSelection);
 
         response.setAnneeScolaireId(annee.getId());
         response.setAnneeScolaireLibelle(annee.getLibelle());
@@ -114,10 +122,10 @@ public class DirecteurDashboardService {
         return response;
     }
 
-    private DashboardKpisDTO construireKpis(List<Paiement> paiementsSelectionnes, AnneeScolaire annee, YearMonth moisSelection, BigDecimal depensesSalairesProfesseurs) {
+    private DashboardKpisDTO construireKpis(List<Paiement> paiementsSelectionnes, List<Depense> depensesSelectionnees, AnneeScolaire annee, YearMonth moisSelection, BigDecimal depensesSalairesProfesseurs) {
         DashboardKpisDTO kpis = new DashboardKpisDTO();
         BigDecimal totalSelection = sommeMontants(paiementsSelectionnes);
-        long transactionsSelection = compterTransactions(paiementsSelectionnes);
+        long transactionsSelection = compterTransactions(paiementsSelectionnes, depensesSelectionnees);
         long elevesPayesSelection = compterElevesPayes(paiementsSelectionnes);
         long totalEleves = inscriptionRepository.countByAnneeScolaireIdAndStatut(annee.getId(), "active");
         long professeursActifs = getProfesseursActifs(annee, moisSelection).size();
@@ -266,16 +274,16 @@ public class DirecteurDashboardService {
 
         addBrandHeader(doc, "TRANSACTIONS DU MOIS", dashboard.getResume(), title, subtitle, accent, accentLight);
         addKpiCards(doc, dashboard.getKpis(), dashboard.getSelectedMonthLabel(), accent, accentLight, whiteBold, label, value);
-        addSectionTitle(doc, "Liste détaillée des paiements", section, 8);
+        addSectionTitle(doc, "Liste détaillée des transactions", section, 8);
 
         PdfPTable table = new PdfPTable(6);
         table.setWidthPercentage(100);
-        table.setWidths(new float[] { 2.2f, 1.2f, 1.3f, 1.0f, 1.0f, 1.3f });
-        addHeaderCell(table, "Élève", accent, whiteBold);
-        addHeaderCell(table, "Classe", accent, whiteBold);
+        table.setWidths(new float[] { 1.0f, 1.8f, 2.2f, 1.2f, 1.1f, 1.3f });
+        addHeaderCell(table, "Type", accent, whiteBold);
+        addHeaderCell(table, "Libellé", accent, whiteBold);
+        addHeaderCell(table, "Détail", accent, whiteBold);
         addHeaderCell(table, "Référence", accent, whiteBold);
         addHeaderCell(table, "Date", accent, whiteBold);
-        addHeaderCell(table, "Mode", accent, whiteBold);
         addHeaderCell(table, "Montant", accent, whiteBold);
 
         if (dashboard.getTransactions() == null || dashboard.getTransactions().isEmpty()) {
@@ -289,11 +297,11 @@ public class DirecteurDashboardService {
             boolean alternate = false;
             for (DashboardTransactionDTO transaction : dashboard.getTransactions()) {
                 BaseColor rowBg = alternate ? new BaseColor(250, 250, 250) : BaseColor.WHITE;
-                addBodyCell(table, transaction.getEtudiantNom(), rowBg, border, value);
-                addBodyCell(table, transaction.getClasseNom(), rowBg, border, label);
+                addBodyCell(table, "DEPENSE".equals(transaction.getTransactionType()) ? "Dépense" : "Paiement", rowBg, border, label);
+                addBodyCell(table, transaction.getLibellePrincipal(), rowBg, border, value);
+                addBodyCell(table, transaction.getLibelleSecondaire(), rowBg, border, label);
                 addBodyCell(table, transaction.getReferenceTransaction(), rowBg, border, label);
                 addBodyCell(table, transaction.getDateLibelle(), rowBg, border, label);
-                addBodyCell(table, transaction.getModePaiement(), rowBg, border, label);
                 addBodyCell(table, formatMoney(transaction.getMontant()), rowBg, border, value);
                 alternate = !alternate;
             }
@@ -530,12 +538,13 @@ public class DirecteurDashboardService {
         return formatMoney(amount);
     }
 
-    private long compterTransactions(List<Paiement> paiements) {
-        return paiements.stream()
+    private long compterTransactions(List<Paiement> paiements, List<Depense> depenses) {
+        long paiementsDistincts = paiements.stream()
                 .map(Paiement::getReferenceTransaction)
                 .filter(ref -> ref != null && !ref.isBlank())
                 .collect(Collectors.toCollection(LinkedHashSet::new))
                 .size();
+        return paiementsDistincts + (depenses != null ? depenses.size() : 0);
     }
 
     private long compterElevesPayes(List<Paiement> paiements) {
@@ -547,20 +556,24 @@ public class DirecteurDashboardService {
                 .size();
     }
 
-    private List<DashboardTransactionDTO> construireTransactions(List<Paiement> paiements) {
+    private List<DashboardTransactionDTO> construireTransactions(List<Paiement> paiements, List<Depense> depenses) {
+        List<DashboardTransactionDTO> transactions = new ArrayList<>();
+
         Map<String, List<Paiement>> parReference = paiements.stream()
                 .collect(Collectors.groupingBy(p -> {
                     String ref = p.getReferenceTransaction();
                     return ref != null && !ref.isBlank() ? ref : "SANS-REFERENCE-" + p.getId();
                 }, LinkedHashMap::new, Collectors.toList()));
 
-        List<DashboardTransactionDTO> transactions = new ArrayList<>();
         for (List<Paiement> groupe : parReference.values()) {
             if (groupe.isEmpty()) {
                 continue;
             }
             Paiement premier = groupe.get(0);
             DashboardTransactionDTO dto = new DashboardTransactionDTO();
+            dto.setTransactionType("PAIEMENT");
+            dto.setLibellePrincipal(construireNomEtudiant(premier));
+            dto.setLibelleSecondaire(construireClasseNom(premier) + " · " + construireEcheanceLabel(premier));
             dto.setReferenceTransaction(premier.getReferenceTransaction() != null ? premier.getReferenceTransaction() : "Sans référence");
             dto.setDatePaiement(premier.getDatePaiement());
             dto.setDateLibelle(premier.getDatePaiement() != null ? premier.getDatePaiement().toString() : "—");
@@ -574,6 +587,20 @@ public class DirecteurDashboardService {
             dto.setClasseNom(construireClasseNom(premier));
             dto.setMatricule(construireMatricule(premier));
             dto.setEcheanceLabel(construireEcheanceLabel(premier));
+            transactions.add(dto);
+        }
+
+        for (Depense depense : depenses) {
+            DashboardTransactionDTO dto = new DashboardTransactionDTO();
+            dto.setTransactionType("DEPENSE");
+            dto.setLibellePrincipal(depense.getTypeDepense() != null ? depense.getTypeDepense().getLibelle() : "Dépense");
+            dto.setLibelleSecondaire(depense.getDescription());
+            dto.setReferenceTransaction(depense.getIntitule() != null ? depense.getIntitule() : "Dépense");
+            dto.setDatePaiement(depense.getDateDepense());
+            dto.setDateLibelle(depense.getDateDepense() != null ? depense.getDateDepense().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "—");
+            dto.setMontant(depense.getTotal() != null ? depense.getTotal() : BigDecimal.ZERO);
+            dto.setModePaiement(depense.getTypeCharge() != null ? depense.getTypeCharge() : "—");
+            dto.setEcheanceLabel("Dépense");
             transactions.add(dto);
         }
 

@@ -7,6 +7,9 @@ import java.time.LocalDate;
 
 @Data
 public class DashboardTransactionDTO {
+    private String transactionType;
+    private String libellePrincipal;
+    private String libelleSecondaire;
     private String referenceTransaction;
     private LocalDate datePaiement;
     private String dateLibelle;
