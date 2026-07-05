@@ -9,47 +9,80 @@
   <main class="main-content">
     <div class="page-header">
         <div><h2>Notifications</h2><p>Tous vos événements et alertes</p></div>
-        <button class="btn btn-secondary"><i class="fas fa-check-double"></i> Tout marquer lu</button>
+        <button class="btn btn-secondary" onclick="marquerToutLu()"><i class="fas fa-check-double"></i> Tout marquer lu</button>
       </div>
       <div class="card">
-        <div class="notif-item unread">
-          <div class="notif-item-icon" style="background:rgba(0,255,133,.08);color:var(--g);">💰</div>
-          <div class="notif-item-text" style="flex:1;">
-            <strong>Nouveau paiement reçu — Rakoto Jean</strong>
-            <small>1ère A — 80 000 Ar — il y a 10 min</small>
+        <th:block th:each="notification : ${notifications}">
+          <div class="notif-item" th:classappend="${!notification.estLu} ? 'unread'" th:id="'notif-' + ${notification.id}">
+            <div class="notif-item-icon" style="background:rgba(37,99,235,.08);color:var(--b);">
+              <i class="fas fa-bell"></i>
+            </div>
+            <div class="notif-item-text" style="flex:1;">
+              <strong th:text="${notification.titre}"></strong>
+              <small th:text="${notification.message}"></small>
+            </div>
+            <div style="display:flex;gap:var(--sp-sm);align-items:center;">
+              <span th:if="${!notification.estLu}" class="badge badge-amber">Nouveau</span>
+              <th:block th:if="${!notification.estLu}">
+                <button class="btn btn-sm btn-secondary" th:onclick="'marquerLu(' + ${notification.id} + ')'" style="padding:4px 8px;font-size:12px;"><i class="fas fa-check"></i></button>
+              </th:block>
+            </div>
           </div>
-          <span class="badge badge-amber">Nouveau</span>
-        </div>
-        <div class="notif-item unread">
-          <div class="notif-item-icon" style="background:rgba(0,212,110,.1);color:var(--success);">📝</div>
-          <div class="notif-item-text" style="flex:1;">
-            <strong>Notes publiées — Mathématiques Terminale C</strong>
-            <small>Par Prof. Rabe — il y a 30 min</small>
-          </div>
-          <span class="badge badge-amber">Nouveau</span>
-        </div>
-        <div class="notif-item">
-          <div class="notif-item-icon" style="background:rgba(10,77,255,.1);color:var(--b);">📣</div>
-          <div class="notif-item-text" style="flex:1;">
-            <strong>Réunion parents-profs programmée</strong>
-            <small>Vendredi 19 avril 2026 — 9h00</small>
-          </div>
-        </div>
-        <div class="notif-item">
-          <div class="notif-item-icon" style="background:rgba(255,59,92,.1);color:var(--danger);">⚠️</div>
-          <div class="notif-item-text" style="flex:1;">
-            <strong>3 élèves n'ont pas payé l'écolage d'Avril</strong>
-            <small>Action requise — 16 Avril 2026</small>
-          </div>
-        </div>
-        <div class="notif-item">
-          <div class="notif-item-icon" style="background:rgba(0,212,110,.1);color:var(--success);">🏆</div>
-          <div class="notif-item-text" style="flex:1;">
-            <strong>Bulletin du Trimestre 2 publié</strong>
-            <small>Terminale C — 10 Avril 2026</small>
-          </div>
+        </th:block>
+        
+        <!-- Message si pas de notifications -->
+        <div th:if="${#lists.isEmpty(notifications)}" style="text-align: center; padding: 2rem; color: var(--txt3);">
+          <p style="margin: 0;">Aucune notification pour le moment</p>
         </div>
       </div>
+
+      <script>
+      function marquerLu(notificationId) {
+          // Obtenir le token CSRF du meta tag
+          const token = document.querySelector('meta[name="_csrf"]')?.getAttribute('content') || '';
+          const header = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content') || 'X-CSRF-TOKEN';
+          
+          const headers = {
+              'Content-Type': 'application/json'
+          };
+          
+          if (token) {
+              headers[header] = token;
+          }
+          
+          fetch('/api/notifications/' + notificationId + '/marquer-lu', {
+              method: 'PUT',
+              headers: headers
+          })
+          .then(response => {
+              if (response.ok) {
+                  const element = document.getElementById('notif-' + notificationId);
+                  if (element) {
+                      element.classList.remove('unread');
+                      const badge = element.querySelector('.badge');
+                      if (badge) {
+                          badge.style.display = 'none';
+                      }
+                      const button = element.querySelector('button');
+                      if (button) {
+                          button.style.display = 'none';
+                      }
+                  }
+              } else {
+                  console.error('Erreur:', response.status);
+              }
+          })
+          .catch(error => console.error('Erreur réseau:', error));
+      }
+
+      function marquerToutLu() {
+          const notifications = document.querySelectorAll('.notif-item.unread');
+          notifications.forEach(notif => {
+              const id = notif.id.replace('notif-', '');
+              marquerLu(id);
+          });
+      }
+      </script>
   </main>
 </div>
 <div th:replace="~{fragments/footer :: footer}"></div>

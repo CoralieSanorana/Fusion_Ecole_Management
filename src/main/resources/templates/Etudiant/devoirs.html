@@ -15,8 +15,8 @@
     <div style="display:flex;flex-direction:column;gap:var(--sp-md);">
 
       <!-- ── SECTION DEVOIRS ── -->
-      <h3 style="margin:0 0 4px;font-size:1.1rem;color:var(--txt1);border-left:4px solid var(--primary);padding-left:10px;">
-        📝 Devoirs
+      <h3 style="margin:0 0 4px;font-size:1.1rem;color:var(--txt);border-left:4px solid var(--b);padding-left:10px;">
+        <i class="fas fa-clipboard-list"></i> Devoirs
       </h3>
 
       <div th:if="${devoirs.isEmpty()}"
@@ -29,15 +29,15 @@
         <h4 th:text="${devoir.affectation?.matiere?.nom}">Matière</h4>
         <h4 th:text="${devoir.titre}">Titre</h4>
         <div class="due">
-          📅 À rendre :
+          <i class="fas fa-calendar-day"></i> À rendre :
           <span th:text="${devoir.dateLimite}">Date limite</span>
         </div>
         <p th:text="${devoir.description}">Description</p>
       </div>
 
       <!-- ── SECTION LEÇONS ── -->
-      <h3 style="margin:16px 0 4px;font-size:1.1rem;color:var(--txt1);border-left:4px solid var(--secondary, #6c757d);padding-left:10px;">
-        📖 Leçons
+      <h3 style="margin:16px 0 4px;font-size:1.1rem;color:var(--txt);border-left:4px solid var(--txt3);padding-left:10px;">
+        <i class="fas fa-book-open"></i> Leçons
       </h3>
 
       <div th:if="${lecons.isEmpty()}"

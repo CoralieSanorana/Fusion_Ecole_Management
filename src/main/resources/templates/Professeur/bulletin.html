@@ -16,7 +16,7 @@
         <div class="page-header-actions" th:if="${classe != null}">
             <button class="btn btn-primary" 
                     th:data-classe-nom="${classe.nom}"
-                    onclick="showToast('📋 Bulletins publiés pour ' + this.getAttribute('data-classe-nom') + ' !')">
+                    onclick="showToast('Bulletins publiés pour ' + this.getAttribute('data-classe-nom') + ' !')">
                 <i class="fas fa-share"></i> Publier les bulletins
             </button>
         </div>
