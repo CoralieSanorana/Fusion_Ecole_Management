@@ -44,7 +44,7 @@
 
    L'application sera accessible sur `http://localhost:8080`
 
-## Lancer le Frontend
+## Lancer le Fronten\
 
 1. **Naviguer vers le dossier frontend :**
    ```bash

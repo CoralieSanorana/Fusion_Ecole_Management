@@ -1,0 +1,41 @@
+    table_name     |    column_name    |          data_type          
+-------------------+-------------------+-----------------------------
+ absences          | id                | bigint
+ absences          | seance_id         | bigint
+ absences          | etudiant_id       | bigint
+ absences          | type              | character varying
+ absences          | motif             | text
+ absences          | justificatif_url  | character varying
+ absences          | saisi_par         | bigint
+ absences          | valide_par        | bigint
+ absences          | date_validation   | timestamp without time zone
+ absences          | created_at        | timestamp without time zone
+ absences          | updated_at        | timestamp without time zone
+ contrats_employes | id                | integer
+ contrats_employes | user_id           | integer
+ contrats_employes | fonction          | character varying
+ contrats_employes | type_contrat_id   | integer
+ contrats_employes | sexe              | character
+ contrats_employes | reference_contrat | character varying
+ contrats_employes | date_debut        | date
+ contrats_employes | date_fin          | date
+ contrats_employes | salaire_mensuel   | numeric
+ contrats_employes | heures_hebdo      | numeric
+ contrats_employes | statut            | character varying
+ contrats_employes | document_url      | character varying
+ contrats_employes | created_at        | timestamp without time zone
+ contrats_employes | updated_at        | timestamp without time zone
+ niveaux           | id                | integer
+ niveaux           | etablissement_id  | integer
+ niveaux           | libelle           | character varying
+ niveaux           | ordre             | integer
+ niveaux           | created_at        | timestamp without time zone
+ users             | id                | integer
+ users             | email             | character varying
+ users             | password          | character varying
+ users             | is_active         | boolean
+ users             | last_login        | timestamp without time zone
+ users             | created_at        | timestamp without time zone
+ users             | updated_at        | timestamp without time zone
+(37 rows)
+

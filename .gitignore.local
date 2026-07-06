@@ -1,0 +1,19 @@
+# Fichier .gitignore local
+# Ne pas commiter les fichiers locaux de configuration et scripts
+
+# Configuration développement local
+src/main/resources/application-dev.properties
+src/main/resources/application-local.properties
+src/main/resources/application.properties.BACKUP
+
+# Scripts de démarrage locaux
+start-dev.sh
+run-local.sh
+
+# Répertoire de configuration externe
+config/
+
+# Fichiers d'environnement
+.env
+.env.local
+.env.local.properties
