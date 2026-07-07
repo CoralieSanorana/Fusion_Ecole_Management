@@ -13,6 +13,10 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -71,6 +75,7 @@ import com.lowagie.text.pdf.PdfWriter;
 import jakarta.servlet.http.HttpServletResponse;
 
 @Controller
+@PreAuthorize("hasRole('PROFESSEUR')")
 public class ProfesseurController {
 
     @Autowired
@@ -138,8 +143,7 @@ public class ProfesseurController {
         model.addAttribute("pageTitle", "Emploi du Temps");
         model.addAttribute("currentRole", "professeur");
         
-        // Simuler le professeur connecté (ID: 1) pour le test
-        Long professeurId = 1L;
+        Long professeurId = getAuthenticatedProfesseurId();
         List<HoraireEdt> horaires = edtService.getHoraires(null);
         Map<Integer, String> jours = getJoursSemaine();
         Map<Long, Map<Integer, Map<String, Object>>> parHoraire = buildParHoraire(professeurId, horaires);
@@ -152,7 +156,7 @@ public class ProfesseurController {
 
     @GetMapping("/professeur/emploi/pdf")
     public void exporterEmploiPdf(HttpServletResponse response) throws IOException {
-        Long professeurId = 1L;
+        Long professeurId = getAuthenticatedProfesseurId();
         List<HoraireEdt> horaires = edtService.getHoraires(null);
         Map<Integer, String> jours = getJoursSemaine();
         Map<Long, Map<Integer, Map<String, Object>>> parHoraire = buildParHoraire(professeurId, horaires);
@@ -293,8 +297,7 @@ public class ProfesseurController {
                                @RequestParam Long classeId,
                                @RequestParam(required = false) List<Long> absents,
                                RedirectAttributes redirectAttributes) {
-        // TODO: Get connected professor ID from authentication
-        Long professeurId = 1L; // Temporary hardcoded value
+                    Long professeurId = getAuthenticatedProfesseurId();
         
         // Get or create seance for this emploiDuTemps
         EmploiDuTemps emploiDuTemps = emploiDuTempsService.findById(emploiDuTempsId).orElse(null);
@@ -395,8 +398,7 @@ public class ProfesseurController {
     public String notes(Model model) {
         model.addAttribute("pageTitle", "Notes des Élèves");
         model.addAttribute("currentRole", "professeur");
-        // TODO: Get connected professor ID from authentication
-        Long professeurId = 1L; // Temporary hardcoded value
+        Long professeurId = getAuthenticatedProfesseurId();
         List<AffectationEnseignement> affectations = affectationEnseignementService.findByProfesseurId(professeurId);
         
         // Fetch related entities for display
@@ -427,8 +429,7 @@ public class ProfesseurController {
         model.addAttribute("pageTitle", "Notes des Élèves");
         model.addAttribute("currentRole", "professeur");
         
-        // TODO: Get connected professor ID from authentication
-        Long professeurId = 1L; // Temporary hardcoded value
+        Long professeurId = getAuthenticatedProfesseurId();
         List<AffectationEnseignement> affectations = affectationEnseignementService.findByProfesseurId(professeurId);
         
         // --- ERADICATION DE LA PAGINATION BACKEND ---
@@ -687,7 +688,7 @@ public class ProfesseurController {
     // Page profil professeur
     @GetMapping("/professeur/profil")
     public String profil(Model model) {
-        Long professeurId = 1L; // TODO: Remplacer par l'ID du professeur connecté (via Spring Security)
+        Long professeurId = getAuthenticatedProfesseurId();
 
         ProfilsProfesseursService.findById(professeurId).ifPresent(professeur -> {
             model.addAttribute("professeur", professeur);
@@ -699,7 +700,7 @@ public class ProfesseurController {
 
 @GetMapping("/professeur/profil/pdf")
     public void exporterProfilPDF(HttpServletResponse response) throws IOException {
-        Long professeurId = 1L; // TODO: Replace with connected professor ID
+        Long professeurId = getAuthenticatedProfesseurId();
         ProfilsProfesseurs professeur = ProfilsProfesseursService.findById(professeurId).orElse(null);
         
         if (professeur == null) {
@@ -791,7 +792,7 @@ public class ProfesseurController {
                                @RequestParam(required = false) String motDePasse,
                                @RequestParam(required = false) MultipartFile photo,
                                RedirectAttributes redirectAttributes) {
-        Long professeurId = 1L; // TODO: Replace with connected professor ID
+        Long professeurId = getAuthenticatedProfesseurId();
         ProfilsProfesseurs professeur = ProfilsProfesseursService.findById(professeurId).orElse(null);
         
         if (professeur != null) {
@@ -952,12 +953,29 @@ public class ProfesseurController {
         return widths;
     }
 
+    private Long getAuthenticatedProfesseurId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
+            throw new AccessDeniedException("Utilisateur non authentifié");
+        }
+
+        User user = userService.getUser(authentication.getName());
+        if (user == null) {
+            throw new AccessDeniedException("Utilisateur connecté introuvable");
+        }
+
+        ProfilsProfesseurs profil = ProfilsProfesseursService.findByUserId(user.getId())
+            .orElseThrow(() -> new AccessDeniedException("Profil professeur introuvable"));
+
+        return profil.getId();
+    }
+
     @PostMapping("/professeur/profil/password")
     public String updatePassword(@RequestParam String currentPassword,
                                   @RequestParam String newPassword,
                                   @RequestParam String confirmPassword,
                                   RedirectAttributes redirectAttributes) {
-        Long professeurId = 1L; // TODO: Replace with connected professor ID
+        Long professeurId = getAuthenticatedProfesseurId();
         ProfilsProfesseurs professeur = ProfilsProfesseursService.findById(professeurId).orElse(null);
         
         if (professeur != null) {
@@ -981,7 +999,7 @@ public class ProfesseurController {
 
     @PostMapping("/professeur/profil/photo")
     public String uploadProfessorPhoto(@RequestParam("photo") MultipartFile file, RedirectAttributes redirectAttributes) {
-        Long professeurId = 1L; // TODO: Replace with connected professor ID
+        Long professeurId = getAuthenticatedProfesseurId();
         try {
             String photoUrl = ProfilsProfesseursService.uploadProfessorPhoto(professeurId, file);
             ProfilsProfesseurs professeur = ProfilsProfesseursService.findById(professeurId).orElse(null);
@@ -1000,7 +1018,7 @@ public class ProfesseurController {
 
     @PostMapping("/professeur/profil/photo/delete")
     public String deleteProfessorPhoto(RedirectAttributes redirectAttributes) {
-        Long professeurId = 1L; // TODO: Replace with connected professor ID
+        Long professeurId = getAuthenticatedProfesseurId();
         ProfilsProfesseurs professeur = ProfilsProfesseursService.findById(professeurId).orElse(null);
         if (professeur != null) {
             professeur.setPhotoUrl(null);
@@ -1016,8 +1034,7 @@ public class ProfesseurController {
         model.addAttribute("pageTitle", "Supports de Cours & Devoirs");
         model.addAttribute("currentRole", "professeur");
         
-        // TODO: Récupérer l'ID du professeur connecté depuis la session
-        Long professeurId = 1L; // Valeur temporaire pour tester
+        Long professeurId = getAuthenticatedProfesseurId();
 
         List<AffectationEnseignement> affectations = affectationEnseignementService.findByProfesseurId(professeurId);
         model.addAttribute("affectations", affectations);
@@ -1048,8 +1065,7 @@ public class ProfesseurController {
         model.addAttribute("pageTitle", "Supports de Cours & Devoirs");
         model.addAttribute("currentRole", "professeur");
         
-        // TODO: Récupérer l'ID du professeur connecté depuis la session
-        Long professeurId = 1L; // Valeur temporaire pour tester
+        Long professeurId = getAuthenticatedProfesseurId();
 
         List<AffectationEnseignement> affectations = affectationEnseignementService.findByProfesseurId(professeurId);
         model.addAttribute("affectations", affectations);
@@ -1103,8 +1119,7 @@ public class ProfesseurController {
         model.addAttribute("pageTitle", "Bulletins");
         model.addAttribute("currentRole", "professeur");
         
-        // TODO: Get connected professor ID from authentication
-        Long professeurId = 1L; // Temporary hardcoded value
+        Long professeurId = getAuthenticatedProfesseurId();
         
         // Get current active school year
         AnneeScolaire anneeScolaire = anneeScolaireService.findByEstActive(true).orElse(null);
@@ -1145,8 +1160,7 @@ public class ProfesseurController {
         model.addAttribute("pageTitle", "Bulletin de l'Élève");
         model.addAttribute("currentRole", "professeur");
         
-        // TODO: Get connected professor ID from authentication
-        Long professeurId = 1L; // Temporary hardcoded value
+        Long professeurId = getAuthenticatedProfesseurId();
         
         // Get current active school year
         AnneeScolaire anneeScolaire = anneeScolaireService.findByEstActive(true).orElse(null);
@@ -1189,7 +1203,7 @@ public class ProfesseurController {
     public void exporterBulletinPdf(@PathVariable Long etudiantId,
                                     @RequestParam(required = false) Long periodeId,
                                     HttpServletResponse response) throws IOException {
-        Long professeurId = 1L;
+        Long professeurId = getAuthenticatedProfesseurId();
 
         AnneeScolaire anneeScolaire = anneeScolaireService.findByEstActive(true).orElse(null);
         Long anneeScolaireId = (anneeScolaire != null) ? anneeScolaire.getId() : null;

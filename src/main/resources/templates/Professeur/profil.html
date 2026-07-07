@@ -393,68 +393,6 @@
       </div>
     </div>
 
-    <div th:if="${professeur == null}">
-      <div class="contract-cv" style="padding: 40px; text-align: center;">
-        <h3>Profil introuvable</h3>
-        <p>Impossible de charger votre profil. Veuillez contacter l'administrateur.</p>
-      </div>
-    </div>
-
-    <article class="contract-cv" th:if="${professeur != null}">
-      <header class="contract-cv-header">
-        <div class="contract-photo-wrap" id="employee-photo-trigger" role="button" tabindex="0" aria-label="Modifier la photo de profil">
-          <img th:src="${professeur.photoUrl != null && !#strings.isEmpty(professeur.photoUrl) ? professeur.photoUrl : '/photo/DefaultIMG_Homme.png'}" alt="Photo de profil">
-          <div class="contract-photo-overlay">Appuyer pour modifier</div>
-        </div>
-        <div class="contract-cv-title">
-          <h2 th:text="${professeur.nom + ' ' + professeur.prenom}">Nom Prénom</h2>
-          <p>Profil professionnel du professeur</p>
-          <div class="contract-badges">
-            <span class="contract-badge" th:text="${professeur.specialite != null ? professeur.specialite : 'Professeur'}">Mathématiques</span>
-            <span class="contract-badge" th:text="${professeur.typeContrat != null ? professeur.typeContrat : 'Sans type'}">CDI</span>
-          </div>
-        </div>
-      </header>
-
-      <div class="contract-cv-body">
-        <section class="contract-panel">
-          <div class="contract-section">
-            <h3>Photo de profil</h3>
-            <div style="border: 1px dashed #cbd5e1; border-radius: 12px; padding: 14px; background: #f8fafc;">
-              <p style="margin:0;font-size:13px;color:#475569;">La photo est affichée depuis votre profil. Si aucune photo n'est enregistrée, l'image par défaut s'affiche automatiquement.</p>
-            </div>
-          </div>
-
-          <div class="contract-section">
-            <h3>Identité</h3>
-            <div class="contract-list">
-              <div class="contract-item"><strong>Matricule</strong><span th:text="${professeur.matricule != null ? professeur.matricule : '—'}">MAT-001</span></div>
-              <div class="contract-item"><strong>Spécialité</strong><span th:text="${professeur.specialite != null ? professeur.specialite : '—'}">Mathématiques</span></div>
-            </div>
-          </div>
-        </section>
-
-        <section class="contract-panel">
-          <div class="contract-section">
-            <h3>Informations personnelles</h3>
-            <div class="contract-list">
-              <div class="contract-item"><strong>Email</strong><span th:text="${professeur.user != null && professeur.user.email != null ? professeur.user.email : '—'}">professeur@ecole.com</span></div>
-              <div class="contract-item"><strong>Téléphone</strong><span th:text="${professeur.telephone != null ? professeur.telephone : '—'}">034 12 345 67</span></div>
-              <div class="contract-item"><strong>Adresse</strong><span th:text="${professeur.adresse != null ? professeur.adresse : '—'}">Analakely, Antananarivo</span></div>
-              <div class="contract-item"><strong>Date de naissance</strong><span th:text="${professeur.dateNaissance != null ? #temporals.format(professeur.dateNaissance, 'dd MMM yyyy') : '—'}">15 Jan. 1980</span></div>
-            </div>
-          </div>
-
-          <div class="contract-section" style="margin-bottom:0;">
-            <h3>Contrat</h3>
-            <div class="contract-list">
-              <div class="contract-item"><strong>Type de contrat</strong><span th:text="${professeur.typeContrat != null ? professeur.typeContrat : '—'}">CDI</span></div>
-            </div>
-          </div>
-        </section>
-      </div>
-    </article>
-
     <!-- Update Form (Hidden by default) -->
     <div id="update-form" class="profile-edit-card" style="display: none;" th:if="${professeur != null}">
         <div class="card-header">
@@ -529,6 +467,68 @@
     <form id="photo-upload-form" method="post" th:action="@{/professeur/profil/photo}" enctype="multipart/form-data" style="display:none;" th:if="${professeur != null}">
       <input id="photo-upload-input" class="form-control" type="file" name="photo" accept=".jpg,.jpeg,.png,.webp" required>
     </form>
+
+    <div th:if="${professeur == null}">
+      <div class="contract-cv" style="padding: 40px; text-align: center;">
+        <h3>Profil introuvable</h3>
+        <p>Impossible de charger votre profil. Veuillez contacter l'administrateur.</p>
+      </div>
+    </div>
+
+    <article class="contract-cv" th:if="${professeur != null}">
+      <header class="contract-cv-header">
+        <div class="contract-photo-wrap" id="employee-photo-trigger" role="button" tabindex="0" aria-label="Modifier la photo de profil">
+          <img th:src="${professeur.photoUrl != null && !#strings.isEmpty(professeur.photoUrl) ? professeur.photoUrl : '/photo/DefaultIMG_Homme.png'}" alt="Photo de profil">
+          <div class="contract-photo-overlay">Appuyer pour modifier</div>
+        </div>
+        <div class="contract-cv-title">
+          <h2 th:text="${professeur.nom + ' ' + professeur.prenom}">Nom Prénom</h2>
+          <p>Profil professionnel du professeur</p>
+          <div class="contract-badges">
+            <span class="contract-badge" th:text="${professeur.specialite != null ? professeur.specialite : 'Professeur'}">Mathématiques</span>
+            <span class="contract-badge" th:text="${professeur.typeContrat != null ? professeur.typeContrat : 'Sans type'}">CDI</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="contract-cv-body">
+        <section class="contract-panel">
+          <div class="contract-section">
+            <h3>Photo de profil</h3>
+            <div style="border: 1px dashed #cbd5e1; border-radius: 12px; padding: 14px; background: #f8fafc;">
+              <p style="margin:0;font-size:13px;color:#475569;">La photo est affichée depuis votre profil. Si aucune photo n'est enregistrée, l'image par défaut s'affiche automatiquement.</p>
+            </div>
+          </div>
+
+          <div class="contract-section">
+            <h3>Identité</h3>
+            <div class="contract-list">
+              <div class="contract-item"><strong>Matricule</strong><span th:text="${professeur.matricule != null ? professeur.matricule : '—'}">MAT-001</span></div>
+              <div class="contract-item"><strong>Spécialité</strong><span th:text="${professeur.specialite != null ? professeur.specialite : '—'}">Mathématiques</span></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="contract-panel">
+          <div class="contract-section">
+            <h3>Informations personnelles</h3>
+            <div class="contract-list">
+              <div class="contract-item"><strong>Email</strong><span th:text="${professeur.user != null && professeur.user.email != null ? professeur.user.email : '—'}">professeur@ecole.com</span></div>
+              <div class="contract-item"><strong>Téléphone</strong><span th:text="${professeur.telephone != null ? professeur.telephone : '—'}">034 12 345 67</span></div>
+              <div class="contract-item"><strong>Adresse</strong><span th:text="${professeur.adresse != null ? professeur.adresse : '—'}">Analakely, Antananarivo</span></div>
+              <div class="contract-item"><strong>Date de naissance</strong><span th:text="${professeur.dateNaissance != null ? #temporals.format(professeur.dateNaissance, 'dd MMM yyyy') : '—'}">15 Jan. 1980</span></div>
+            </div>
+          </div>
+
+          <div class="contract-section" style="margin-bottom:0;">
+            <h3>Contrat</h3>
+            <div class="contract-list">
+              <div class="contract-item"><strong>Type de contrat</strong><span th:text="${professeur.typeContrat != null ? professeur.typeContrat : '—'}">CDI</span></div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </article>
 
     <script>
       function showUpdateForm() {

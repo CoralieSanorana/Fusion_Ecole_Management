@@ -1,11 +1,5 @@
 package com.ecole.service;
 
-import com.ecole.entity.ProfilsProfesseurs;
-import com.ecole.repository.ProfilsProfesseursRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,6 +7,13 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.ecole.entity.ProfilsProfesseurs;
+import com.ecole.repository.ProfilsProfesseursRepository;
 
 @Service
 public class ProfilsProfesseursService {
@@ -36,6 +37,10 @@ public class ProfilsProfesseursService {
 
     public void deleteById(Long id) {
         ProfilsProfesseursRepository.deleteById(id);
+    }
+
+    public Optional<ProfilsProfesseurs> findByUserId(Long userId) {
+        return ProfilsProfesseursRepository.findByUserId(userId);
     }
 
     public String uploadProfessorPhoto(Long professeurId, MultipartFile file) throws IOException {

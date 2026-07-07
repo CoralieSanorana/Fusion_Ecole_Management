@@ -42,20 +42,20 @@ public class SecurityConfig {
         http
             .authenticationProvider(authenticationProvider())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/index", "/login", "/css/**", "/js/**").permitAll()
-                .requestMatchers("/api/**").permitAll()
-                .requestMatchers("/api/actualites", "/api/actualites/").permitAll()
-                .requestMatchers("/api/actualites/*").permitAll()
+                .requestMatchers("/", "/index", "/login", "/css/**", "/js/**", "/images/**", "/photo/**").permitAll()
+                .requestMatchers("/api/actualites", "/api/actualites/", "/api/actualites/**").permitAll()
                 .requestMatchers("/api/notifications/**").authenticated()
+                .requestMatchers("/api/directeur/**").hasRole("DIRECTEUR")
                 .requestMatchers("/directeur/**").hasRole("DIRECTEUR")
                 .requestMatchers("/secretariat/**").hasRole("SECRETARIAT")
                 .requestMatchers("/professeur/**").hasRole("PROFESSEUR")
                 .requestMatchers("/etudiant/**").hasRole("ETUDIANT")
                 .requestMatchers("/parent/**").hasRole("PARENT")
+                .requestMatchers("/api/**").authenticated()
                 .anyRequest().authenticated()
             )
             .csrf(csrf -> csrf
-                .ignoringRequestMatchers("/api/actualites", "/api/actualites/", "/api/notifications/**")
+                .ignoringRequestMatchers("/api/actualites", "/api/actualites/", "/api/actualites/**", "/api/notifications/**", "/api/**")
             )
             .formLogin(form -> form
                 .loginPage("/login")
@@ -68,9 +68,6 @@ public class SecurityConfig {
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/login?logout=true")
                 .permitAll()
-            )
-            .csrf(csrf -> csrf
-                .ignoringRequestMatchers("/api/**")
             );
 
         return http.build();
