@@ -2,6 +2,9 @@ package com.ecole.controller;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -970,6 +973,14 @@ public class ProfesseurController {
         return profil.getId();
     }
 
+    private String sanitizeFilename(String filename) {
+        if (filename == null || filename.isBlank()) {
+            return "support";
+        }
+
+        return filename.replaceAll("[^a-zA-Z0-9._-]", "_");
+    }
+
     @PostMapping("/professeur/profil/password")
     public String updatePassword(@RequestParam String currentPassword,
                                   @RequestParam String newPassword,
@@ -1112,6 +1123,41 @@ public class ProfesseurController {
         }
 
         return "redirect:/professeur/devoirs/details?affectationId=" + support.getAffectationId();
+    }
+
+    @GetMapping("/professeur/devoirs/details/pdf/{supportId}")
+    public void downloadSupportPdf(@PathVariable Long supportId, HttpServletResponse response) throws IOException {
+        Long professeurId = getAuthenticatedProfesseurId();
+        SupportCours support = supportCoursService.findById(supportId).orElse(null);
+
+        if (support == null) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, "Support introuvable");
+            return;
+        }
+
+        boolean isOwner = affectationEnseignementService.findByProfesseurId(professeurId).stream()
+            .anyMatch(affectation -> affectation.getId().equals(Long.valueOf(support.getAffectationId())));
+        if (!isOwner) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Accès refusé");
+            return;
+        }
+
+        String fichierUrl = support.getFichierUrl();
+        if (fichierUrl == null || fichierUrl.isBlank()) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, "Fichier introuvable");
+            return;
+        }
+
+        Path fichierPath = Paths.get("uploads").resolve(fichierUrl.replaceFirst("^/uploads/?", ""));
+        if (!Files.exists(fichierPath)) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, "Fichier introuvable");
+            return;
+        }
+
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + sanitizeFilename(support.getTitre()) + ".pdf\"");
+        Files.copy(fichierPath, response.getOutputStream());
+        response.flushBuffer();
     }
 
     @GetMapping("/professeur/bulletins")

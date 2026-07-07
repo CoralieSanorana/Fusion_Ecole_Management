@@ -135,7 +135,10 @@
                         <span class="badge badge-amber" th:text="${matiereNames.get(selectedClasse.matiereId)}">Matière</span>
                     </div>
                     <div style="margin-top:var(--sp-md);display:flex;gap:var(--sp-sm);">
-                        <a th:href="@{/professeur/devoirs/details/pdf/{supportId}(supportId=${s.id})}" class="btn btn-secondary btn-sm" th:if="${s.typeContenu == 'cours'}">
+                        <a th:href="@{/professeur/devoirs/details/pdf/{supportId}(supportId=${s.id})}"
+                           class="btn btn-secondary btn-sm"
+                           th:if="${s.typeContenu == 'cours'}"
+                           download>
                             <i class="fas fa-file-pdf"></i> Export PDF
                         </a>
                     </div>
