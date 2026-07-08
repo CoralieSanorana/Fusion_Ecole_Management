@@ -263,6 +263,100 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
+  // Export to CSV
+  const btnExport = document.getElementById('btn-export');
+  if (btnExport) {
+    btnExport.addEventListener('click', async () => {
+      try {
+        showMessage('info', 'Génération du fichier CSV en cours...');
+        
+        const response = await fetch('/api/export-import/export/excel');
+        
+        if (response.ok) {
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = response.headers.get('Content-Disposition')?.split('filename=')[1]?.replace(/"/g, '') || 'export_ecole.csv';
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+          showMessage('success', 'Export réussi ! Le fichier CSV a été téléchargé.');
+        } else {
+          showMessage('error', 'Erreur lors de l\'export');
+        }
+      } catch (error) {
+        console.error('Error exporting:', error);
+        showMessage('error', `Erreur: ${error.message}`);
+      }
+    });
+  }
+
+  // Import from CSV
+  const btnImport = document.getElementById('btn-import');
+  if (btnImport) {
+    btnImport.addEventListener('click', () => {
+      // Create file input
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = '.csv';
+      fileInput.style.display = 'none';
+      
+      fileInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        // Get CSRF token
+        const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+        
+        showMessage('info', 'Import CSV en cours... Veuillez patienter.');
+        
+        try {
+          const response = await fetch('/api/export-import/import/excel', {
+            method: 'POST',
+            headers: csrfToken && csrfHeader ? { [csrfHeader]: csrfToken } : {},
+            body: formData
+          });
+          
+          const result = await response.json();
+          
+          if (result.success) {
+            showMessage('success', result.message);
+            await fetchData();
+          } else {
+            let errorMessage = result.message;
+            if (result.errors && result.errors.length > 0) {
+              errorMessage += '<br><br>Erreurs détaillées:<br>';
+              result.errors.forEach((error, index) => {
+                errorMessage += `${index + 1}. Ligne ${error.rowNumber} - ${error.tableName}: ${error.errorMessage}<br>`;
+              });
+            }
+            if (result.warnings && result.warnings.length > 0) {
+              errorMessage += '<br>Warnings:<br>';
+              result.warnings.forEach((warning, index) => {
+                errorMessage += `${index + 1}. ${warning}<br>`;
+              });
+            }
+            showMessage('error', errorMessage);
+          }
+        } catch (error) {
+          console.error('Error importing:', error);
+          showMessage('error', `Erreur: ${error.message}`);
+        }
+        
+        document.body.removeChild(fileInput);
+      });
+      
+      document.body.appendChild(fileInput);
+      fileInput.click();
+    });
+  }
+
   // Initialize
   fetchData();
 });

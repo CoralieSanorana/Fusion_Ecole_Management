@@ -11,6 +11,7 @@ com\ecole\service\TypeFichierService.class
 com\ecole\repository\LeconRepository.class
 com\ecole\service\NoteService.class
 com\ecole\controller\GlobalControllerAdvice.class
+com\ecole\dto\ImportExport\AnneeScolaireExportDTO.class
 com\ecole\service\TypesContratsEmployesService.class
 com\ecole\entity\TypesContratsEmployes.class
 com\ecole\repository\UserRoleRepository.class
@@ -40,6 +41,7 @@ com\ecole\service\AffectationEnseignementService.class
 com\ecole\entity\SupportCours.class
 com\ecole\repository\TypeFichierRepository.class
 com\ecole\dto\NotificationDTO.class
+com\ecole\service\ExportImportService$1.class
 com\ecole\entity\Matiere.class
 com\ecole\repository\SeanceRepository.class
 com\ecole\entity\Echeancier.class
@@ -49,6 +51,7 @@ com\ecole\service\UserService.class
 com\ecole\entity\Moyenne.class
 com\ecole\repository\CoefficientRepository.class
 com\ecole\repository\VueEmployesDetailRepository.class
+com\ecole\dto\ImportExport\NiveauExportDTO.class
 com\ecole\repository\ContratsEmployesRepository.class
 com\ecole\entity\Etablissement.class
 com\ecole\repository\SalleRepository.class
@@ -56,12 +59,14 @@ com\ecole\service\AbsenceService.class
 com\ecole\repository\EvenementRepository.class
 com\ecole\dto\Directeur\EleveStatPoint.class
 com\ecole\entity\VueEmployesDetail.class
+com\ecole\controller\ExportImportController.class
 com\ecole\repository\ActualiteRepository.class
 com\ecole\repository\DevoirRepository.class
 com\ecole\dto\Secretaire\BilanGlobalDTO.class
 com\ecole\entity\Notification.class
 com\ecole\entity\Salle.class
 com\ecole\service\EvenementService.class
+com\ecole\dto\ImportExport\ImportErrorDTO$ErrorSeverity.class
 com\ecole\repository\TypesContratsEmployesRepository.class
 com\ecole\repository\PaiementRepository.class
 com\ecole\service\EvenementInstanceService.class
@@ -71,6 +76,7 @@ com\ecole\service\PeriodeService.class
 com\ecole\service\EleveService.class
 com\ecole\entity\Paiement.class
 com\ecole\dto\Secretaire\EleveListeDTO.class
+com\ecole\dto\ImportExport\ImportErrorDTO.class
 com\ecole\entity\TypeFichier.class
 com\ecole\service\DepenseService.class
 com\ecole\controller\HomeController.class
@@ -82,11 +88,13 @@ com\ecole\dto\Directeur\DashboardTransactionDTO.class
 com\ecole\entity\Inscription.class
 com\ecole\entity\UserRoleId.class
 com\ecole\repository\NotificationRepository.class
+com\ecole\service\FullExportImportService.class
 com\ecole\repository\MoyenneRepository.class
 com\ecole\service\ActualiteService.class
 com\ecole\dto\Secretaire\PaiementGroupeDTO.class
 com\ecole\dto\Directeur\DashboardMonthOptionDTO.class
 com\ecole\service\AnneeScolaireService.class
+com\ecole\dto\ImportExport\ImportResultDTO.class
 com\ecole\dto\Directeur\NiveauAlerte.class
 com\ecole\entity\ProfilEtudiant.class
 com\ecole\service\EmployeService.class
@@ -103,6 +111,8 @@ com\ecole\service\InscriptionService.class
 com\ecole\entity\User.class
 com\ecole\controller\DirecteurController.class
 com\ecole\repository\ProfilsComptablesRepository.class
+com\ecole\dto\ImportExport\ExportDataDTO.class
+com\ecole\dto\ImportExport\ClasseExportDTO.class
 com\ecole\repository\ProfilsDirecteursRepository.class
 com\ecole\service\EdtService.class
 com\ecole\entity\Coefficient.class
@@ -128,14 +138,17 @@ com\ecole\entity\UserRole.class
 com\ecole\service\NiveauService.class
 com\ecole\repository\EcheanceRepository.class
 com\ecole\entity\NotificationType.class
+com\ecole\dto\ImportExport\EtablissementExportDTO.class
 com\ecole\service\SupportCoursService.class
 com\ecole\controller\FragmentController.class
 com\ecole\controller\SecretaireController.class
+com\ecole\dto\ImportExport\MatiereExportDTO.class
 com\ecole\service\MatiereService.class
 com\ecole\entity\Depense.class
 com\ecole\service\ProfilsProfesseursService.class
 com\ecole\service\PaiementService.class
 com\ecole\repository\NotificationTypeRepository.class
+com\ecole\dto\ImportExport\SalleExportDTO.class
 com\ecole\entity\TitulaireClasse.class
 com\ecole\entity\AffectationEnseignement.class
 com\ecole\repository\NoteRepository.class
@@ -159,6 +172,7 @@ com\ecole\repository\ProfilParentRepository.class
 com\ecole\repository\RoleRepository.class
 com\ecole\dto\Directeur\EtudiantFilterCriteria.class
 com\ecole\entity\EmploiDuTemps.class
+com\ecole\service\ExportImportService.class
 com\ecole\dto\Directeur\CreneauDTO.class
 com\ecole\entity\ProfilsProfesseurs.class
 com\ecole\service\SalleService.class
