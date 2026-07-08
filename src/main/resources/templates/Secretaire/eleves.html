@@ -490,9 +490,9 @@
     // Afficher l'état (admis ou redouble)
     let etat = 'État inconnu';
     if (it.estAdmis === true) {
-      etat = '✓ Admis (passe au niveau supérieur)';
+      etat = '✓ Admis';
     } else if (it.estAdmis === false) {
-      etat = '✗ Redoublant (même niveau)';
+      etat = '✗ Redoublant';
     }
     document.getElementById('re_etatEleve').value = etat;
     
