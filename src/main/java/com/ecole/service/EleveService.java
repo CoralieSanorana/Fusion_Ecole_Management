@@ -9,6 +9,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -52,8 +56,16 @@ public class EleveService {
         return buildListeDTO(etudiantRepo.findByIsArchivedFalse());
     }
 
+    public Page<EleveListeDTO> listerTousElevesPaginee(Pageable pageable) {
+        return buildListeDTOPage(etudiantRepo.findByIsArchivedFalse(pageable));
+    }
+
     public List<EleveListeDTO> listerParNiveau(String niveau) {
         return buildListeDTO(etudiantRepo.findByNiveau(niveau));
+    }
+
+    public Page<EleveListeDTO> listerParNiveauPaginee(String niveau, Pageable pageable) {
+        return buildListeDTOPage(etudiantRepo.findByNiveau(niveau, pageable));
     }
 
     // Long → Integer
@@ -61,8 +73,16 @@ public class EleveService {
     return buildListeDTO(etudiantRepo.findByClasseId(classeId));
 }
 
+    public Page<EleveListeDTO> listerParClassePaginee(Long classeId, Pageable pageable) {
+        return buildListeDTOPage(etudiantRepo.findByClasseId(classeId, pageable));
+    }
+
     public List<EleveListeDTO> rechercherEleves(String search) {
         return buildListeDTO(etudiantRepo.searchByNomOrPrenomOrMatricule(search));
+    }
+
+    public Page<EleveListeDTO> rechercherElevesPaginee(String search, Pageable pageable) {
+        return buildListeDTOPage(etudiantRepo.searchByNomOrPrenomOrMatricule(search, pageable));
     }
 
     public List<Classe> listerClasses() {
@@ -251,7 +271,15 @@ public class EleveService {
             parent.setTelephone(dto.getTelephoneParent());
             parent.setLienParente(dto.getLienParente());
             parent.setCreatedAt(LocalDateTime.now());
-            parentRepo.save(parent);
+            ProfilParent savedParent = parentRepo.save(parent);
+
+            jdbc.update("""
+                INSERT INTO etudiants_parents (etudiant_id, parent_id, est_contact_principal)
+                VALUES (?, ?, TRUE)
+                ON CONFLICT (etudiant_id, parent_id) DO NOTHING
+                """,
+                saved.getId(), savedParent.getId()
+            );
         }
 
         // Long → Integer pour classeId
@@ -259,10 +287,9 @@ public class EleveService {
         if (classeIdInt != null) {
             Inscription inscription = new Inscription();
 
-            // Utiliser les objets @ManyToOne au lieu des IDs bruts
-            etudiantRepo.findById(saved.getId())
-            .map(ProfilEtudiant::getId)
-            .ifPresent(inscription::setEtudiantId);
+            // Rattacher explicitement l'étudiant via la relation JPA pour que la colonne etudiant_id soit bien persistée.
+            inscription.setEtudiant(saved);
+            inscription.setEtudiantId(saved.getId());
 
             classeRepo.findById(Long.valueOf(classeIdInt))
                     .ifPresent(c -> {
@@ -321,12 +348,16 @@ public class EleveService {
 
         inscriptionRepo.findActiveByEtudiantId(etudiant.getId()).ifPresent(inscription -> {
             dto.setClasseId(inscription.getClasseId());
+            dto.setEstAdmis(inscription.getEstAdmis());
             Classe classe = inscription.getClasse();
             if (classe == null && inscription.getClasseId() != null) {
                 classe = classeRepo.findById(inscription.getClasseId()).orElse(null);
             }
             if (classe != null) {
                 dto.setNomClasse(classe.getNom());
+                if (classe.getNiveau() != null) {
+                    dto.setNiveauLibelle(classe.getNiveau().getLibelle());
+                }
             }
         });
         return dto;
@@ -357,6 +388,11 @@ public class EleveService {
         } catch (Exception ex) {
             return 0;
         }
+    }
+
+    private Page<EleveListeDTO> buildListeDTOPage(Page<ProfilEtudiant> page) {
+        List<EleveListeDTO> content = buildListeDTO(page.getContent());
+        return new PageImpl<>(content, page.getPageable(), page.getTotalElements());
     }
 
     private List<EleveListeDTO> buildListeDTO(List<ProfilEtudiant> etudiants) {

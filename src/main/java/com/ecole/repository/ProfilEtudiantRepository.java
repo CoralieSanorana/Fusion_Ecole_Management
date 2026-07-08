@@ -6,6 +6,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -68,4 +70,29 @@ public interface ProfilEtudiantRepository
        "AND i.statut = 'active' " +
        "AND LOWER(c.nom) LIKE LOWER(CONCAT('%', :niveau, '%'))") // <-- On utilise c.nom au lieu de i.classe.nom
     List<ProfilEtudiant> findByNiveau(@Param("niveau") String niveau);
+
+    // Méthodes paginées
+    Page<ProfilEtudiant> findByIsArchivedFalse(Pageable pageable);
+
+    @Query("SELECT e FROM ProfilEtudiant e WHERE e.isArchived = false AND (" +
+           "LOWER(e.nom) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(e.prenom) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(e.matricule) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(COALESCE(e.telephone, '')) LIKE LOWER(CONCAT('%', :search, '%')))" )
+    Page<ProfilEtudiant> searchByNomOrPrenomOrMatricule(@Param("search") String search, Pageable pageable);
+
+    @Query("SELECT e FROM ProfilEtudiant e " +
+       "JOIN Inscription i ON i.etudiant = e " +
+       "WHERE e.isArchived = false " +
+       "AND i.statut = 'active' " +
+       "AND i.classeId = :classeId") 
+    Page<ProfilEtudiant> findByClasseId(@Param("classeId") Long classeId, Pageable pageable);
+
+    @Query("SELECT e FROM ProfilEtudiant e " +
+       "JOIN Inscription i ON i.etudiant = e " +
+       "JOIN Classe c ON i.classeId = c.id " +
+       "WHERE e.isArchived = false " +
+       "AND i.statut = 'active' " +
+       "AND LOWER(c.nom) LIKE LOWER(CONCAT('%', :niveau, '%'))")
+    Page<ProfilEtudiant> findByNiveau(@Param("niveau") String niveau, Pageable pageable);
 }

@@ -183,6 +183,34 @@
             </tr>
           </tbody>
         </table>
+
+        <!-- Pagination -->
+        <div style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 5px;">
+          <!-- Bouton Précédent -->
+          <a th:if="${hasPrevious}" 
+             th:href="@{/secretariat/eleves(page=${currentPage - 1}, niveau=${niveauActif}, classeId=${classeIdActif}, search=${search})}"
+             class="btn btn-primary">
+            ← Précédent
+          </a>
+          <span th:unless="${hasPrevious}" class="btn btn-primary" style="opacity: 0.5; cursor: not-allowed;">
+            ← Précédent
+          </span>
+
+          <!-- Affichage de la page actuelle -->
+          <span style="font-weight: bold; font-size: 14px;">
+            Page <span th:text="${currentPage + 1}"></span> / <span th:text="${totalPages}"></span>
+          </span>
+
+          <!-- Bouton Suivant -->
+          <a th:if="${hasNext}" 
+             th:href="@{/secretariat/eleves(page=${currentPage + 1}, niveau=${niveauActif}, classeId=${classeIdActif}, search=${search})}"
+             class="btn btn-primary">
+            Suivant →
+          </a>
+          <span th:unless="${hasNext}" class="btn btn-primary" style="opacity: 0.5; cursor: not-allowed;">
+            Suivant →
+          </span>
+        </div>
       </div>
     </div>
 
@@ -297,6 +325,12 @@
         </div>
         <div class="form-row">
           <div class="form-group">
+            <label>État</label>
+            <input type="text" id="re_etatEleve" class="form-control" readonly style="background:#f0f0f0;font-weight:bold;" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
             <label>Nouvelle année scolaire</label>
             <select name="anneeScolaireId" id="re_anneeScolaireId" class="form-control" required>
               <option value="">— Choisir —</option>
@@ -307,7 +341,11 @@
             <label>Nouvelle classe</label>
             <select name="classeId" id="re_classeId" class="form-control">
               <option value="">— Choisir —</option>
-              <option th:each="c : ${classes}" th:value="${c.id}" th:text="${c.nom}"></option>
+              <option th:each="c : ${classes}"
+                      th:value="${c.id}"
+                      th:text="${c.nom}"
+                      th:data-niveau="${c.niveau != null ? c.niveau.libelle : ''}"
+                      th:data-ordre="${c.niveau != null ? c.niveau.ordre : ''}"></option>
             </select>
           </div>
         </div>
@@ -389,16 +427,117 @@
       });
   }
 
+  let allClasseOptions = [];
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('form-search-eleve');
+    if (form) {
+      form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        searchEleve();
+      });
+    }
+    const classeSelect = document.getElementById('re_classeId');
+    if (classeSelect) {
+      allClasseOptions = Array.from(classeSelect.querySelectorAll('option'))
+        .filter(opt => opt.value)
+        .map(opt => {
+          const ordreAttr = opt.getAttribute('data-ordre');
+          return {
+            value: opt.value,
+            text: opt.textContent,
+            niveau: opt.getAttribute('data-niveau') || '',
+            ordre: ordreAttr ? parseInt(ordreAttr, 10) : null
+          };
+        });
+      console.log('Classes chargées:', allClasseOptions);
+    }
+  });
+
+  function renderClasseOptions(options) {
+    const select = document.getElementById('re_classeId');
+    if (!select) return;
+    select.innerHTML = '<option value="">— Choisir —</option>';
+    options.forEach(opt => {
+      const option = document.createElement('option');
+      option.value = opt.value;
+      option.textContent = opt.text;
+      option.setAttribute('data-niveau', opt.niveau || '');
+      if (opt.ordre != null) {
+        option.setAttribute('data-ordre', opt.ordre);
+      }
+      select.appendChild(option);
+    });
+  }
+
+  function getNiveauOrder(niveau) {
+    if (!niveau) return null;
+    const normalized = niveau.toLowerCase().trim();
+    if (normalized.includes('seconde')) return 1;
+    if (normalized.includes('premi') || normalized.includes('1ère') || normalized.includes('1ere')) return 2;
+    if (normalized.includes('term')) return 3;
+    return null;
+  }
+
   function selectEleveForReinscription(it){
+    console.log('Sélection élève:', it);
+    
     document.getElementById('form-reinscription').style.display = 'block';
     document.getElementById('re_etudiantId').value = it.id;
-    document.getElementById('re_eleveName').value = it.prenom + ' ' + it.nom;
-    document.getElementById('re_ancienneClasse').value = it.nomClasse || '';
-    // set default date to today
+    document.getElementById('re_eleveName').value = (it.prenom || '') + ' ' + (it.nom || '');
+    document.getElementById('re_ancienneClasse').value = it.nomClasse || '—';
+    
+    // Afficher l'état (admis ou redouble)
+    let etat = 'État inconnu';
+    if (it.estAdmis === true) {
+      etat = '✓ Admis (passe au niveau supérieur)';
+    } else if (it.estAdmis === false) {
+      etat = '✗ Redoublant (même niveau)';
+    }
+    document.getElementById('re_etatEleve').value = etat;
+    
     const today = new Date().toISOString().slice(0,10);
     document.getElementById('re_dateInscription').value = today;
-    // pre-select classe if available
-    if(it.classeId){ document.getElementById('re_classeId').value = it.classeId; }
+
+    const filteredOptions = filterClasseOptions(it);
+    console.log('Options filtrées:', filteredOptions);
+    renderClasseOptions(filteredOptions);
+    document.getElementById('re_classeId').value = '';
+  }
+
+  function filterClasseOptions(it) {
+    console.log('Filtrage - estAdmis:', it.estAdmis, 'niveauLibelle:', it.niveauLibelle, 'nomClasse:', it.nomClasse);
+    
+    if (!allClasseOptions.length || !it.nomClasse) {
+      console.log('Pas d\'options ou pas d\'ancienne classe, retour toutes les options');
+      return allClasseOptions;
+    }
+    
+    const currentNiveau = getNiveauOrder(it.niveauLibelle || it.nomClasse);
+    console.log('Niveau actuel détecté:', currentNiveau, 'à partir de:', it.niveauLibelle || it.nomClasse);
+    
+    if (currentNiveau == null) {
+      console.log('Niveau non reconnu');
+      return allClasseOptions;
+    }
+    
+    if (it.estAdmis === true) {
+      console.log('Étudiant admis - affichage classes niveau >', currentNiveau);
+      return allClasseOptions.filter(opt => {
+        const matches = opt.ordre > currentNiveau;
+        console.log('Option:', opt.text, 'ordre:', opt.ordre, 'matches:', matches);
+        return matches;
+      });
+    } else if (it.estAdmis === false) {
+      console.log('Étudiant redouble - affichage classes niveau =', currentNiveau);
+      return allClasseOptions.filter(opt => {
+        const matches = opt.ordre === currentNiveau;
+        console.log('Option:', opt.text, 'ordre:', opt.ordre, 'matches:', matches);
+        return matches;
+      });
+    }
+    console.log('État d’admission inconnu, affichage toutes les classes possibles');
+    return allClasseOptions;
   }
 </script>
 

@@ -8,6 +8,8 @@ public class EtudiantRechercheDTO {
     private String telephone;
     private Long classeId;
     private String nomClasse;
+    private Boolean estAdmis;
+    private String niveauLibelle;
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -29,4 +31,10 @@ public class EtudiantRechercheDTO {
 
     public String getNomClasse() { return nomClasse; }
     public void setNomClasse(String nomClasse) { this.nomClasse = nomClasse; }
+
+    public Boolean getEstAdmis() { return estAdmis; }
+    public void setEstAdmis(Boolean estAdmis) { this.estAdmis = estAdmis; }
+
+    public String getNiveauLibelle() { return niveauLibelle; }
+    public void setNiveauLibelle(String niveauLibelle) { this.niveauLibelle = niveauLibelle; }
 }

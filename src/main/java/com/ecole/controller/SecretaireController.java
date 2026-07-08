@@ -208,17 +208,28 @@ public class SecretaireController {
             Model model,
             @RequestParam(required = false) String niveau,
             @RequestParam(required = false) Long classeId,
-            @RequestParam(required = false) String search) {
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "0") int page) {
+        
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, 20);
+        org.springframework.data.domain.Page<?> resultPage;
+        
         if (search != null && !search.isBlank()) {
-            model.addAttribute("eleves", eleveService.rechercherEleves(search));
+            resultPage = eleveService.rechercherElevesPaginee(search, pageable);
         } else if (classeId != null) {
-            model.addAttribute("eleves", eleveService.listerParClasse(classeId));
+            resultPage = eleveService.listerParClassePaginee(classeId, pageable);
         } else if (niveau != null && !niveau.isBlank()) {
-            model.addAttribute("eleves", eleveService.listerParNiveau(niveau));
+            resultPage = eleveService.listerParNiveauPaginee(niveau, pageable);
         } else {
-            model.addAttribute("eleves", eleveService.listerTousEleves());
+            resultPage = eleveService.listerTousElevesPaginee(pageable);
         }
+        
         eleveService.ensureAnneeScolaireDisponible();
+        model.addAttribute("eleves", resultPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", resultPage.getTotalPages());
+        model.addAttribute("hasNext", resultPage.hasNext());
+        model.addAttribute("hasPrevious", resultPage.hasPrevious());
         model.addAttribute("classes", eleveService.listerClasses());
         model.addAttribute("annees", eleveService.listerAnneesScolaires());
         model.addAttribute("niveauActif", niveau);
