@@ -48,7 +48,8 @@ public interface ProfilEtudiantRepository
     @Query("SELECT e FROM ProfilEtudiant e WHERE e.isArchived = false AND (" +
            "LOWER(e.nom) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
            "LOWER(e.prenom) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-           "LOWER(e.matricule) LIKE LOWER(CONCAT('%', :search, '%')))")
+           "LOWER(e.matricule) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(COALESCE(e.telephone, '')) LIKE LOWER(CONCAT('%', :search, '%')))" )
     List<ProfilEtudiant> searchByNomOrPrenomOrMatricule(@Param("search") String search);
 
     // Recherche par classe — via relation @ManyToOne

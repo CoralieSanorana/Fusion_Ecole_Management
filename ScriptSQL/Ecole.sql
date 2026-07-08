@@ -225,6 +225,90 @@ CREATE TABLE IF NOT EXISTS inscriptions (
     UNIQUE (etudiant_id, annee_scolaire_id)
 );
 
+-- Historique des réinscriptions : enregistre l'ancienne et la nouvelle inscription
+CREATE TABLE IF NOT EXISTS historique_reinscriptions (
+    id                          SERIAL PRIMARY KEY,
+    inscription_id_old         INT REFERENCES inscriptions(id) ON DELETE SET NULL,
+    inscription_id_new         INT REFERENCES inscriptions(id) ON DELETE SET NULL,
+    etudiant_id                INT REFERENCES profils_etudiants(id),
+    ancienne_annee_scolaire_id INT,
+    nouvelle_annee_scolaire_id INT,
+    ancienne_classe_id         INT,
+    nouvelle_classe_id         INT,
+    ancien_statut              VARCHAR(50),
+    ancien_rang_final          INT,
+    ancien_resultat            VARCHAR(50),
+    ancienne_moyenne_generale  NUMERIC(5,2),
+    absences_annee_precedente  INT,
+    change_par                 INT REFERENCES users(id),
+    created_at                 TIMESTAMP DEFAULT NOW()
+);
+
+CREATE OR REPLACE FUNCTION fn_historique_reinscription() RETURNS trigger AS $$
+DECLARE
+    old_insc RECORD;
+    avg_moy NUMERIC(5,2);
+    nb_abs INT;
+BEGIN
+    -- Lors d'une nouvelle inscription de type 'reinscription', on tente de retrouver
+    -- la dernière inscription précédente pour cet étudiant et on enregistre l'historique.
+    IF (TG_OP = 'INSERT') THEN
+        IF NEW.type_inscription = 'reinscription' THEN
+            SELECT * INTO old_insc
+            FROM inscriptions
+            WHERE etudiant_id = NEW.etudiant_id AND id <> NEW.id
+            ORDER BY date_inscription DESC
+            LIMIT 1;
+
+            IF FOUND THEN
+                SELECT valeur INTO avg_moy FROM moyennes WHERE inscription_id = old_insc.id AND periode_id IS NULL LIMIT 1;
+                SELECT COUNT(*) INTO nb_abs FROM absences WHERE etudiant_id = OLD.etudiant_id AND date_part('year', date_inscription) = date_part('year', old_insc.date_inscription);
+
+                INSERT INTO historique_reinscriptions (
+                    inscription_id_old,
+                    inscription_id_new,
+                    etudiant_id,
+                    ancienne_annee_scolaire_id,
+                    nouvelle_annee_scolaire_id,
+                    ancienne_classe_id,
+                    nouvelle_classe_id,
+                    ancien_statut,
+                    ancien_rang_final,
+                    ancien_resultat,
+                    ancienne_moyenne_generale,
+                    absences_annee_precedente,
+                    change_par,
+                    created_at
+                ) VALUES (
+                    old_insc.id,
+                    NEW.id,
+                    NEW.etudiant_id,
+                    old_insc.annee_scolaire_id,
+                    NEW.annee_scolaire_id,
+                    old_insc.classe_id,
+                    NEW.classe_id,
+                    old_insc.statut,
+                    old_insc.rang_final,
+                    CASE WHEN old_insc.est_admis THEN 'admis' ELSE 'non_admis' END,
+                    avg_moy,
+                    COALESCE(nb_abs, 0),
+                    (CASE WHEN pg_catalog.current_user ~ '^[0-9]+$' THEN pg_catalog.current_user::int ELSE NULL END),
+                    NOW()
+                );
+            END IF;
+        END IF;
+        RETURN NEW;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_historique_reinscription
+AFTER INSERT ON inscriptions
+FOR EACH ROW
+WHEN (NEW.type_inscription = 'reinscription')
+EXECUTE PROCEDURE fn_historique_reinscription();
+
 CREATE TABLE IF NOT EXISTS affectations_enseignement (
     id                SERIAL PRIMARY KEY,
     professeur_id     INT REFERENCES profils_professeurs(id),

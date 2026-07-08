@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.TextStyle;
@@ -26,6 +27,7 @@ public class EleveService {
     private final PaiementRepository paiementRepo;
     private final ProfilParentRepository parentRepo;
     private final AnneeScolaireRepository anneeScolaireRepo;
+    private final HistoriqueReinscriptionRepository historiqueReinscriptionRepo;
     private final JdbcTemplate jdbc;
 
     public EleveService(ProfilEtudiantRepository etudiantRepo,
@@ -34,6 +36,7 @@ public class EleveService {
                         PaiementRepository paiementRepo,
                         ProfilParentRepository parentRepo,
                         AnneeScolaireRepository anneeScolaireRepo,
+                        HistoriqueReinscriptionRepository historiqueReinscriptionRepo,
                         JdbcTemplate jdbc) {
         this.etudiantRepo = etudiantRepo;
         this.inscriptionRepo = inscriptionRepo;
@@ -41,6 +44,7 @@ public class EleveService {
         this.paiementRepo = paiementRepo;
         this.parentRepo = parentRepo;
         this.anneeScolaireRepo = anneeScolaireRepo;
+        this.historiqueReinscriptionRepo = historiqueReinscriptionRepo;
         this.jdbc = jdbc;
     }
 
@@ -63,6 +67,117 @@ public class EleveService {
 
     public List<Classe> listerClasses() {
         return classeRepo.findAllActiveAnnee();
+    }
+
+    public List<AnneeScolaire> listerAnneesScolaires() {
+        return anneeScolaireRepo.findAll().stream()
+                .sorted(Comparator.comparing(AnneeScolaire::getDateDebut, Comparator.nullsLast(Comparator.naturalOrder())).reversed())
+                .toList();
+    }
+
+    @Transactional
+    public void ensureAnneeScolaireDisponible() {
+        List<AnneeScolaire> annees = anneeScolaireRepo.findAll();
+        if (annees.isEmpty()) {
+            creerAnneeScolaire(LocalDate.now().getYear(), true);
+            return;
+        }
+
+        Optional<AnneeScolaire> activeYear = annees.stream()
+                .filter(AnneeScolaire::getEstActive)
+                .findFirst();
+
+        if (activeYear.isPresent()) {
+            int nextStartYear = activeYear.get().getDateFin() != null
+                    ? activeYear.get().getDateFin().getYear()
+                    : activeYear.get().getDateDebut() != null ? activeYear.get().getDateDebut().getYear() + 1 : LocalDate.now().getYear();
+            String nextLabel = nextStartYear + "-" + (nextStartYear + 1);
+            boolean hasNextYear = annees.stream().anyMatch(annee -> Objects.equals(annee.getLibelle(), nextLabel));
+            if (!hasNextYear) {
+                creerAnneeScolaire(nextStartYear, false);
+            }
+        }
+    }
+
+    private void creerAnneeScolaire(int startYear, boolean active) {
+        String label = startYear + "-" + (startYear + 1);
+        if (anneeScolaireRepo.findAll().stream().anyMatch(annee -> Objects.equals(annee.getLibelle(), label))) {
+            return;
+        }
+
+        AnneeScolaire annee = new AnneeScolaire();
+        annee.setLibelle(label);
+        annee.setDateDebut(LocalDate.of(startYear, 9, 1));
+        annee.setDateFin(LocalDate.of(startYear + 1, 7, 31));
+        annee.setEstActive(active);
+        annee.setCreatedAt(LocalDateTime.now());
+        anneeScolaireRepo.save(annee);
+    }
+
+    public List<EtudiantRechercheDTO> rechercherEtudiantsPourReinscription(String search) {
+        if (search == null || search.isBlank()) {
+            return List.of();
+        }
+        return etudiantRepo.searchByNomOrPrenomOrMatricule(search).stream()
+                .filter(etudiant -> Boolean.TRUE.equals(etudiant.getIsArchived()) == false)
+                .map(this::toRechercheDTO)
+                .toList();
+    }
+
+    @Transactional
+    public Inscription reinscrireEtudiant(ReinscriptionRequestDTO dto, Long changePar) {
+        if (dto == null || dto.getEtudiantId() == null || dto.getAnneeScolaireId() == null || dto.getClasseId() == null) {
+            throw new IllegalArgumentException("Les informations de réinscription sont incomplètes.");
+        }
+        if (inscriptionRepo.findByEtudiantIdAndAnneeScolaireId(dto.getEtudiantId(), dto.getAnneeScolaireId()).isPresent()) {
+            throw new IllegalStateException("Cet élève est déjà inscrit pour cette année scolaire.");
+        }
+
+        ProfilEtudiant etudiant = etudiantRepo.findById(dto.getEtudiantId())
+                .orElseThrow(() -> new IllegalArgumentException("Élève introuvable."));
+        Classe classe = classeRepo.findById(dto.getClasseId())
+                .orElseThrow(() -> new IllegalArgumentException("Classe introuvable."));
+        anneeScolaireRepo.findById(dto.getAnneeScolaireId())
+                .orElseThrow(() -> new IllegalArgumentException("Année scolaire introuvable."));
+
+        Inscription inscription = new Inscription();
+        inscription.setEtudiant(etudiant);
+        inscription.setEtudiantId(etudiant.getId());
+        inscription.setClasse(classe);
+        inscription.setClasseId(classe.getId());
+        inscription.setAnneeScolaireId(dto.getAnneeScolaireId());
+        inscription.setTypeInscription("reinscription");
+        inscription.setDateInscription(dto.getDateInscription() != null ? dto.getDateInscription() : LocalDate.now());
+        inscription.setStatut(dto.getStatut() != null && !dto.getStatut().isBlank() ? dto.getStatut() : "active");
+        inscription.setCreatedAt(LocalDateTime.now());
+        inscription.setUpdatedAt(LocalDateTime.now());
+        Inscription saved = inscriptionRepo.save(inscription);
+
+        Inscription ancienneInscription = inscriptionRepo.findByEtudiantId(dto.getEtudiantId()).stream()
+                .filter(item -> !Objects.equals(item.getId(), saved.getId()))
+                .filter(item -> item.getDateInscription() != null)
+                .max(Comparator.comparing(Inscription::getDateInscription, Comparator.nullsLast(Comparator.naturalOrder())))
+                .orElse(null);
+
+        if (ancienneInscription != null) {
+            HistoriqueReinscription historique = new HistoriqueReinscription();
+            historique.setEtudiantId(dto.getEtudiantId());
+            historique.setInscriptionIdOld(ancienneInscription.getId());
+            historique.setInscriptionIdNew(saved.getId());
+            historique.setAncienneAnneeScolaireId(ancienneInscription.getAnneeScolaireId());
+            historique.setNouvelleAnneeScolaireId(saved.getAnneeScolaireId());
+            historique.setAncienneClasseId(ancienneInscription.getClasseId());
+            historique.setNouvelleClasseId(saved.getClasseId());
+            historique.setAncienStatut(ancienneInscription.getStatut());
+            historique.setAncienRangFinal(ancienneInscription.getRangFinal());
+            historique.setAncienResultat(Boolean.TRUE.equals(ancienneInscription.getEstAdmis()) ? "admis" : "non_admis");
+            historique.setAncienneMoyenneGenerale(calculerMoyenneGenerale(ancienneInscription.getId()));
+            historique.setAbsencesAnneePrecedente(calculerAbsences(ancienneInscription.getEtudiantId(), ancienneInscription.getAnneeScolaireId()));
+            historique.setChangePar(changePar);
+            historiqueReinscriptionRepo.save(historique);
+        }
+
+        return saved;
     }
 
     // Long → Integer
@@ -150,8 +265,17 @@ public class EleveService {
             .ifPresent(inscription::setEtudiantId);
 
             classeRepo.findById(Long.valueOf(classeIdInt))
-                    .map(Classe::getId)
-                    .ifPresent(inscription::setClasseId);
+                    .ifPresent(c -> {
+                        inscription.setClasseId(c.getId());
+                        inscription.setClasse(c);
+                    });
+
+            log.info("ajouterEleve: eleveId={} classeIdForm={} inscriptionEtudiantId={} inscriptionClasseId={}",
+                    saved.getId(),
+                    classeIdInt,
+                    inscription.getEtudiantId(),
+                    inscription.getClasseId());
+
 
             inscription.setTypeInscription("nouvelle");
             inscription.setDateInscription(LocalDate.now());
@@ -187,6 +311,54 @@ public class EleveService {
         log.info("Demande modification soumise — élève {} champ '{}'", etudiantId, champModifie);
     }
 
+    private EtudiantRechercheDTO toRechercheDTO(ProfilEtudiant etudiant) {
+        EtudiantRechercheDTO dto = new EtudiantRechercheDTO();
+        dto.setId(etudiant.getId());
+        dto.setMatricule(etudiant.getMatricule());
+        dto.setNom(etudiant.getNom());
+        dto.setPrenom(etudiant.getPrenom());
+        dto.setTelephone(etudiant.getTelephone());
+
+        inscriptionRepo.findActiveByEtudiantId(etudiant.getId()).ifPresent(inscription -> {
+            dto.setClasseId(inscription.getClasseId());
+            Classe classe = inscription.getClasse();
+            if (classe == null && inscription.getClasseId() != null) {
+                classe = classeRepo.findById(inscription.getClasseId()).orElse(null);
+            }
+            if (classe != null) {
+                dto.setNomClasse(classe.getNom());
+            }
+        });
+        return dto;
+    }
+
+    private BigDecimal calculerMoyenneGenerale(Long inscriptionId) {
+        try {
+            return jdbc.queryForObject(
+                    "SELECT ROUND(AVG(valeur), 2) FROM moyennes WHERE inscription_id = ? AND matiere_id IS NULL",
+                    BigDecimal.class,
+                    inscriptionId);
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
+    private Integer calculerAbsences(Long etudiantId, Long anneeScolaireId) {
+        try {
+            return jdbc.queryForObject(
+                    "SELECT COUNT(*) FROM absences ab " +
+                            "JOIN seances s ON s.id = ab.seance_id " +
+                            "JOIN emploi_du_temps edt ON edt.id = s.emploi_du_temps_id " +
+                            "JOIN affectations_enseignement ae ON ae.id = edt.affectation_id " +
+                            "WHERE ab.etudiant_id = ? AND ae.annee_scolaire_id = ?",
+                    Integer.class,
+                    etudiantId,
+                    anneeScolaireId);
+        } catch (Exception ex) {
+            return 0;
+        }
+    }
+
     private List<EleveListeDTO> buildListeDTO(List<ProfilEtudiant> etudiants) {
         List<EleveListeDTO> result = new ArrayList<>();
 
@@ -197,8 +369,14 @@ public class EleveService {
             // findActiveByEtudiantId accepte Long
             Optional<Inscription> inscOpt = inscriptionRepo.findActiveByEtudiantId(e.getId());
             if (inscOpt.isPresent()) {
-                // Via @ManyToOne directement
-                Classe classe = classeRepo.findById(inscOpt.get().getClasseId()).orElse(null);
+                // Via @ManyToOne ou colonne classe_id selon ce qui est renseigné
+                Inscription insc = inscOpt.get();
+                Classe classe = null;
+                if (insc.getClasse() != null) {
+                    classe = insc.getClasse();
+                } else if (insc.getClasseId() != null) {
+                    classe = classeRepo.findById(insc.getClasseId()).orElse(null);
+                }
                 if (classe != null) {
                     nomClasse = classe.getNom();
                     niveau = detecterNiveau(nomClasse);

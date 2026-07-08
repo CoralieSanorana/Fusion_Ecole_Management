@@ -25,8 +25,10 @@
 /home/kamado/ITU/S4/ProjetBaovola/ECOLE_FINAL/Fusion_Ecole_Management/src/main/java/com/ecole/dto/Secretaire/BilanGlobalDTO.java
 /home/kamado/ITU/S4/ProjetBaovola/ECOLE_FINAL/Fusion_Ecole_Management/src/main/java/com/ecole/dto/Secretaire/EleveListeDTO.java
 /home/kamado/ITU/S4/ProjetBaovola/ECOLE_FINAL/Fusion_Ecole_Management/src/main/java/com/ecole/dto/Secretaire/EleveProfilDTO.java
+/home/kamado/ITU/S4/ProjetBaovola/ECOLE_FINAL/Fusion_Ecole_Management/src/main/java/com/ecole/dto/Secretaire/EtudiantRechercheDTO.java
 /home/kamado/ITU/S4/ProjetBaovola/ECOLE_FINAL/Fusion_Ecole_Management/src/main/java/com/ecole/dto/Secretaire/PaiementGroupeDTO.java
 /home/kamado/ITU/S4/ProjetBaovola/ECOLE_FINAL/Fusion_Ecole_Management/src/main/java/com/ecole/dto/Secretaire/PaiementHistoriqueDTO.java
+/home/kamado/ITU/S4/ProjetBaovola/ECOLE_FINAL/Fusion_Ecole_Management/src/main/java/com/ecole/dto/Secretaire/ReinscriptionRequestDTO.java
 /home/kamado/ITU/S4/ProjetBaovola/ECOLE_FINAL/Fusion_Ecole_Management/src/main/java/com/ecole/entity/Absence.java
 /home/kamado/ITU/S4/ProjetBaovola/ECOLE_FINAL/Fusion_Ecole_Management/src/main/java/com/ecole/entity/AffectationEnseignement.java
 /home/kamado/ITU/S4/ProjetBaovola/ECOLE_FINAL/Fusion_Ecole_Management/src/main/java/com/ecole/entity/AnneeScolaire.java
@@ -41,6 +43,7 @@
 /home/kamado/ITU/S4/ProjetBaovola/ECOLE_FINAL/Fusion_Ecole_Management/src/main/java/com/ecole/entity/Evenement.java
 /home/kamado/ITU/S4/ProjetBaovola/ECOLE_FINAL/Fusion_Ecole_Management/src/main/java/com/ecole/entity/EvenementInstance.java
 /home/kamado/ITU/S4/ProjetBaovola/ECOLE_FINAL/Fusion_Ecole_Management/src/main/java/com/ecole/entity/GrilleTarifaire.java
+/home/kamado/ITU/S4/ProjetBaovola/ECOLE_FINAL/Fusion_Ecole_Management/src/main/java/com/ecole/entity/HistoriqueReinscription.java
 /home/kamado/ITU/S4/ProjetBaovola/ECOLE_FINAL/Fusion_Ecole_Management/src/main/java/com/ecole/entity/HoraireEdt.java
 /home/kamado/ITU/S4/ProjetBaovola/ECOLE_FINAL/Fusion_Ecole_Management/src/main/java/com/ecole/entity/Inscription.java
 /home/kamado/ITU/S4/ProjetBaovola/ECOLE_FINAL/Fusion_Ecole_Management/src/main/java/com/ecole/entity/Lecon.java
@@ -82,6 +85,7 @@
 /home/kamado/ITU/S4/ProjetBaovola/ECOLE_FINAL/Fusion_Ecole_Management/src/main/java/com/ecole/repository/EtablissementRepository.java
 /home/kamado/ITU/S4/ProjetBaovola/ECOLE_FINAL/Fusion_Ecole_Management/src/main/java/com/ecole/repository/EvenementInstanceRepository.java
 /home/kamado/ITU/S4/ProjetBaovola/ECOLE_FINAL/Fusion_Ecole_Management/src/main/java/com/ecole/repository/EvenementRepository.java
+/home/kamado/ITU/S4/ProjetBaovola/ECOLE_FINAL/Fusion_Ecole_Management/src/main/java/com/ecole/repository/HistoriqueReinscriptionRepository.java
 /home/kamado/ITU/S4/ProjetBaovola/ECOLE_FINAL/Fusion_Ecole_Management/src/main/java/com/ecole/repository/HoraireEdtRepository.java
 /home/kamado/ITU/S4/ProjetBaovola/ECOLE_FINAL/Fusion_Ecole_Management/src/main/java/com/ecole/repository/InscriptionRepository.java
 /home/kamado/ITU/S4/ProjetBaovola/ECOLE_FINAL/Fusion_Ecole_Management/src/main/java/com/ecole/repository/LeconRepository.java

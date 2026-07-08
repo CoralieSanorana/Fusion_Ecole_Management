@@ -2,6 +2,7 @@ package com.ecole.controller;
 
 import com.ecole.dto.Secretaire.*;
 import com.ecole.entity.*;
+import com.ecole.repository.AnneeScolaireRepository;
 import com.ecole.service.EleveService;
 import com.ecole.service.PaiementService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -33,6 +34,9 @@ public class SecretaireController {
 
     @Autowired
     private EleveService eleveService;
+
+    @Autowired
+    private AnneeScolaireRepository anneeScolaireRepository;
 
     // ─── PAIEMENT ────────────────────────────────────────────────
 
@@ -214,12 +218,32 @@ public class SecretaireController {
         } else {
             model.addAttribute("eleves", eleveService.listerTousEleves());
         }
+        eleveService.ensureAnneeScolaireDisponible();
         model.addAttribute("classes", eleveService.listerClasses());
+        model.addAttribute("annees", eleveService.listerAnneesScolaires());
         model.addAttribute("niveauActif", niveau);
         model.addAttribute("classeIdActif", classeId);
         model.addAttribute("search", search);
         model.addAttribute("pageTitle", "Liste des Élèves");
         return "Secretaire/eleves";
+    }
+
+    @GetMapping("/api/secretariat/eleves/search")
+    @ResponseBody
+    public List<EtudiantRechercheDTO> rechercherElevesApi(@RequestParam String q) {
+        return eleveService.rechercherEtudiantsPourReinscription(q);
+    }
+
+    @PostMapping("/secretariat/reinscription")
+    public String reinscrireEleve(@ModelAttribute ReinscriptionRequestDTO dto,
+                                  RedirectAttributes redirectAttributes) {
+        try {
+            eleveService.reinscrireEtudiant(dto, null);
+            redirectAttributes.addFlashAttribute("successMessage", "Réinscription enregistrée avec succès.");
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+        }
+        return "redirect:/secretariat/eleves";
     }
 
     @GetMapping("/secretariat/profil/{id}")

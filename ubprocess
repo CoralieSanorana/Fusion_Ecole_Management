@@ -1,0 +1,26 @@
+                                                                           Table "public.historique_reinscriptions"
+           Column           |            Type             | Collation | Nullable |                        Default                        | Storage  | Compression | Stats target | Description 
+----------------------------+-----------------------------+-----------+----------+-------------------------------------------------------+----------+-------------+--------------+-------------
+ id                         | integer                     |           | not null | nextval('historique_reinscriptions_id_seq'::regclass) | plain    |             |              | 
+ etudiant_id                | integer                     |           |          |                                                       | plain    |             |              | 
+ ancienne_inscription_id    | integer                     |           |          |                                                       | plain    |             |              | 
+ nouvelle_inscription_id    | integer                     |           |          |                                                       | plain    |             |              | 
+ ancienne_annee_scolaire_id | integer                     |           |          |                                                       | plain    |             |              | 
+ ancienne_classe_id         | integer                     |           |          |                                                       | plain    |             |              | 
+ ancien_statut              | character varying(50)       |           |          |                                                       | extended |             |              | 
+ ancien_rang_final          | integer                     |           |          |                                                       | plain    |             |              | 
+ ancien_est_admis           | boolean                     |           |          |                                                       | plain    |             |              | 
+ ancienne_moyenne_generale  | numeric(5,2)                |           |          |                                                       | main     |             |              | 
+ nombre_absences_annee      | integer                     |           |          |                                                       | plain    |             |              | 
+ created_at                 | timestamp without time zone |           |          | now()                                                 | plain    |             |              | 
+Indexes:
+    "historique_reinscriptions_pkey" PRIMARY KEY, btree (id)
+    "idx_hist_reinscr_etudiant" btree (etudiant_id)
+Foreign-key constraints:
+    "historique_reinscriptions_ancienne_annee_scolaire_id_fkey" FOREIGN KEY (ancienne_annee_scolaire_id) REFERENCES annees_scolaires(id)
+    "historique_reinscriptions_ancienne_classe_id_fkey" FOREIGN KEY (ancienne_classe_id) REFERENCES classes(id)
+    "historique_reinscriptions_ancienne_inscription_id_fkey" FOREIGN KEY (ancienne_inscription_id) REFERENCES inscriptions(id) ON DELETE SET NULL
+    "historique_reinscriptions_etudiant_id_fkey" FOREIGN KEY (etudiant_id) REFERENCES profils_etudiants(id) ON DELETE CASCADE
+    "historique_reinscriptions_nouvelle_inscription_id_fkey" FOREIGN KEY (nouvelle_inscription_id) REFERENCES inscriptions(id) ON DELETE CASCADE
+Access method: heap
+

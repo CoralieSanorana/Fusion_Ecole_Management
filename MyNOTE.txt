@@ -1,0 +1,14 @@
+historique_reinscriptions
+ id
+ etudiant_id
+ ancienne_inscription_id 
+ nouvelle_inscription_id
+ ancienne_anne_scolaire_id
+ anncienne_classe_id
+ ancien_status
+ ancien_rang_final
+ ancien_est_admis
+ ancien_moyenne_generale
+ nombre_absence_annee
+ create_at
+ 

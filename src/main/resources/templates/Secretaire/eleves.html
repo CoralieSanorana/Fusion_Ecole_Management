@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="fr" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/header :: head"></head>
+<head th:replace="~{fragments/header :: head}"></head>
 <body>
 <canvas id="particle-canvas"></canvas>
 <div class="app-shell">
-  <aside class="sidebar" id="sidebar" th:replace="fragments/header :: sidebar"></aside>
-  <header class="topbar" th:replace="fragments/header :: topbar"></header>
+  <aside class="sidebar" id="sidebar" th:replace="~{fragments/header :: sidebar}"></aside>
+  <header class="topbar" th:replace="~{fragments/header :: topbar}"></header>
   <main class="main-content">
 
     <!-- Flash messages -->
@@ -21,9 +21,14 @@
         <h2>Liste des Élèves</h2>
         <p th:text="'Année scolaire active – ' + ${#lists.size(eleves)} + ' élève(s) trouvé(s)'"></p>
       </div>
-      <button class="btn btn-primary" onclick="openModal('modal-add-eleve')">
-        <i class="fas fa-plus"></i> Nouvel élève
-      </button>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-warning" onclick="openModal('modal-reinscription-search')">
+          <i class="fas fa-user-check"></i> Réinscription
+        </button>
+        <button class="btn btn-primary" onclick="openModal('modal-add-eleve')">
+          <i class="fas fa-plus"></i> Nouvel élève
+        </button>
+      </div>
     </div>
 
     <!-- Filtres niveau + recherche -->
@@ -251,6 +256,151 @@
     </form>
   </div>
 </div>
+
+<!-- Modal Recherche & Réinscription -->
+<div class="modal-backdrop" id="modal-reinscription-search">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Réinscription Élève</h3>
+      <button onclick="closeModal('modal-reinscription-search')" style="color:var(--txt3);font-size:18px;">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <form id="form-search-eleve" autocomplete="off">
+        <div class="form-row">
+          <div class="form-group" style="flex:1;">
+            <label>Recherche (nom, prénom, matricule, téléphone)</label>
+            <input type="text" id="rechercheEleve" class="form-control" placeholder="Ex: RAKOTO ou ETU2024" />
+          </div>
+          <div class="form-group" style="width:120px;align-self:flex-end;">
+            <button class="btn btn-secondary" type="submit">Rechercher</button>
+          </div>
+        </div>
+      </form>
+
+      <div id="search-results" style="margin-top:12px;"></div>
+
+      <form id="form-reinscription" action="/secretariat/reinscription" method="post" style="display:none;margin-top:12px;">
+        <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
+        <input type="hidden" name="etudiantId" id="re_etudiantId" />
+        <div class="form-row">
+          <div class="form-group">
+            <label>Élève</label>
+            <input type="text" id="re_eleveName" class="form-control" readonly />
+          </div>
+          <div class="form-group">
+            <label>Ancienne classe</label>
+            <input type="text" id="re_ancienneClasse" class="form-control" readonly />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nouvelle année scolaire</label>
+            <select name="anneeScolaireId" id="re_anneeScolaireId" class="form-control" required>
+              <option value="">— Choisir —</option>
+              <option th:each="a : ${annees}" th:value="${a.id}" th:text="${a.libelle}" th:selected="${a.estActive}"></option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Nouvelle classe</label>
+            <select name="classeId" id="re_classeId" class="form-control">
+              <option value="">— Choisir —</option>
+              <option th:each="c : ${classes}" th:value="${c.id}" th:text="${c.nom}"></option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Date de réinscription</label>
+            <input type="date" name="dateInscription" id="re_dateInscription" class="form-control" />
+          </div>
+          <div class="form-group">
+            <label>Statut</label>
+            <select name="statut" id="re_statut" class="form-control">
+              <option value="active">active</option>
+              <option value="suspension">suspension</option>
+              <option value="exclu">exclu</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer" style="margin-top:10px;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-reinscription-search')">Annuler</button>
+          <button type="submit" class="btn btn-primary">Valider réinscription</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('form-search-eleve');
+    if (form) {
+      form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        searchEleve();
+      });
+    }
+  });
+
+  function searchEleve(){
+    const q = document.getElementById('rechercheEleve').value.trim();
+    const target = document.getElementById('search-results');
+    if (!q) {
+      target.innerHTML = '<div style="color:var(--danger);">Veuillez saisir un nom, prénom, matricule ou téléphone.</div>';
+      return;
+    }
+
+    target.innerHTML = '<div>Recherche en cours...</div>';
+    fetch('/api/secretariat/eleves/search?q=' + encodeURIComponent(q), {
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+      .then(async response => {
+        if (!response.ok) {
+          const text = await response.text();
+          throw new Error(text || 'Erreur de recherche');
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (!data || data.length === 0) {
+          target.innerHTML = '<div>Aucun résultat trouvé.</div>';
+          return;
+        }
+
+        const list = document.createElement('div');
+        data.forEach(it => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'btn';
+          btn.style.margin = '6px';
+          btn.textContent = (it.prenom || '') + ' ' + (it.nom || '') + ' — ' + (it.matricule || '');
+          btn.onclick = () => selectEleveForReinscription(it);
+          list.appendChild(btn);
+        });
+        target.innerHTML = '';
+        target.appendChild(list);
+      })
+      .catch(err => {
+        console.error(err);
+        target.innerHTML = '<div style="color:var(--danger);">Recherche impossible. Vérifiez la session ou réessayez.</div>';
+      });
+  }
+
+  function selectEleveForReinscription(it){
+    document.getElementById('form-reinscription').style.display = 'block';
+    document.getElementById('re_etudiantId').value = it.id;
+    document.getElementById('re_eleveName').value = it.prenom + ' ' + it.nom;
+    document.getElementById('re_ancienneClasse').value = it.nomClasse || '';
+    // set default date to today
+    const today = new Date().toISOString().slice(0,10);
+    document.getElementById('re_dateInscription').value = today;
+    // pre-select classe if available
+    if(it.classeId){ document.getElementById('re_classeId').value = it.classeId; }
+  }
+</script>
 
 <div th:replace="~{fragments/footer :: footer}"></div>
 </body>

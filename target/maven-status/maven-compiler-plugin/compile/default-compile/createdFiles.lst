@@ -28,6 +28,7 @@ com/ecole/repository/UserRoleRepository.class
 com/ecole/entity/Absence.class
 com/ecole/repository/AbsenceRepository.class
 com/ecole/SecurityConfig.class
+com/ecole/dto/Secretaire/EtudiantRechercheDTO.class
 com/ecole/dto/Directeur/StatistiquesElevesCriteria.class
 com/ecole/entity/Echeance.class
 com/ecole/service/EleveService.class
@@ -42,6 +43,7 @@ com/ecole/repository/PaiementRepository.class
 com/ecole/dto/Secretaire/PaiementGroupeDTO$LignePaiement.class
 com/ecole/repository/EcheancierRepository.class
 com/ecole/repository/SalleRepository.class
+com/ecole/repository/HistoriqueReinscriptionRepository.class
 com/ecole/entity/User.class
 com/ecole/dto/Directeur/HoraireEdtSaveRequest.class
 com/ecole/repository/ProfilsSecretariatRepository.class
@@ -53,6 +55,7 @@ com/ecole/service/EdtService.class
 com/ecole/controller/GlobalControllerAdvice.class
 com/ecole/repository/NoteRepository.class
 com/ecole/service/NotificationService.class
+com/ecole/dto/Secretaire/ReinscriptionRequestDTO.class
 com/ecole/controller/ProfesseurController.class
 com/ecole/dto/Secretaire/AjoutEleveDTO.class
 com/ecole/entity/Role.class
@@ -139,6 +142,7 @@ com/ecole/entity/TitulaireClasse.class
 com/ecole/entity/Salle.class
 com/ecole/controller/DirecteurController.class
 com/ecole/entity/EvenementInstance.class
+com/ecole/entity/HistoriqueReinscription.class
 com/ecole/service/AuthSuccessHandler.class
 com/ecole/service/NoteService.class
 com/ecole/entity/Niveau.class
