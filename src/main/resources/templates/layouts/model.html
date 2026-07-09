@@ -1,212 +1,223 @@
 <!DOCTYPE html>
 <html lang="fr" xmlns:th="http://www.thymeleaf.org">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LycéePro — Système de Gestion</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
   <link rel="stylesheet" th:href="@{/css/style.css}">
   <script th:src="@{/js/script.js}" defer></script>
 </head>
-<body>
-<canvas id="particle-canvas"></canvas>
 
-<!-- ============================================================
+<body>
+  <canvas id="particle-canvas"></canvas>
+
+  <!-- ============================================================
      APP SHELL
 ============================================================ -->
-<div class="app-shell">
+  <div class="app-shell">
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-brand">
-      <div class="sidebar-brand-icon"><i class="fas fa-graduation-cap"></i></div>
-      <div class="sidebar-brand-text">
-        <h1>LycéePro</h1>
-        <span>Gestion Scolaire</span>
-      </div>
-    </div>
-
-    <div class="role-switcher">
-      <label>Vue actuelle</label>
-      <select id="roleSelect" onchange="switchRole(this.value)">
-        <option value="directeur">Directeur</option>
-        <option value="secretariat">Secrétariat</option>
-        <option value="professeur">Professeur</option>
-        <option value="etudiant">Étudiant</option>
-      </select>
-    </div>
-
-    <!-- Directeur nav -->
-    <nav class="nav-section" id="nav-directeur">
-      <p class="nav-section-title">Direction</p>
-      <div class="nav-item active" onclick="showPage('dir-dashboard')">
-        <i class="fas fa-chart-pie"></i> Tableau de bord
-      </div>
-      <div class="nav-item" onclick="showPage('dir-finances')">
-        <i class="fas fa-coins"></i> Finances & Bénéfices
-      </div>
-      <div class="nav-item" onclick="showPage('dir-professeurs')">
-        <i class="fas fa-chalkboard-teacher"></i> Professeurs
-      </div>
-      <div class="nav-item" onclick="showPage('dir-edt')">
-        <i class="fas fa-calendar-week"></i> Emplois du Temps
-      </div>
-      <div class="nav-item" onclick="showPage('dir-ecolages')">
-        <i class="fas fa-receipt"></i> Écolages du mois
-      </div>
-      <p class="nav-section-title">Général</p>
-      <div class="nav-item" onclick="showPage('actualites')">
-        <i class="fas fa-newspaper"></i> Actualités <span class="nav-badge">3</span>
-      </div>
-      <div class="nav-item" onclick="showPage('notifications-page')">
-        <i class="fas fa-bell"></i> Notifications <span class="nav-badge">5</span>
-      </div>
-    </nav>
-
-    <!-- Secretariat nav -->
-    <nav class="nav-section" id="nav-secretariat" style="display:none">
-      <p class="nav-section-title">Secrétariat</p>
-      <div class="nav-item active" onclick="showPage('sec-paiements')">
-        <i class="fas fa-plus-circle"></i> Ajouter Paiement
-      </div>
-      <div class="nav-item" onclick="showPage('sec-bilan')">
-        <i class="fas fa-chart-bar"></i> Bilan de paiement
-      </div>
-      <div class="nav-item" onclick="showPage('sec-eleves')">
-        <i class="fas fa-users"></i> Liste des élèves
-      </div>
-      <div class="nav-item" onclick="showPage('sec-profils')">
-        <i class="fas fa-id-card"></i> Profils élèves
-      </div>
-      <p class="nav-section-title">Général</p>
-      <div class="nav-item" onclick="showPage('actualites')">
-        <i class="fas fa-newspaper"></i> Actualités <span class="nav-badge">3</span>
-      </div>
-    </nav>
-
-    <!-- Professeur nav -->
-    <nav class="nav-section" id="nav-professeur" style="display:none">
-      <p class="nav-section-title">Enseignement</p>
-      <div class="nav-item active" onclick="showPage('prof-emploi')">
-        <i class="fas fa-calendar-week"></i> Emploi du temps
-      </div>
-      <div class="nav-item" onclick="showPage('prof-notes')">
-        <i class="fas fa-star"></i> Notes des élèves
-      </div>
-      <div class="nav-item" onclick="showPage('prof-devoirs')">
-        <i class="fas fa-book-open"></i> Devoirs & Leçons
-      </div>
-      <div class="nav-item" onclick="showPage('prof-bulletins')">
-        <i class="fas fa-file-alt"></i> Bulletins
-      </div>
-      <div class="nav-item" onclick="showPage('prof-profil')">
-        <i class="fas fa-user-circle"></i> Mon Profil
-      </div>
-      <p class="nav-section-title">Général</p>
-      <div class="nav-item" onclick="showPage('actualites')">
-        <i class="fas fa-newspaper"></i> Actualités
-      </div>
-    </nav>
-
-    <!-- Etudiant nav -->
-    <nav class="nav-section" id="nav-etudiant" style="display:none">
-      <p class="nav-section-title">Mon Espace</p>
-      <div class="nav-item active" onclick="showPage('etu-emploi')">
-        <i class="fas fa-calendar-week"></i> Emploi du temps
-      </div>
-      <div class="nav-item" onclick="showPage('etu-notes')">
-        <i class="fas fa-star"></i> Mes Notes
-      </div>
-      <div class="nav-item" onclick="showPage('etu-bulletin')">
-        <i class="fas fa-file-alt"></i> Mon Bulletin
-      </div>
-      <div class="nav-item" onclick="showPage('etu-devoirs')">
-        <i class="fas fa-book-open"></i> Devoirs & Leçons
-      </div>
-      <p class="nav-section-title">Général</p>
-      <div class="nav-item" onclick="showPage('actualites')">
-        <i class="fas fa-newspaper"></i> Actualités <span class="nav-badge">2</span>
-      </div>
-    </nav>
-
-    <div class="sidebar-footer">
-      <div class="sidebar-user">
-        <div class="sidebar-avatar" id="sidebar-avatar-initials">DR</div>
-        <div class="sidebar-user-info">
-          <strong id="sidebar-user-name">M. Rakoto</strong>
-          <small id="sidebar-user-role">Directeur</small>
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="sidebar-brand-icon"><i class="fas fa-graduation-cap"></i></div>
+        <div class="sidebar-brand-text">
+          <h1>LycéePro</h1>
+          <span>Gestion Scolaire</span>
         </div>
-        <i class="fas fa-sign-out-alt" style="color:rgba(255,255,255,.3);font-size:14px;"></i>
       </div>
-    </div>
-  </aside>
 
-  <!-- TOPBAR -->
-  <header class="topbar">
-    <div class="topbar-title" id="topbar-title">Tableau de bord</div>
-    <div class="topbar-search">
-      <i class="fas fa-search"></i>
-      <input type="text" placeholder="Rechercher…"/>
-    </div>
-    <div class="topbar-actions">
-      <button class="theme-toggle" id="themeToggle" title="Changer de thème"><i class="fas fa-moon"></i></button>
-      <button class="topbar-btn" style="position:relative;" onclick="toggleNotif()">
-        <i class="fas fa-bell"></i>
-        <span class="notif-dot"></span>
-        <div class="notif-dropdown" id="notif-dropdown">
-          <div class="notif-dropdown-head">
-            <h4>Notifications</h4>
-            <span style="font-size:12px;color:var(--g);cursor:pointer;">Tout lire</span>
-          </div>
-          <div class="notif-item unread">
-            <div class="notif-item-icon" style="background:rgba(37,99,235,.08);color:var(--b);"><i class="fas fa-coins"></i></div>
-            <div class="notif-item-text">
-              <strong>Nouveau paiement reçu</strong>
-              <small>Rakoto Jean — 1ère A — il y a 10 min</small>
-            </div>
-          </div>
-          <div class="notif-item unread">
-            <div class="notif-item-icon" style="background:rgba(22,163,74,.1);color:var(--success);"><i class="fas fa-clipboard-check"></i></div>
-            <div class="notif-item-text">
-              <strong>Notes publiées — Maths</strong>
-              <small>Prof. Rabe — il y a 30 min</small>
-            </div>
-          </div>
-          <div class="notif-item">
-            <div class="notif-item-icon" style="background:rgba(37,99,235,.1);color:var(--b);"><i class="fas fa-bullhorn"></i></div>
-            <div class="notif-item-text">
-              <strong>Réunion parents-profs</strong>
-              <small>Vendredi 19 avril 2026 — 9h00</small>
-            </div>
-          </div>
-          <div class="notif-item">
-            <div class="notif-item-icon" style="background:rgba(220,38,38,.1);color:var(--danger);"><i class="fas fa-triangle-exclamation"></i></div>
-            <div class="notif-item-text">
-              <strong>3 élèves n'ont pas payé</strong>
-              <small>Mois d'Avril — action requise</small>
-            </div>
-          </div>
-        </div>
-      </button>
-      <button class="topbar-btn"><i class="fas fa-cog"></i></button>
-      <div class="topbar-user" onclick="openModal('modal-profil')">
-        <div class="topbar-avatar" id="topbar-avatar-initials">DR</div>
-        <div class="topbar-user-meta">
-          <strong id="topbar-user-name">M. Rakoto</strong>
-          <small id="topbar-user-role">Directeur</small>
-        </div>
-        <i class="fas fa-chevron-down" style="font-size:10px;color:var(--txt3);"></i>
+      <div class="role-switcher">
+        <label>Vue actuelle</label>
+        <select id="roleSelect" onchange="switchRole(this.value)">
+          <option value="directeur">Directeur</option>
+          <option value="secretariat">Secrétariat</option>
+          <option value="professeur">Professeur</option>
+          <option value="etudiant">Étudiant</option>
+        </select>
       </div>
-    </div>
-  </header>
 
-  <!-- MAIN -->
-  <main class="main-content">
-    <!-- Contenu dynamique chargé ici -->
+      <!-- Directeur nav -->
+      <nav class="nav-section" id="nav-directeur">
+        <p class="nav-section-title">Direction</p>
+        <div class="nav-item active" onclick="showPage('dir-dashboard')">
+          <i class="fas fa-chart-pie"></i> Tableau de bord
+        </div>
+        <div class="nav-item" onclick="showPage('dir-finances')">
+          <i class="fas fa-coins"></i> Finances & Bénéfices
+        </div>
+        <div class="nav-item" onclick="showPage('dir-professeurs')">
+          <i class="fas fa-chalkboard-teacher"></i> Professeurs
+        </div>
+        <div class="nav-item" onclick="showPage('dir-edt')">
+          <i class="fas fa-calendar-week"></i> Emplois du Temps
+        </div>
+        <div class="nav-item" onclick="showPage('dir-ecolages')">
+          <i class="fas fa-receipt"></i> Écolages du mois
+        </div>
+        <p class="nav-section-title">Général</p>
+        <div class="nav-item" onclick="showPage('actualites')">
+          <i class="fas fa-newspaper"></i> Actualités <span class="nav-badge">3</span>
+        </div>
+        <div class="nav-item" onclick="showPage('notifications-page')">
+          <i class="fas fa-bell"></i> Notifications <span class="nav-badge">5</span>
+        </div>
+      </nav>
 
-  </main>
-</div>
+      <!-- Secretariat nav -->
+      <nav class="nav-section" id="nav-secretariat" style="display:none">
+        <p class="nav-section-title">Secrétariat</p>
+        <div class="nav-item active" onclick="showPage('sec-paiements')">
+          <i class="fas fa-plus-circle"></i> Ajouter Paiement
+        </div>
+        <div class="nav-item" onclick="showPage('sec-bilan')">
+          <i class="fas fa-chart-bar"></i> Bilan de paiement
+        </div>
+        <div class="nav-item" onclick="showPage('sec-eleves')">
+          <i class="fas fa-users"></i> Liste des élèves
+        </div>
+        <div class="nav-item" onclick="showPage('sec-profils')">
+          <i class="fas fa-id-card"></i> Profils élèves
+        </div>
+        <p class="nav-section-title">Général</p>
+        <div class="nav-item" onclick="showPage('actualites')">
+          <i class="fas fa-newspaper"></i> Actualités <span class="nav-badge">3</span>
+        </div>
+      </nav>
+
+      <!-- Professeur nav -->
+      <nav class="nav-section" id="nav-professeur" style="display:none">
+        <p class="nav-section-title">Enseignement</p>
+        <div class="nav-item active" onclick="showPage('prof-emploi')">
+          <i class="fas fa-calendar-week"></i> Emploi du temps
+        </div>
+        <div class="nav-item" onclick="showPage('prof-notes')">
+          <i class="fas fa-star"></i> Notes des élèves
+        </div>
+        <div class="nav-item" onclick="showPage('prof-devoirs')">
+          <i class="fas fa-book-open"></i> Devoirs & Leçons
+        </div>
+        <div class="nav-item" onclick="showPage('prof-bulletins')">
+          <i class="fas fa-file-alt"></i> Bulletins
+        </div>
+        <div class="nav-item" onclick="showPage('prof-profil')">
+          <i class="fas fa-user-circle"></i> Mon Profil
+        </div>
+        <p class="nav-section-title">Général</p>
+        <div class="nav-item" onclick="showPage('actualites')">
+          <i class="fas fa-newspaper"></i> Actualités
+        </div>
+      </nav>
+
+      <!-- Etudiant nav -->
+      <nav class="nav-section" id="nav-etudiant" style="display:none">
+        <p class="nav-section-title">Mon Espace</p>
+        <div class="nav-item active" onclick="showPage('etu-emploi')">
+          <i class="fas fa-calendar-week"></i> Emploi du temps
+        </div>
+        <div class="nav-item" onclick="showPage('etu-abscences')">
+          <i class="fas fa-star"></i> Mes Notes
+        </div>
+        <div class="nav-item" onclick="showPage('etu-notes')">
+          <i class="fas fa-star"></i> Mes Notes
+        </div>
+        <div class="nav-item" onclick="showPage('etu-bulletin')">
+          <i class="fas fa-file-alt"></i> Mon Bulletin
+        </div>
+        <div class="nav-item" onclick="showPage('etu-devoirs')">
+          <i class="fas fa-book-open"></i> Devoirs & Leçons
+        </div>
+        <p class="nav-section-title">Général</p>
+        <div class="nav-item" onclick="showPage('actualites')">
+          <i class="fas fa-newspaper"></i> Actualités <span class="nav-badge">2</span>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="sidebar-avatar" id="sidebar-avatar-initials">DR</div>
+          <div class="sidebar-user-info">
+            <strong id="sidebar-user-name">M. Rakoto</strong>
+            <small id="sidebar-user-role">Directeur</small>
+          </div>
+          <i class="fas fa-sign-out-alt" style="color:rgba(255,255,255,.3);font-size:14px;"></i>
+        </div>
+      </div>
+    </aside>
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar-title" id="topbar-title">Tableau de bord</div>
+      <div class="topbar-search">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="Rechercher…" />
+      </div>
+      <div class="topbar-actions">
+        <button class="theme-toggle" id="themeToggle" title="Changer de thème"><i class="fas fa-moon"></i></button>
+        <button class="topbar-btn" style="position:relative;" onclick="toggleNotif()">
+          <i class="fas fa-bell"></i>
+          <span class="notif-dot"></span>
+          <div class="notif-dropdown" id="notif-dropdown">
+            <div class="notif-dropdown-head">
+              <h4>Notifications</h4>
+              <span style="font-size:12px;color:var(--g);cursor:pointer;">Tout lire</span>
+            </div>
+            <div class="notif-item unread">
+              <div class="notif-item-icon" style="background:rgba(37,99,235,.08);color:var(--b);"><i
+                  class="fas fa-coins"></i></div>
+              <div class="notif-item-text">
+                <strong>Nouveau paiement reçu</strong>
+                <small>Rakoto Jean — 1ère A — il y a 10 min</small>
+              </div>
+            </div>
+            <div class="notif-item unread">
+              <div class="notif-item-icon" style="background:rgba(22,163,74,.1);color:var(--success);"><i
+                  class="fas fa-clipboard-check"></i></div>
+              <div class="notif-item-text">
+                <strong>Notes publiées — Maths</strong>
+                <small>Prof. Rabe — il y a 30 min</small>
+              </div>
+            </div>
+            <div class="notif-item">
+              <div class="notif-item-icon" style="background:rgba(37,99,235,.1);color:var(--b);"><i
+                  class="fas fa-bullhorn"></i></div>
+              <div class="notif-item-text">
+                <strong>Réunion parents-profs</strong>
+                <small>Vendredi 19 avril 2026 — 9h00</small>
+              </div>
+            </div>
+            <div class="notif-item">
+              <div class="notif-item-icon" style="background:rgba(220,38,38,.1);color:var(--danger);"><i
+                  class="fas fa-triangle-exclamation"></i></div>
+              <div class="notif-item-text">
+                <strong>3 élèves n'ont pas payé</strong>
+                <small>Mois d'Avril — action requise</small>
+              </div>
+            </div>
+          </div>
+        </button>
+        <button class="topbar-btn"><i class="fas fa-cog"></i></button>
+        <div class="topbar-user" onclick="openModal('modal-profil')">
+          <div class="topbar-avatar" id="topbar-avatar-initials">DR</div>
+          <div class="topbar-user-meta">
+            <strong id="topbar-user-name">M. Rakoto</strong>
+            <small id="topbar-user-role">Directeur</small>
+          </div>
+          <i class="fas fa-chevron-down" style="font-size:10px;color:var(--txt3);"></i>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN -->
+    <main class="main-content">
+      <!-- Contenu dynamique chargé ici -->
+
+    </main>
+  </div>
 
   <!-- Modals -->
   <div id="modals-container"></div>
@@ -227,4 +238,5 @@
   </script>
 
 </body>
+
 </html>

@@ -22,21 +22,13 @@ public class SupportCoursService {
     public List<SupportCours> findAll() {
         return supportCoursRepository.findAll();
     }
-
-    public Optional<SupportCours> findById(Long id) {
-        return supportCoursRepository.findById(id);
-    }
-
     public SupportCours saveCours(SupportCours supportCours) {
         return supportCoursRepository.save(supportCours);
     }
 
-    public void deleteById(Long id) {
-        supportCoursRepository.deleteById(id);
-    }
 
     public List<SupportCours> findByAffectationId(Long affectationId) {
-        return supportCoursRepository.findByAffectationIdOrderByCreatedAtDesc(affectationId);
+        return supportCoursRepository.findByAffectationIdOrderByCreatedAtDesc(affectationId.intValue());
     }
 
     public void save(SupportCours support, MultipartFile file) throws Exception {

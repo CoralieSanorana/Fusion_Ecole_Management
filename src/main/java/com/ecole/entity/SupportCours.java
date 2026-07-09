@@ -14,6 +14,10 @@ public class SupportCours {
     @Column(name = "affectation_id")
     private Integer affectationId;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "affectation_id", insertable = false, updatable = false)
+    private AffectationEnseignement affectation;
+
     @Column(name = "type_fichier_id")
     private Integer typeFichierId;
 
@@ -56,6 +60,14 @@ public class SupportCours {
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
+    }
+
+    public AffectationEnseignement getAffectation() {
+        return affectation;
+    }
+
+    public void setAffectation(AffectationEnseignement affectation) {
+        this.affectation = affectation;
     }
 
     public Integer getId() {

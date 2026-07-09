@@ -30,6 +30,9 @@
         <button class="btn btn-secondary" id="btn-pdf" onclick="telechargerPDF()">
           <i class="fas fa-download"></i> <span id="btn-pdf-label">Télécharger PDF</span>
         </button>
+        <button class="btn btn-secondary" type="button" onclick="telechargerExcel()">
+          <i class="fas fa-file-excel"></i> Excel
+        </button>
       </div>
     </div>
 
@@ -102,6 +105,31 @@
       <i class="fas fa-folder-open" style="font-size:40px;margin-bottom:16px;display:block;"></i>
       Aucune période scolaire trouvée. Veuillez contacter l'administration.
     </div>
+
+    <table id="bulletin-excel-table" style="display:none;" th:if="${periodeSelectionnee != null}">
+      <thead>
+        <tr>
+          <th>Matiere</th>
+          <th>Moyenne /20</th>
+          <th>Coeff.</th>
+          <th>Appreciation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="ligne : ${lignes}">
+          <td th:text="${ligne.matiereNom}">Matiere</td>
+          <td th:text="${#numbers.formatDecimal(ligne.moyenne, 1, 'COMMA', 2, 'POINT')}">0.00</td>
+          <td th:text="${ligne.coefficient}">1</td>
+          <td th:text="${ligne.appreciation}">Bien</td>
+        </tr>
+        <tr>
+          <td>Moyenne generale</td>
+          <td th:text="${#numbers.formatDecimal(moyenneGenerale, 1, 'COMMA', 2, 'POINT')}">0.00</td>
+          <td></td>
+          <td th:text="${appreciationGenerale}">-</td>
+        </tr>
+      </tbody>
+    </table>
 
   </main>
 </div>
@@ -197,6 +225,20 @@ function telechargerPDF() {
       btn.disabled = false;
       label.textContent = 'Télécharger PDF';
     });
+}
+
+function telechargerExcel() {
+  const table = document.getElementById('bulletin-excel-table');
+  if (!table) return;
+  const nomEleve = document.querySelector('#bulletin-export strong')?.textContent?.trim().replace(/\s+/g, '_') || 'eleve';
+  const periode = document.querySelector('select[name="periodeId"] option:checked')?.textContent?.trim().replace(/\s+/g, '_') || 'periode';
+  const html = '<html><head><meta charset="UTF-8"></head><body>' + table.outerHTML + '</body></html>';
+  const blob = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `bulletin_${nomEleve}_${periode}.xls`;
+  link.click();
+  URL.revokeObjectURL(link.href);
 }
 </script>
 </body>
