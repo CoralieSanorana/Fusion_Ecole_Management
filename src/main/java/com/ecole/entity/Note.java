@@ -15,8 +15,9 @@ public class Note {
     @Column(name = "etudiant_id")
     private Long etudiantId;
 
-    @Column(name = "affectation_id")
-    private Long affectationId;
+    @ManyToOne
+    @JoinColumn(name = "affectation_id")
+    private AffectationEnseignement affectation;
 
     @Column(name = "periode_id")
     private Long periodeId;
@@ -88,12 +89,23 @@ public class Note {
         this.etudiantId = etudiantId;
     }
 
-    public Long getAffectationId() {
-        return affectationId;
+    public AffectationEnseignement getAffectation() {
+        return affectation;
+    }
+
+    public void setAffectation(AffectationEnseignement affectation) {
+        this.affectation = affectation;
     }
 
     public void setAffectationId(Long affectationId) {
-        this.affectationId = affectationId;
+        if (this.affectation == null) {
+            this.affectation = new AffectationEnseignement();
+        }
+        this.affectation.setId(affectationId);
+    }
+
+    public Long getAffectationId() {
+        return affectation != null ? affectation.getId() : null;
     }
 
     public Long getPeriodeId() {

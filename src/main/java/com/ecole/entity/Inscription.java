@@ -14,8 +14,16 @@ public class Inscription {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "etudiant_id")
+    @Column(name = "etudiant_id", insertable = false, updatable = false)
     private Long etudiantId;
+
+    @ManyToOne
+    @JoinColumn(name = "etudiant_id")
+    private ProfilEtudiant etudiant;
+
+    @ManyToOne
+    @JoinColumn(name = "classe_id", insertable = false, updatable = false)
+    private Classe classe;
 
     @Column(name = "classe_id")
     private Long classeId;
@@ -70,12 +78,28 @@ public class Inscription {
         this.etudiantId = etudiantId;
     }
 
+    public ProfilEtudiant getEtudiant() {
+        return etudiant;
+    }
+
+    public void setEtudiant(ProfilEtudiant etudiant) {
+        this.etudiant = etudiant;
+    }
+
     public Long getClasseId() {
         return classeId;
     }
 
     public void setClasseId(Long classeId) {
         this.classeId = classeId;
+    }
+
+    public Classe getClasse() {
+        return classe;
+    }
+
+    public void setClasse(Classe classe) {
+        this.classe = classe;
     }
 
     public Long getAnneeScolaireId() {

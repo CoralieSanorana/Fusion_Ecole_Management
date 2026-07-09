@@ -16,7 +16,7 @@
         <div class="page-header-actions" th:if="${classe != null}">
             <button class="btn btn-primary" 
                     th:data-classe-nom="${classe.nom}"
-                    onclick="showToast('📋 Bulletins publiés pour ' + this.getAttribute('data-classe-nom') + ' !')">
+                    onclick="showToast('Bulletins publiés pour ' + this.getAttribute('data-classe-nom') + ' !')">
                 <i class="fas fa-share"></i> Publier les bulletins
             </button>
         </div>
@@ -34,42 +34,131 @@
         <div class="card-header">
             <h3>Liste des Élèves — <span th:text="${classe.nom}">Classe</span></h3>
         </div>
+        <div style="padding: 15px; border-bottom: 1px solid var(--border-color, #eef2f5);">
+          <div style="display: flex; gap: 10px; max-width: 500px;">
+            <input type="text" id="bulletinSearchInput" class="form-control" placeholder="Rechercher un élève (Nom, prénom, matricule)..." style="flex: 1; padding: 8px 12px;" onkeyup="filterBulletinTable()">
+          </div>
+        </div>
         <div class="table-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Matricule</th>
-                        <th>Nom</th>
-                        <th>Prénom</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                
-                <tbody>
-                    <tr th:if="${inscriptions == null or inscriptions.isEmpty()}">
-                        <td colspan="5" style="text-align:center;color:var(--txt3);padding:20px;">
-                            Aucun élève inscrit dans cette classe.
-                        </td>
-                    </tr>
-                    <tr th:each="inscription : ${inscriptions}" 
-                        th:onclick="|window.location.href='/professeur/bulletin/${inscription.etudiantId}'|"
-                        style="cursor:pointer;">
-                        <td th:text="${etudiantProfiles.get(inscription.etudiantId) != null ? etudiantProfiles.get(inscription.etudiantId).matricule : ''}">Matricule</td>
-                        <td th:text="${etudiantProfiles.get(inscription.etudiantId) != null ? etudiantProfiles.get(inscription.etudiantId).nom : 'Étudiant'}">Nom</td>
-                        <td th:text="${etudiantProfiles.get(inscription.etudiantId) != null ? etudiantProfiles.get(inscription.etudiantId).prenom : ''}">Prénom</td>
-                        <td>
-                            <a th:href="@{/professeur/bulletin/{etudiantId}(etudiantId=${inscription.etudiantId})}" 
-                            class="btn btn-primary btn-sm">
-                                <i class="fas fa-file-alt"></i> Voir bulletin
-                            </a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+          <table id="bulletinsTable">
+            <thead>
+              <tr>
+                <th style="cursor: pointer; user-select: none;" onclick="sortBulletinsTable(0, false)">
+                  Élève <i class="fas fa-sort text-muted ms-1"></i>
+                </th>
+                <th style="cursor: pointer; user-select: none;" onclick="sortBulletinsTable(1, false)">
+                  Matricule <i class="fas fa-sort text-muted ms-1"></i>
+                </th>
+                <th style="cursor: pointer; user-select: none;" onclick="sortBulletinsTable(2, false)">
+                  Classe <i class="fas fa-sort text-muted ms-1"></i>
+                </th>
+                <th style="text-align: center;">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="inscription : ${inscriptions}">
+                <td>
+                  <strong class="student-text" th:text="${etudiantProfiles.get(inscription.etudiantId) != null ? etudiantProfiles.get(inscription.etudiantId).nom + ' ' + etudiantProfiles.get(inscription.etudiantId).prenom : 'Étudiant'}">Nom Prénom</strong>
+                </td>
+                <td>
+                  <span class="student-matricule" th:text="${etudiantProfiles.get(inscription.etudiantId) != null ? etudiantProfiles.get(inscription.etudiantId).matricule : ''}">MAT-1234</span>
+                </td>
+                <td>
+                  <span class="student-classe" th:text="${classe != null ? classe.nom : 'Classe'}">Seconde A</span>
+                </td>
+                <td style="text-align: center;">
+                  <a th:href="@{/professeur/bulletin/{etudiantId}(etudiantId=${inscription.etudiantId})}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-eye"></i> Voir le Bulletin
+                  </a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
     </div>
   </main>
 </div>
 <div th:replace="~{fragments/footer :: footer}"></div>
+<script>
+    let currentSortCol = -1;
+    let sortAscending = true;
+    // 1. FONCTION DE TRI INTERACTIF
+    function sortBulletinsTable(columnIndex, isNumeric = false) {
+        const table = document.getElementById("bulletinsTable");
+        if (!table) return;
+
+        const tbody = table.querySelector("tbody");
+        const rows = Array.from(tbody.querySelectorAll("tr"));
+
+        // Basculer la direction du tri
+        if (currentSortCol === columnIndex) {
+            sortAscending = !sortAscending;
+        } else {
+            sortAscending = true;
+            currentSortCol = columnIndex;
+        }
+
+        // Gestion de l'affichage visuel des flèches d'en-tête
+        const headers = table.querySelectorAll("thead th");
+        headers.forEach((th, idx) => {
+            const icon = th.querySelector("i");
+            if (icon) {
+                if (idx === columnIndex) {
+                    icon.className = sortAscending ? "fas fa-sort-up text-primary ms-1" : "fas fa-sort-down text-primary ms-1";
+                } else {
+                    icon.className = "fas fa-sort text-muted ms-1";
+                }
+            }
+        });
+
+        // Algorithme de tri des lignes
+        rows.sort((rowA, rowB) => {
+            let elA = rowA.cells[columnIndex];
+            let elB = rowB.cells[columnIndex];
+
+            // Cibler les classes spécifiques si disponibles pour un tri propre
+            if (columnIndex === 0) { elA = elA.querySelector('.student-text'); elB = elB.querySelector('.student-text'); }
+            else if (columnIndex === 1) { elA = elA.querySelector('.student-matricule'); elB = elB.querySelector('.student-matricule'); }
+            else if (columnIndex === 2) { elA = elA.querySelector('.student-classe'); elB = elB.querySelector('.student-classe'); }
+
+            const txtA = elA ? elA.innerText.trim().toLowerCase() : rowA.cells[columnIndex].innerText.trim().toLowerCase();
+            const txtB = elB ? elB.innerText.trim().toLowerCase() : rowB.cells[columnIndex].innerText.trim().toLowerCase();
+
+            if (isNumeric) {
+                let valA = parseFloat(txtA) || 0;
+                let valB = parseFloat(txtB) || 0;
+                return sortAscending ? (valA - valB) : (valB - valA);
+            } else {
+                return sortAscending ? txtA.localeCompare(txtB) : txtB.localeCompare(txtA);
+            }
+        });
+
+        // Réinjection des lignes triées dans le DOM
+        rows.forEach(row => tbody.appendChild(row));
+    }
+
+    // 2. FONCTION DE RECHERCHE / FILTRAGE EN TEMPS RÉEL
+    function filterBulletinTable() {
+        const input = document.getElementById("bulletinSearchInput");
+        const filter = input.value.toLowerCase().trim();
+        const table = document.getElementById("bulletinsTable");
+        const rows = table.querySelector("tbody").querySelectorAll("tr");
+
+        rows.forEach(row => {
+            // On récupère le contenu du nom, matricule et classe pour la recherche
+            const nameText = row.querySelector(".student-text") ? row.querySelector(".student-text").innerText.toLowerCase() : "";
+            const matriculeText = row.querySelector(".student-matricule") ? row.querySelector(".student-matricule").innerText.toLowerCase() : "";
+            const classeText = row.querySelector(".student-classe") ? row.querySelector(".student-classe").innerText.toLowerCase() : "";
+
+            // Si le mot-clé correspond à l'un des trois champs, on affiche la ligne, sinon on la cache
+            if (nameText.includes(filter) || matriculeText.includes(filter) || classeText.includes(filter)) {
+                row.style.display = "";
+            } else {
+                row.style.display = "none";
+            }
+        });
+    }
+</script>
+
 </body>
 </html>

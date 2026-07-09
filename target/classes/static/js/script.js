@@ -1,36 +1,6 @@
   /* ============================================================
-     ROLE CONFIGURATIONS
+     ROLE CONFIGURATIONS - REMOVED (Now handled server-side by Thymeleaf and Spring Security)
   ============================================================ */
-  const roles = {
-    directeur: {
-      name: 'M. Rakoto',
-      role: 'Directeur',
-      initials: 'DR',
-      defaultPage: 'dashboard',
-      nav: 'nav-directeur'
-    },
-    secretariat: {
-      name: 'Mme. Rasoa',
-      role: 'Secrétaire',
-      initials: 'RS',
-      defaultPage: 'paiement',
-      nav: 'nav-secretariat'
-    },
-    professeur: {
-      name: 'Prof. Rabe',
-      role: 'Professeur',
-      initials: 'RB',
-      defaultPage: 'emploi',
-      nav: 'nav-professeur'
-    },
-    etudiant: {
-      name: 'Rakoto Jean',
-      role: 'Étudiant',
-      initials: 'RJ',
-      defaultPage: 'emploi',
-      nav: 'nav-etudiant'
-    }
-  };
 
   const pageTitles = {
     'dir-dashboard': 'Tableau de bord',
@@ -61,31 +31,8 @@
   ============================================================ */
 
   /* ============================================================
-     SWITCH ROLE
+     SWITCH ROLE - REMOVED (Now handled server-side by Spring Security)
   ============================================================ */
-  function switchRole(roleKey) {
-    const r = roles[roleKey];
-    if (!r) return;
-
-    // Update user info
-    document.getElementById('sidebar-user-name').textContent = r.name;
-    document.getElementById('sidebar-user-role').textContent = r.role;
-    document.getElementById('sidebar-avatar-initials').textContent = r.initials;
-    document.getElementById('topbar-user-name').textContent = r.name;
-    document.getElementById('topbar-user-role').textContent = r.role;
-    document.getElementById('topbar-avatar-initials').textContent = r.initials;
-
-    // Show/hide navs
-    ['nav-directeur','nav-secretariat','nav-professeur','nav-etudiant'].forEach(id => {
-      document.getElementById(id).style.display = 'none';
-    });
-    document.getElementById(r.nav).style.display = 'block';
-
-    // Navigate to default page for the role
-    window.location.href = '/' + roleKey + '/' + r.defaultPage;
-
-    showToast('🔄 Vue changée : ' + r.role);
-  }
 
   /* ============================================================
      SHOW PAGE - REMOVED (Now using standard navigation)
@@ -207,7 +154,7 @@
     isDark = !isDark;
     document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
     themeToggle.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
-    showToast(isDark ? '🌙 Thème sombre activé' : '☀️ Thème clair activé');
+    showToast(isDark ? 'Thème sombre activé' : 'Thème clair activé');
   });
 
   /* ============================================================
@@ -298,20 +245,6 @@
         item.classList.add('active');
       }
     });
-    
-    // Set role selector based on current path (without redirecting)
-    const roleSelect = document.getElementById('roleSelect');
-    if (roleSelect) {
-      if (currentPath.includes('/directeur')) {
-        roleSelect.value = 'directeur';
-      } else if (currentPath.includes('/secretariat')) {
-        roleSelect.value = 'secretariat';
-      } else if (currentPath.includes('/professeur')) {
-        roleSelect.value = 'professeur';
-      } else if (currentPath.includes('/etudiant')) {
-        roleSelect.value = 'etudiant';
-      }
-    }
-    
-    setTimeout(() => showToast('👋 Bienvenue sur LycéePro !'), 800);
+
+    setTimeout(() => showToast('Bienvenue sur LycéePro !'), 800);
   });

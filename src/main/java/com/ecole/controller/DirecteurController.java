@@ -4,8 +4,12 @@ import com.ecole.entity.*;
 import com.ecole.service.EdtService;
 import com.ecole.service.InitializeService;
 import com.ecole.service.EmployeService;
+import com.ecole.service.EtudiantFilterService;
+import com.ecole.service.StatistiquesElevesService;
 import com.ecole.dto.Directeur.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,6 +32,9 @@ public class DirecteurController {
     private final EmployeService employeService;
     private final com.ecole.service.MatiereService matiereService;
     private final com.ecole.service.TypesContratsEmployesService typesContratsEmployesService;
+    private final EtudiantFilterService filterService;
+    private final StatistiquesElevesService statistiquesElevesService;
+
 
     @GetMapping("/directeur/dashboard")
     public String dashboard(Model model) {
@@ -428,5 +435,152 @@ public class DirecteurController {
     @ResponseBody
     public ResponseEntity<List<VueEmployesDetail>> getSecretaires() {
         return ResponseEntity.ok(employeService.getSecretaires());
+    }
+
+    // Filtre etudiants 
+    // ----------------------------------------------------------------
+    // PAGE HTML — rendu Thymeleaf
+    // ----------------------------------------------------------------
+
+    @GetMapping("/directeur/etudiants")
+    public String page(Model model) {
+        model.addAttribute("pageTitle", "Étudiants");
+        model.addAttribute("currentRole", "directeur");
+        // Les données de filtre (selects) sont chargées via JS au montage
+        return "directeur/etudiants-filtre";
+    }
+
+    // ----------------------------------------------------------------
+    // API — données pour peupler les selects du formulaire
+    // ----------------------------------------------------------------
+
+    @GetMapping("/api/directeur/etudiants/form-data")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getFormData() {
+        return ResponseEntity.ok(filterService.getFilterFormData());
+    }
+
+    // ----------------------------------------------------------------
+    // API — détail d'un étudiant par ID
+    // ----------------------------------------------------------------
+
+    @GetMapping("/api/directeur/etudiants/{id}")
+    @ResponseBody
+    public ResponseEntity<EtudiantFilterResult> getEtudiantById(@PathVariable Long id) {
+        EtudiantFilterResult etudiant = filterService.getEtudiantById(id);
+        if (etudiant == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(etudiant);
+    }
+
+    // ----------------------------------------------------------------
+    // API — recherche paginée + filtrée (appelée à chaque changement)
+    // ----------------------------------------------------------------
+
+    @GetMapping("/api/directeur/etudiants/recherche")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> rechercher(
+            @RequestParam(required = false) String recherche,
+            @RequestParam(required = false) String sexe,
+            @RequestParam(required = false) String region,
+            @RequestParam(required = false) String nationalite,
+            @RequestParam(required = false) Long classeId,
+            @RequestParam(required = false) Long niveauId,
+            @RequestParam(required = false) Long anneeScolaireId,
+            @RequestParam(required = false) String statutInscription,
+            @RequestParam(required = false) String typeInscription,
+            @RequestParam(required = false)
+                @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateInscriptionDebut,
+            @RequestParam(required = false)
+                @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateInscriptionFin,
+            @RequestParam(required = false)
+                @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateNaissanceDebut,
+            @RequestParam(required = false)
+                @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateNaissanceFin,
+            @RequestParam(required = false) Boolean isArchived,
+            @RequestParam(defaultValue = "0")   int page,
+            @RequestParam(defaultValue = "15")  int pageSize,
+            @RequestParam(defaultValue = "nom")  String sortBy,
+            @RequestParam(defaultValue = "asc")  String sortDir
+    ) {
+        EtudiantFilterCriteria criteria = new EtudiantFilterCriteria();
+        criteria.setRecherche(recherche);
+        criteria.setSexe(sexe);
+        criteria.setRegion(region);
+        criteria.setNationalite(nationalite);
+        criteria.setClasseId(classeId);
+        criteria.setNiveauId(niveauId);
+        criteria.setAnneeScolaireId(anneeScolaireId);
+        criteria.setStatutInscription(statutInscription);
+        criteria.setTypeInscription(typeInscription);
+        criteria.setDateInscriptionDebut(dateInscriptionDebut);
+        criteria.setDateInscriptionFin(dateInscriptionFin);
+        criteria.setDateNaissanceDebut(dateNaissanceDebut);
+        criteria.setDateNaissanceFin(dateNaissanceFin);
+        criteria.setIsArchived(isArchived != null ? isArchived : false);
+        criteria.setPage(page);
+        criteria.setPageSize(pageSize);
+        criteria.setSortBy(sortBy);
+        criteria.setSortDir(sortDir);
+
+        Page<EtudiantFilterResult> result = filterService.filtrer(criteria);
+
+        // Réponse enrichie pour le JS (évite de re-parser du côté client)
+        return ResponseEntity.ok(Map.of(
+            "content",       result.getContent(),
+            "totalElements", result.getTotalElements(),
+            "totalPages",    result.getTotalPages(),
+            "currentPage",   result.getNumber(),
+            "pageSize",      result.getSize(),
+            "hasNext",       result.hasNext(),
+            "hasPrevious",   result.hasPrevious()
+        ));
+    }
+
+    //Statistique etudiant 
+    // ----------------------------------------------------------------
+    // PAGE HTML — Statistiques Élèves (détection décrochage)
+    // ----------------------------------------------------------------
+
+    @GetMapping("/directeur/statistiques-eleves")
+    public String statistiquesEleves(Model model) {
+        model.addAttribute("pageTitle", "Statistiques Élèves");
+        model.addAttribute("currentRole", "directeur");
+        return "directeur/statistiques-eleves";
+    }
+
+    // ----------------------------------------------------------------
+    // API — classes disponibles pour le filtre
+    // ----------------------------------------------------------------
+
+    @GetMapping("/api/directeur/statistiques-eleves/classes")
+    @ResponseBody
+    public ResponseEntity<List<Classe>> getClassesStatistiques(
+            @RequestParam(required = false) Long anneeScolaireId) {
+        return ResponseEntity.ok(statistiquesElevesService.listerClasses(anneeScolaireId));
+    }
+
+    // ----------------------------------------------------------------
+    // API — analyse décrochage (croisement moyennes / absences)
+    // ----------------------------------------------------------------
+
+    @GetMapping("/api/directeur/statistiques-eleves")
+    @ResponseBody
+    public ResponseEntity<StatistiquesElevesResponse> getStatistiquesEleves(
+            @RequestParam(required = false) Long anneeScolaireId,
+            @RequestParam(required = false) Long classeId,
+            @RequestParam(required = false) Long periodeFinId,
+            @RequestParam(required = false) Double seuilBaisseMoyenne,
+            @RequestParam(required = false) Double seuilTauxAbsence
+    ) {
+        StatistiquesElevesCriteria criteria = new StatistiquesElevesCriteria();
+        criteria.setAnneeScolaireId(anneeScolaireId);
+        criteria.setClasseId(classeId);
+        criteria.setPeriodeFinId(periodeFinId);
+        if (seuilBaisseMoyenne != null) criteria.setSeuilBaisseMoyenne(seuilBaisseMoyenne);
+        if (seuilTauxAbsence != null) criteria.setSeuilTauxAbsence(seuilTauxAbsence);
+
+        return ResponseEntity.ok(statistiquesElevesService.analyser(criteria));
     }
 }

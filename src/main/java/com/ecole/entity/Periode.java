@@ -9,10 +9,10 @@ public class Periode {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(name = "annee_scolaire_id")
-    private Integer anneeScolaireId;
+    private Long anneeScolaireId;
 
     @Column(nullable = false, length = 100)
     private String libelle;
@@ -37,19 +37,19 @@ public class Periode {
 
     // --- Getters et Setters ---
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public Integer getAnneeScolaireId() {
+    public Long getAnneeScolaireId() {
         return anneeScolaireId;
     }
 
-    public void setAnneeScolaireId(Integer anneeScolaireId) {
+    public void setAnneeScolaireId(Long anneeScolaireId) {
         this.anneeScolaireId = anneeScolaireId;
     }
 

@@ -19,7 +19,7 @@ public class PeriodeService {
         return periodeRepository.findAll();
     }
 
-    public Optional<Periode> findById(Integer id) {
+    public Optional<Periode> findById(Long id) {
         return periodeRepository.findById(id);
     }
 
@@ -31,7 +31,7 @@ public class PeriodeService {
         return periodeRepository.save(periode);
     }
 
-    public void delete(Integer id) {
+    public void delete(Long id) {
         periodeRepository.deleteById(id);
     }
 }

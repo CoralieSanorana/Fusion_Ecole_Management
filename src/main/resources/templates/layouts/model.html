@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>LycéePro — Système de Gestion</title>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
   <link rel="stylesheet" th:href="@{/css/style.css}">
   <script th:src="@{/js/script.js}" defer></script>
@@ -20,7 +20,7 @@
   <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
-      <div class="sidebar-brand-icon">🎓</div>
+      <div class="sidebar-brand-icon"><i class="fas fa-graduation-cap"></i></div>
       <div class="sidebar-brand-text">
         <h1>LycéePro</h1>
         <span>Gestion Scolaire</span>
@@ -30,10 +30,10 @@
     <div class="role-switcher">
       <label>Vue actuelle</label>
       <select id="roleSelect" onchange="switchRole(this.value)">
-        <option value="directeur">👔 Directeur</option>
-        <option value="secretariat">📋 Secrétariat</option>
-        <option value="professeur">📚 Professeur</option>
-        <option value="etudiant">🎒 Étudiant</option>
+        <option value="directeur">Directeur</option>
+        <option value="secretariat">Secrétariat</option>
+        <option value="professeur">Professeur</option>
+        <option value="etudiant">Étudiant</option>
       </select>
     </div>
 
@@ -160,28 +160,28 @@
             <span style="font-size:12px;color:var(--g);cursor:pointer;">Tout lire</span>
           </div>
           <div class="notif-item unread">
-            <div class="notif-item-icon" style="background:rgba(0,255,133,.08);color:var(--g);">💰</div>
+            <div class="notif-item-icon" style="background:rgba(37,99,235,.08);color:var(--b);"><i class="fas fa-coins"></i></div>
             <div class="notif-item-text">
               <strong>Nouveau paiement reçu</strong>
               <small>Rakoto Jean — 1ère A — il y a 10 min</small>
             </div>
           </div>
           <div class="notif-item unread">
-            <div class="notif-item-icon" style="background:rgba(0,212,110,.1);color:var(--success);">📝</div>
+            <div class="notif-item-icon" style="background:rgba(22,163,74,.1);color:var(--success);"><i class="fas fa-clipboard-check"></i></div>
             <div class="notif-item-text">
               <strong>Notes publiées — Maths</strong>
               <small>Prof. Rabe — il y a 30 min</small>
             </div>
           </div>
           <div class="notif-item">
-            <div class="notif-item-icon" style="background:rgba(10,77,255,.1);color:var(--b);">📣</div>
+            <div class="notif-item-icon" style="background:rgba(37,99,235,.1);color:var(--b);"><i class="fas fa-bullhorn"></i></div>
             <div class="notif-item-text">
               <strong>Réunion parents-profs</strong>
               <small>Vendredi 19 avril 2026 — 9h00</small>
             </div>
           </div>
           <div class="notif-item">
-            <div class="notif-item-icon" style="background:rgba(255,59,92,.1);color:var(--danger);">⚠️</div>
+            <div class="notif-item-icon" style="background:rgba(220,38,38,.1);color:var(--danger);"><i class="fas fa-triangle-exclamation"></i></div>
             <div class="notif-item-text">
               <strong>3 élèves n'ont pas payé</strong>
               <small>Mois d'Avril — action requise</small>
