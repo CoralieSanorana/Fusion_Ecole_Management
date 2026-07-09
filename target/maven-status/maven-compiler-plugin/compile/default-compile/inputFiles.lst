@@ -2,7 +2,10 @@ D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\controller\CommunsC
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\controller\DirecteurController.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\controller\EtudiantController.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\controller\FragmentController.java
+<<<<<<< Updated upstream
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\controller\GlobalControllerAdvice.java
+=======
+>>>>>>> Stashed changes
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\controller\HomeController.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\controller\ProfesseurController.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\controller\SecretaireController.java
@@ -17,6 +20,7 @@ D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\dto\Directeur\Horai
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\dto\Directeur\NiveauAlerte.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\dto\Directeur\StatistiquesElevesCriteria.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\dto\Directeur\StatistiquesElevesResponse.java
+<<<<<<< Updated upstream
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\dto\Secretaire\AjoutEleveDTO.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\dto\Secretaire\BilanClasseDTO.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\dto\Secretaire\BilanGlobalDTO.java
@@ -24,6 +28,8 @@ D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\dto\Secretaire\Elev
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\dto\Secretaire\EleveProfilDTO.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\dto\Secretaire\PaiementGroupeDTO.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\dto\Secretaire\PaiementHistoriqueDTO.java
+=======
+>>>>>>> Stashed changes
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\EcoleApplication.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\entity\Absence.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\entity\AffectationEnseignement.java
@@ -32,13 +38,19 @@ D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\entity\Classe.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\entity\Coefficient.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\entity\ContratsEmployes.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\entity\Devoir.java
+<<<<<<< Updated upstream
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\entity\Echeance.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\entity\Echeancier.java
+=======
+>>>>>>> Stashed changes
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\entity\EmploiDuTemps.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\entity\Etablissement.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\entity\Evenement.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\entity\EvenementInstance.java
+<<<<<<< Updated upstream
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\entity\GrilleTarifaire.java
+=======
+>>>>>>> Stashed changes
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\entity\HoraireEdt.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\entity\Inscription.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\entity\Lecon.java
@@ -48,10 +60,15 @@ D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\entity\Niveau.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\entity\Note.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\entity\Notification.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\entity\NotificationType.java
+<<<<<<< Updated upstream
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\entity\Paiement.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\entity\Periode.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\entity\ProfilEtudiant.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\entity\ProfilParent.java
+=======
+D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\entity\Periode.java
+D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\entity\ProfilEtudiant.java
+>>>>>>> Stashed changes
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\entity\ProfilsComptables.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\entity\ProfilsDirecteurs.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\entity\ProfilsProfesseurs.java
@@ -67,7 +84,10 @@ D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\entity\User.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\entity\UserRole.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\entity\UserRoleId.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\entity\VueEmployesDetail.java
+<<<<<<< Updated upstream
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\GenerateHash.java
+=======
+>>>>>>> Stashed changes
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\repository\AbsenceRepository.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\repository\AffectationEnseignementRepository.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\repository\AnneeScolaireRepository.java
@@ -75,8 +95,11 @@ D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\repository\ClasseRe
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\repository\CoefficientRepository.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\repository\ContratsEmployesRepository.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\repository\DevoirRepository.java
+<<<<<<< Updated upstream
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\repository\EcheanceRepository.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\repository\EcheancierRepository.java
+=======
+>>>>>>> Stashed changes
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\repository\EmploiDuTempsRepository.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\repository\EtablissementRepository.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\repository\EvenementInstanceRepository.java
@@ -90,11 +113,16 @@ D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\repository\NiveauRe
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\repository\NoteRepository.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\repository\NotificationRepository.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\repository\NotificationTypeRepository.java
+<<<<<<< Updated upstream
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\repository\PaiementRepository.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\repository\PaiementSpecification.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\repository\PeriodeRepository.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\repository\ProfilEtudiantRepository.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\repository\ProfilParentRepository.java
+=======
+D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\repository\PeriodeRepository.java
+D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\repository\ProfilEtudiantRepository.java
+>>>>>>> Stashed changes
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\repository\ProfilsComptablesRepository.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\repository\ProfilsDirecteursRepository.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\repository\ProfilsProfesseursRepository.java
@@ -109,6 +137,7 @@ D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\repository\TypesCon
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\repository\UserRepository.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\repository\UserRoleRepository.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\repository\VueEmployesDetailRepository.java
+<<<<<<< Updated upstream
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\SecurityConfig.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\service\AbsenceService.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\service\AffectationEnseignementService.java
@@ -119,6 +148,14 @@ D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\service\Coefficient
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\service\CustomUserDetailsService.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\service\EdtService.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\service\EleveService.java
+=======
+D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\service\AbsenceService.java
+D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\service\AffectationEnseignementService.java
+D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\service\AnneeScolaireService.java
+D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\service\ClasseService.java
+D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\service\CoefficientService.java
+D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\service\EdtService.java
+>>>>>>> Stashed changes
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\service\EmploiDuTempsService.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\service\EmployeService.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\service\EtudiantFilterService.java
@@ -134,7 +171,10 @@ D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\service\NiveauServi
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\service\NoteService.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\service\NotificationService.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\service\NotificationTypeService.java
+<<<<<<< Updated upstream
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\service\PaiementService.java
+=======
+>>>>>>> Stashed changes
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\service\PeriodeService.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\service\ProfilEtudiantService.java
 D:\Animation\Fusion_Ecole_Management\src\main\java\com\ecole\service\ProfilsProfesseursService.java

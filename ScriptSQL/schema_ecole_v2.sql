@@ -38,7 +38,14 @@
 -- possede un compte "users" + un profil dedie dans sa propre table.
 -- ============================================================
 
+<<<<<<< Updated upstream
 -- Comptes d'acces unifies pour tous les acteurs du systeme
+=======
+-- Comptes d'accès unifiés pour tous les acteurs du système
+
+
+
+>>>>>>> Stashed changes
 CREATE TABLE users (
     id            SERIAL PRIMARY KEY,
     email         VARCHAR(255) UNIQUE NOT NULL,
@@ -984,8 +991,13 @@ CREATE INDEX idx_audit_table_entite         ON audit_log(table_concernee, entite
 CREATE INDEX idx_audit_date                 ON audit_log(created_at);
 
 
+<<<<<<< Updated upstream
 -- ============================================================
 -- SECTION 17 — DONNeES INITIALES (SEED)
+=======
+-- =====================n=======================================
+-- SECTION 17 — DONNÉES INITIALES (SEED)
+>>>>>>> Stashed changes
 -- ============================================================
 
 -- Roles systeme
