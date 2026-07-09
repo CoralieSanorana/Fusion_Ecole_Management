@@ -18,6 +18,24 @@ public class NotificationService {
         return notificationRepository.findAll();
     }
 
+    public List<Notification> findVisibleForUser(Integer userId) {
+        return notificationRepository.findVisibleForUser(userId);
+    }
+
+    public List<Notification> findTopVisibleForUser(Integer userId, int limit) {
+        return notificationRepository.findVisibleForUser(userId).stream()
+                .limit(limit)
+                .toList();
+    }
+
+    public long countVisibleForUser(Integer userId) {
+        return notificationRepository.countVisibleForUser(userId);
+    }
+
+    public long countUnreadVisibleForUser(Integer userId) {
+        return notificationRepository.countUnreadVisibleForUser(userId);
+    }
+
     public Optional<Notification> findById(Long id) {
         return notificationRepository.findById(id);
     }

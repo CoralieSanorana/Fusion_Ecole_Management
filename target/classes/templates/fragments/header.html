@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.springframework.org/schema/security">
 <head th:fragment="head">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -58,10 +58,12 @@
       </a>
       <p class="nav-section-title">Général</p>
       <a th:href="@{/communs/actualites}" class="nav-item">
-        <i class="fas fa-newspaper"></i> Actualités <span class="nav-badge">3</span>
+        <i class="fas fa-newspaper"></i> Actualités
+        <span class="nav-badge" th:if="${actualitesCount != null and actualitesCount > 0}" th:text="${actualitesCount}">0</span>
       </a>
       <a th:href="@{/communs/notifications}" class="nav-item">
-        <i class="fas fa-bell"></i> Notifications <span class="nav-badge">5</span>
+        <i class="fas fa-bell"></i> Notifications
+        <span class="nav-badge" th:if="${notificationsUnreadCount != null and notificationsUnreadCount > 0}" th:text="${notificationsUnreadCount}">0</span>
       </a>
     </nav>
 
@@ -86,6 +88,11 @@
       <p class="nav-section-title">Général</p>
       <a th:href="@{/communs/actualites}" class="nav-item">
         <i class="fas fa-newspaper"></i> Actualités
+        <span class="nav-badge" th:if="${actualitesCount != null and actualitesCount > 0}" th:text="${actualitesCount}">0</span>
+      </a>
+      <a th:href="@{/communs/notifications}" class="nav-item">
+        <i class="fas fa-bell"></i> Notifications
+        <span class="nav-badge" th:if="${notificationsUnreadCount != null and notificationsUnreadCount > 0}" th:text="${notificationsUnreadCount}">0</span>
       </a>
     </nav>
 
@@ -110,6 +117,11 @@
       <p class="nav-section-title">Général</p>
       <a th:href="@{/communs/actualites}" class="nav-item">
         <i class="fas fa-newspaper"></i> Actualités
+        <span class="nav-badge" th:if="${actualitesCount != null and actualitesCount > 0}" th:text="${actualitesCount}">0</span>
+      </a>
+      <a th:href="@{/communs/notifications}" class="nav-item">
+        <i class="fas fa-bell"></i> Notifications
+        <span class="nav-badge" th:if="${notificationsUnreadCount != null and notificationsUnreadCount > 0}" th:text="${notificationsUnreadCount}">0</span>
       </a>
     </nav>
 
@@ -130,7 +142,12 @@
       </a>
       <p class="nav-section-title">Général</p>
       <a th:href="@{/communs/actualites}" class="nav-item">
-        <i class="fas fa-newspaper"></i> Actualités <span class="nav-badge">2</span>
+        <i class="fas fa-newspaper"></i> Actualités
+        <span class="nav-badge" th:if="${actualitesCount != null and actualitesCount > 0}" th:text="${actualitesCount}">0</span>
+      </a>
+      <a th:href="@{/communs/notifications}" class="nav-item">
+        <i class="fas fa-bell"></i> Notifications
+        <span class="nav-badge" th:if="${notificationsUnreadCount != null and notificationsUnreadCount > 0}" th:text="${notificationsUnreadCount}">0</span>
       </a>
     </nav>
 
@@ -162,38 +179,24 @@
       <button class="theme-toggle" id="themeToggle" title="Changer de thème"><i class="fas fa-moon"></i></button>
       <button class="topbar-btn" style="position:relative;" onclick="toggleNotif()">
         <i class="fas fa-bell"></i>
-        <span class="notif-dot"></span>
+        <span class="notif-dot" th:if="${notificationsUnreadCount != null and notificationsUnreadCount > 0}"></span>
         <div class="notif-dropdown" id="notif-dropdown">
           <div class="notif-dropdown-head">
             <h4>Notifications</h4>
-            <span style="font-size:12px;color:var(--g);cursor:pointer;">Tout lire</span>
+            <a th:href="@{/communs/notifications}" style="font-size:12px;color:var(--g);cursor:pointer;">Voir tout</a>
           </div>
-          <div class="notif-item unread">
-            <div class="notif-item-icon" style="background:rgba(37,99,235,.08);color:var(--b);"><i class="fas fa-coins"></i></div>
+          <div class="notif-item" th:each="notification : ${topbarNotifications}" th:classappend="${!notification.estLu} ? 'unread'">
+            <div class="notif-item-icon" style="background:rgba(37,99,235,.08);color:var(--b);"><i class="fas fa-bell"></i></div>
             <div class="notif-item-text">
-              <strong>Nouveau paiement reçu</strong>
-              <small>Rakoto Jean — 1ère A — il y a 10 min</small>
+              <strong th:text="${notification.titre}">Notification</strong>
+              <small th:text="${notification.message}">Message</small>
             </div>
           </div>
-          <div class="notif-item unread">
-            <div class="notif-item-icon" style="background:rgba(22,163,74,.1);color:var(--success);"><i class="fas fa-clipboard-check"></i></div>
+          <div class="notif-item" th:if="${topbarNotifications == null or #lists.isEmpty(topbarNotifications)}">
+            <div class="notif-item-icon" style="background:rgba(37,99,235,.08);color:var(--b);"><i class="fas fa-check"></i></div>
             <div class="notif-item-text">
-              <strong>Notes publiées — Maths</strong>
-              <small>Prof. Rabe — il y a 30 min</small>
-            </div>
-          </div>
-          <div class="notif-item">
-            <div class="notif-item-icon" style="background:rgba(37,99,235,.1);color:var(--b);"><i class="fas fa-bullhorn"></i></div>
-            <div class="notif-item-text">
-              <strong>Réunion parents-profs</strong>
-              <small>Vendredi 19 avril 2026 — 9h00</small>
-            </div>
-          </div>
-          <div class="notif-item">
-            <div class="notif-item-icon" style="background:rgba(220,38,38,.1);color:var(--danger);"><i class="fas fa-triangle-exclamation"></i></div>
-            <div class="notif-item-text">
-              <strong>3 élèves n'ont pas payé</strong>
-              <small>Mois d'Avril — action requise</small>
+              <strong>Aucune notification</strong>
+              <small>Tout est à jour</small>
             </div>
           </div>
         </div>

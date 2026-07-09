@@ -99,11 +99,38 @@
               alert('Erreur de connexion au serveur');
           });
       }
+
+      function supprimerActualite(actualiteId) {
+          if (!confirm('Supprimer cette actualité ?')) {
+              return;
+          }
+
+          fetch('/api/actualites/' + actualiteId, {
+              method: 'DELETE'
+          })
+          .then(response => {
+              if (response.ok || response.status === 204) {
+                  const element = document.getElementById('actualite-' + actualiteId);
+                  if (element) {
+                      element.remove();
+                  }
+                  location.reload();
+              } else if (response.status === 403) {
+                  alert('Accès refusé');
+              } else {
+                  alert('Erreur lors de la suppression: ' + response.status);
+              }
+          })
+          .catch(error => {
+              console.error('Erreur réseau:', error);
+              alert('Erreur de connexion au serveur');
+          });
+      }
       </script>
 
       <div class="grid-3">
         <th:block th:each="actualite : ${actualites}">
-          <div class="news-card">
+          <div class="news-card" th:id="'actualite-' + ${actualite.id}">
             <div class="news-card-image">
               <i th:class="${actualite.iconeClasse} ?: 'fas fa-newspaper'"></i>
             </div>
@@ -114,6 +141,11 @@
               </div>
               <h4 th:text="${actualite.titre}"></h4>
               <p th:text="${actualite.contenu}"></p>
+              <th:block sec:authorize="hasRole('DIRECTEUR') or hasRole('SECRETARIAT')">
+                <button class="btn btn-sm btn-secondary" th:onclick="'supprimerActualite(' + ${actualite.id} + ')'" style="margin-top:var(--sp-md);">
+                  <i class="fas fa-trash"></i> Supprimer
+                </button>
+              </th:block>
             </div>
           </div>
         </th:block>
