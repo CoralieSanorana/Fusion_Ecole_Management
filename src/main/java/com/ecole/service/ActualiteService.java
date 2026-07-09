@@ -29,7 +29,11 @@ public class ActualiteService {
     }
 
     public List<Actualite> findTop10Active() {
-        return actualiteRepository.findTop10Active();
+        return actualiteRepository.findTop10ByEstActiveTrueOrderByDatePublicationDesc();
+    }
+
+    public long countActive() {
+        return actualiteRepository.countByEstActiveTrue();
     }
 
     public Optional<Actualite> findById(Long id) {

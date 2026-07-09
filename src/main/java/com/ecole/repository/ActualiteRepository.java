@@ -17,6 +17,7 @@ public interface ActualiteRepository extends JpaRepository<Actualite, Long> {
     @Query("SELECT a FROM Actualite a WHERE a.estActive = true AND a.categorie = ?1 ORDER BY a.datePublication DESC")
     List<Actualite> findByCategorie(String categorie);
 
-    @Query("SELECT a FROM Actualite a WHERE a.estActive = true ORDER BY a.datePublication DESC LIMIT 10")
-    List<Actualite> findTop10Active();
+    List<Actualite> findTop10ByEstActiveTrueOrderByDatePublicationDesc();
+
+    long countByEstActiveTrue();
 }
