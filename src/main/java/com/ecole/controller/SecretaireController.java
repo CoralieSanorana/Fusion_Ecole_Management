@@ -56,6 +56,7 @@ public class SecretaireController {
         }
 
         model.addAttribute("inscriptions", inscriptions);
+        model.addAttribute("classes", eleveService.listerClasses());
         model.addAttribute("pageTitle", "Ajouter un Paiement");
         return "Secretaire/paiement";
     }
@@ -153,6 +154,7 @@ public class SecretaireController {
         model.addAttribute("modePaiement", modePaiement);
         model.addAttribute("dateDebut", dateDebut);
         model.addAttribute("dateFin", dateFin);
+        model.addAttribute("classes", eleveService.listerClasses());
         model.addAttribute("pageTitle", "Liste des Paiements");
         return "Secretaire/liste_paiements";
     }
@@ -270,6 +272,60 @@ public class SecretaireController {
         response.setHeader("Content-Disposition", "attachment; filename=bilan_paiements.xlsx");
         response.setContentLength(excel.length);
         response.getOutputStream().write(excel);
+    }
+
+    // ─── INSCRIPTION / RÉINSCRIPTION ─────────────────────────────
+
+    @GetMapping("/secretariat/inscription")
+    public String inscription(Model model) {
+        model.addAttribute("classes", eleveService.listerClasses());
+        model.addAttribute("pageTitle", "Inscription — Nouvel Élève");
+        return "Secretaire/inscription";
+    }
+
+    @PostMapping("/secretariat/inscription")
+    public String enregistrerInscription(@ModelAttribute AjoutEleveDTO dto,
+                                         RedirectAttributes redirectAttrs) {
+        try {
+            ProfilEtudiant eleve = eleveService.inscrireEleveComplet(dto);
+            redirectAttrs.addFlashAttribute("successMessage",
+                    "Élève " + eleve.getPrenom() + " " + eleve.getNom()
+                    + " inscrit avec succès (matricule : " + eleve.getMatricule() + ") !");
+        } catch (Exception e) {
+            redirectAttrs.addFlashAttribute("errorMessage", e.getMessage());
+            return "redirect:/secretariat/inscription";
+        }
+        return "redirect:/secretariat/eleves";
+    }
+
+    @GetMapping("/secretariat/reinscription")
+    public String reinscription(
+            @RequestParam(required = false) String search,
+            Model model) {
+        model.addAttribute("classes", eleveService.listerClasses());
+        model.addAttribute("search", search);
+        if (search != null && !search.isBlank()) {
+            model.addAttribute("resultats", eleveService.rechercherElevesPourReinscription(search));
+        }
+        model.addAttribute("pageTitle", "Réinscription");
+        return "Secretaire/reinscription";
+    }
+
+    @PostMapping("/secretariat/reinscription/effectuer")
+    public String effectuerReinscription(
+            @RequestParam Long etudiantId,
+            @RequestParam Long classeId,
+            RedirectAttributes redirectAttrs) {
+        try {
+            Inscription insc = eleveService.reinscrireEleve(etudiantId, classeId);
+            ProfilEtudiant etudiant = eleveService.getProfil(etudiantId) != null
+                    ? new ProfilEtudiant() : null;
+            redirectAttrs.addFlashAttribute("successMessage",
+                    "Réinscription effectuée avec succès !");
+        } catch (Exception e) {
+            redirectAttrs.addFlashAttribute("errorMessage", e.getMessage());
+        }
+        return "redirect:/secretariat/eleves";
     }
 
     // ─── ÉLÈVES ──────────────────────────────────────────────────
