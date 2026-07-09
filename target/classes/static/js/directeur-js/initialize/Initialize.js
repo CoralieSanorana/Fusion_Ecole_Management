@@ -168,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const dataObj = {};
       formData.forEach((value, key) => {
         if (key === 'estActive' || key === 'isActive') {
-          dataObj[key] = true;
+          dataObj[key] = formData.get(key) === 'on';
         } else if (key === 'niveauId' || key === 'anneeScolaireId' || key === 'capacite' || key === 'capaciteMax' || key === 'ordre') {
           dataObj[key] = parseInt(value);
         } else {
@@ -176,37 +176,186 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
 
+      // Get CSRF token
+      const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+      const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+
+      const headers = { 'Content-Type': 'application/json' };
+      if (csrfToken && csrfHeader) {
+        headers[csrfHeader] = csrfToken;
+      }
+
       try {
         const response = await fetch(url, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: headers,
           body: JSON.stringify(dataObj)
         });
 
         if (response.ok) {
           form.reset();
           await fetchData();
+          showMessage('success', `${type.charAt(0).toUpperCase() + type.slice(1)} enregistré avec succès !`);
+        } else {
+          const errorText = await response.text();
+          showMessage('error', `Erreur lors de l'enregistrement: ${errorText}`);
         }
       } catch (error) {
         console.error('Error saving item:', error);
+        showMessage('error', `Erreur: ${error.message}`);
       }
     });
+  }
+
+  function showMessage(type, message) {
+    // Remove existing messages
+    const existingMessages = document.querySelectorAll('.form-message');
+    existingMessages.forEach(msg => msg.remove());
+
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `form-message`;
+    messageDiv.style.cssText = `
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 0.5rem;
+      ${type === 'success' ? 'background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7;' : 'background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5;'}
+    `;
+    messageDiv.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${message}`;
+
+    const activeStep = document.querySelector('.step-content.active');
+    const cardBody = activeStep?.querySelector('.card-body');
+    if (cardBody) {
+      cardBody.insertBefore(messageDiv, cardBody.firstChild);
+    }
+
+    // Auto-remove after 5 seconds
+    setTimeout(() => messageDiv.remove(), 5000);
   }
 
   // Delete Item
   window.deleteItem = async (type, id) => {
     if (!confirm('Êtes-vous sûr de vouloir supprimer cet élément ?')) return;
+    
+    // Get CSRF token
+    const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+
+    const headers = {};
+    if (csrfToken && csrfHeader) {
+      headers[csrfHeader] = csrfToken;
+    }
+    
     try {
       const response = await fetch(`/api/directeur/initialize/${type}/${id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: headers
       });
       if (response.ok) {
         await fetchData();
+        showMessage('success', 'Élément supprimé avec succès !');
+      } else {
+        const errorText = await response.text();
+        showMessage('error', `Erreur lors de la suppression: ${errorText}`);
       }
     } catch (error) {
       console.error('Error deleting item:', error);
+      showMessage('error', `Erreur: ${error.message}`);
     }
   };
+
+  // Export to CSV
+  const btnExport = document.getElementById('btn-export');
+  if (btnExport) {
+    btnExport.addEventListener('click', async () => {
+      try {
+        showMessage('info', 'Génération du fichier CSV en cours...');
+        
+        const response = await fetch('/api/export-import/export/excel');
+        
+        if (response.ok) {
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = response.headers.get('Content-Disposition')?.split('filename=')[1]?.replace(/"/g, '') || 'export_ecole.csv';
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+          showMessage('success', 'Export réussi ! Le fichier CSV a été téléchargé.');
+        } else {
+          showMessage('error', 'Erreur lors de l\'export');
+        }
+      } catch (error) {
+        console.error('Error exporting:', error);
+        showMessage('error', `Erreur: ${error.message}`);
+      }
+    });
+  }
+
+  // Import from CSV
+  const btnImport = document.getElementById('btn-import');
+  if (btnImport) {
+    btnImport.addEventListener('click', () => {
+      // Create file input
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = '.csv';
+      fileInput.style.display = 'none';
+      
+      fileInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        // Get CSRF token
+        const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+        
+        showMessage('info', 'Import CSV en cours... Veuillez patienter.');
+        
+        try {
+          const response = await fetch('/api/export-import/import/excel', {
+            method: 'POST',
+            headers: csrfToken && csrfHeader ? { [csrfHeader]: csrfToken } : {},
+            body: formData
+          });
+          
+          const result = await response.json();
+          
+          if (result.success) {
+            showMessage('success', result.message);
+            await fetchData();
+          } else {
+            let errorMessage = result.message;
+            if (result.errors && result.errors.length > 0) {
+              errorMessage += '<br><br>Erreurs détaillées:<br>';
+              result.errors.forEach((error, index) => {
+                errorMessage += `${index + 1}. Ligne ${error.rowNumber} - ${error.tableName}: ${error.errorMessage}<br>`;
+              });
+            }
+            if (result.warnings && result.warnings.length > 0) {
+              errorMessage += '<br>Warnings:<br>';
+              result.warnings.forEach((warning, index) => {
+                errorMessage += `${index + 1}. ${warning}<br>`;
+              });
+            }
+            showMessage('error', errorMessage);
+          }
+        } catch (error) {
+          console.error('Error importing:', error);
+          showMessage('error', `Erreur: ${error.message}`);
+        }
+        
+        document.body.removeChild(fileInput);
+      });
+      
+      document.body.appendChild(fileInput);
+      fileInput.click();
+    });
+  }
 
   // Initialize
   fetchData();

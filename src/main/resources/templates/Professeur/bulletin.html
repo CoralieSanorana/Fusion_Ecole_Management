@@ -34,9 +34,15 @@
         <div class="card-header">
             <h3>Liste des Élèves — <span th:text="${classe.nom}">Classe</span></h3>
         </div>
-        <div style="padding: 15px; border-bottom: 1px solid var(--border-color, #eef2f5);">
-          <div style="display: flex; gap: 10px; max-width: 500px;">
-            <input type="text" id="bulletinSearchInput" class="form-control" placeholder="Rechercher un élève (Nom, prénom, matricule)..." style="flex: 1; padding: 8px 12px;" onkeyup="filterBulletinTable()">
+        <!-- Filters -->
+        <div class="card-body" style="padding-bottom:0;">
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">
+            <input type="text" id="filter-nom" placeholder="Filtrer par nom" class="form-control" style="flex:1;min-width:200px;">
+            <input type="text" id="filter-prenom" placeholder="Filtrer par prénom" class="form-control" style="flex:1;min-width:200px;">
+            <input type="text" id="filter-etu" placeholder="Filtrer par matricule" class="form-control" style="flex:1;min-width:200px;">
+            <button type="button" onclick="clearFilters()" class="btn btn-secondary">
+              <i class="fas fa-times"></i> Effacer
+            </button>
           </div>
         </div>
         <div class="table-wrapper">
@@ -55,8 +61,11 @@
                 <th style="text-align: center;">Action</th>
               </tr>
             </thead>
-            <tbody>
-              <tr th:each="inscription : ${inscriptions}">
+            <tbody id="table-body">
+              <tr th:each="inscription : ${inscriptions}" class="data-row"
+                  th:data-nom="${etudiantProfiles.get(inscription.etudiantId) != null ? etudiantProfiles.get(inscription.etudiantId).nom : ''}"
+                  th:data-prenom="${etudiantProfiles.get(inscription.etudiantId) != null ? etudiantProfiles.get(inscription.etudiantId).prenom : ''}"
+                  th:data-etu="${etudiantProfiles.get(inscription.etudiantId) != null ? etudiantProfiles.get(inscription.etudiantId).matricule : ''}">
                 <td>
                   <strong class="student-text" th:text="${etudiantProfiles.get(inscription.etudiantId) != null ? etudiantProfiles.get(inscription.etudiantId).nom + ' ' + etudiantProfiles.get(inscription.etudiantId).prenom : 'Étudiant'}">Nom Prénom</strong>
                 </td>
@@ -75,89 +84,151 @@
             </tbody>
           </table>
         </div>
+        <!-- Pagination -->
+        <div class="pagination" style="margin-top:20px;display:flex;justify-content:center;align-items:center;gap:10px;">
+          <button type="button" onclick="changePage(-1)" class="btn btn-secondary" id="prev-btn" disabled>
+            <i class="fas fa-chevron-left"></i> Précédent
+          </button>
+          <span id="page-info">Page 1 sur 1</span>
+          <button type="button" onclick="changePage(1)" class="btn btn-secondary" id="next-btn" disabled>
+            Suivant <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
     </div>
   </main>
 </div>
 <div th:replace="~{fragments/footer :: footer}"></div>
 <script>
-    let currentSortCol = -1;
-    let sortAscending = true;
-    // 1. FONCTION DE TRI INTERACTIF
-    function sortBulletinsTable(columnIndex, isNumeric = false) {
-        const table = document.getElementById("bulletinsTable");
-        if (!table) return;
+let currentPage = 1;
+const itemsPerPage = 10;
+let filteredRows = [];
+let currentSortCol = -1;
+let sortAscending = true;
 
-        const tbody = table.querySelector("tbody");
-        const rows = Array.from(tbody.querySelectorAll("tr"));
-
-        // Basculer la direction du tri
-        if (currentSortCol === columnIndex) {
-            sortAscending = !sortAscending;
-        } else {
-            sortAscending = true;
-            currentSortCol = columnIndex;
+function filterTable() {
+    const nomFilter = document.getElementById('filter-nom').value.toLowerCase();
+    const prenomFilter = document.getElementById('filter-prenom').value.toLowerCase();
+    const etuFilter = document.getElementById('filter-etu').value.toLowerCase();
+    
+    const rows = document.querySelectorAll('.data-row');
+    filteredRows = [];
+    
+    rows.forEach(row => {
+        const nom = row.dataset.nom ? row.dataset.nom.toLowerCase() : '';
+        const prenom = row.dataset.prenom ? row.dataset.prenom.toLowerCase() : '';
+        const etu = row.dataset.etu ? row.dataset.etu.toLowerCase() : '';
+        
+        const matchesNom = !nomFilter || nom.includes(nomFilter);
+        const matchesPrenom = !prenomFilter || prenom.includes(prenomFilter);
+        const matchesEtu = !etuFilter || etu.includes(etuFilter);
+        
+        if (matchesNom && matchesPrenom && matchesEtu) {
+            filteredRows.push(row);
         }
+    });
+    
+    currentPage = 1;
+    updatePagination();
+}
 
-        // Gestion de l'affichage visuel des flèches d'en-tête
-        const headers = table.querySelectorAll("thead th");
-        headers.forEach((th, idx) => {
-            const icon = th.querySelector("i");
-            if (icon) {
-                if (idx === columnIndex) {
-                    icon.className = sortAscending ? "fas fa-sort-up text-primary ms-1" : "fas fa-sort-down text-primary ms-1";
-                } else {
-                    icon.className = "fas fa-sort text-muted ms-1";
-                }
-            }
-        });
+function updatePagination() {
+    const rows = document.querySelectorAll('.data-row');
+    rows.forEach(row => row.style.display = 'none');
+    
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    
+    for (let i = start; i < end && i < filteredRows.length; i++) {
+        filteredRows[i].style.display = '';
+    }
+    
+    const totalPages = Math.ceil(filteredRows.length / itemsPerPage) || 1;
+    document.getElementById('page-info').textContent = `Page ${currentPage} sur ${totalPages}`;
+    
+    document.getElementById('prev-btn').disabled = currentPage === 1;
+    document.getElementById('next-btn').disabled = currentPage === totalPages;
+}
 
-        // Algorithme de tri des lignes
-        rows.sort((rowA, rowB) => {
-            let elA = rowA.cells[columnIndex];
-            let elB = rowB.cells[columnIndex];
+function changePage(delta) {
+    currentPage += delta;
+    updatePagination();
+}
 
-            // Cibler les classes spécifiques si disponibles pour un tri propre
-            if (columnIndex === 0) { elA = elA.querySelector('.student-text'); elB = elB.querySelector('.student-text'); }
-            else if (columnIndex === 1) { elA = elA.querySelector('.student-matricule'); elB = elB.querySelector('.student-matricule'); }
-            else if (columnIndex === 2) { elA = elA.querySelector('.student-classe'); elB = elB.querySelector('.student-classe'); }
+function clearFilters() {
+    document.getElementById('filter-nom').value = '';
+    document.getElementById('filter-prenom').value = '';
+    document.getElementById('filter-etu').value = '';
+    filterTable();
+}
 
-            const txtA = elA ? elA.innerText.trim().toLowerCase() : rowA.cells[columnIndex].innerText.trim().toLowerCase();
-            const txtB = elB ? elB.innerText.trim().toLowerCase() : rowB.cells[columnIndex].innerText.trim().toLowerCase();
+function sortBulletinsTable(columnIndex, isNumeric = false) {
+    const table = document.getElementById("bulletinsTable");
+    if (!table) return;
 
-            if (isNumeric) {
-                let valA = parseFloat(txtA) || 0;
-                let valB = parseFloat(txtB) || 0;
-                return sortAscending ? (valA - valB) : (valB - valA);
-            } else {
-                return sortAscending ? txtA.localeCompare(txtB) : txtB.localeCompare(txtA);
-            }
-        });
+    const tbody = table.querySelector("tbody");
+    const rows = Array.from(tbody.querySelectorAll("tr"));
 
-        // Réinjection des lignes triées dans le DOM
-        rows.forEach(row => tbody.appendChild(row));
+    if (currentSortCol === columnIndex) {
+        sortAscending = !sortAscending;
+    } else {
+        sortAscending = true;
+        currentSortCol = columnIndex;
     }
 
-    // 2. FONCTION DE RECHERCHE / FILTRAGE EN TEMPS RÉEL
-    function filterBulletinTable() {
-        const input = document.getElementById("bulletinSearchInput");
-        const filter = input.value.toLowerCase().trim();
-        const table = document.getElementById("bulletinsTable");
-        const rows = table.querySelector("tbody").querySelectorAll("tr");
-
-        rows.forEach(row => {
-            // On récupère le contenu du nom, matricule et classe pour la recherche
-            const nameText = row.querySelector(".student-text") ? row.querySelector(".student-text").innerText.toLowerCase() : "";
-            const matriculeText = row.querySelector(".student-matricule") ? row.querySelector(".student-matricule").innerText.toLowerCase() : "";
-            const classeText = row.querySelector(".student-classe") ? row.querySelector(".student-classe").innerText.toLowerCase() : "";
-
-            // Si le mot-clé correspond à l'un des trois champs, on affiche la ligne, sinon on la cache
-            if (nameText.includes(filter) || matriculeText.includes(filter) || classeText.includes(filter)) {
-                row.style.display = "";
+    const headers = table.querySelectorAll("thead th");
+    headers.forEach((th, idx) => {
+        const icon = th.querySelector("i");
+        if (icon) {
+            if (idx === columnIndex) {
+                icon.className = sortAscending ? "fas fa-sort-up text-primary ms-1" : "fas fa-sort-down text-primary ms-1";
             } else {
-                row.style.display = "none";
+                icon.className = "fas fa-sort text-muted ms-1";
             }
-        });
+        }
+    });
+
+    rows.sort((rowA, rowB) => {
+        let elA = rowA.cells[columnIndex];
+        let elB = rowB.cells[columnIndex];
+
+        if (columnIndex === 0) { elA = elA.querySelector('.student-text'); elB = elB.querySelector('.student-text'); }
+        else if (columnIndex === 1) { elA = elA.querySelector('.student-matricule'); elB = elB.querySelector('.student-matricule'); }
+        else if (columnIndex === 2) { elA = elA.querySelector('.student-classe'); elB = elB.querySelector('.student-classe'); }
+
+        const txtA = elA ? elA.innerText.trim().toLowerCase() : rowA.cells[columnIndex].innerText.trim().toLowerCase();
+        const txtB = elB ? elB.innerText.trim().toLowerCase() : rowB.cells[columnIndex].innerText.trim().toLowerCase();
+
+        if (isNumeric) {
+            let valA = parseFloat(txtA) || 0;
+            let valB = parseFloat(txtB) || 0;
+            return sortAscending ? (valA - valB) : (valB - valA);
+        } else {
+            return sortAscending ? txtA.localeCompare(txtB) : txtB.localeCompare(txtA);
+        }
+    });
+
+    rows.forEach(row => tbody.appendChild(row));
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const nomFilter = document.getElementById('filter-nom');
+    const prenomFilter = document.getElementById('filter-prenom');
+    const etuFilter = document.getElementById('filter-etu');
+    
+    if (nomFilter) {
+        nomFilter.addEventListener('input', filterTable);
     }
+    if (prenomFilter) {
+        prenomFilter.addEventListener('input', filterTable);
+    }
+    if (etuFilter) {
+        etuFilter.addEventListener('input', filterTable);
+    }
+    
+    const rows = document.querySelectorAll('.data-row');
+    filteredRows = Array.from(rows);
+    updatePagination();
+});
 </script>
 
 </body>

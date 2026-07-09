@@ -16,9 +16,9 @@
           <a href="/professeur/bulletins" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i> Retour
           </a>
-          <button class="btn btn-primary" onclick="exportPDF()">
+                    <a th:href="@{/professeur/bulletin/{etudiantId}/pdf(etudiantId=${etudiantId}, periodeId=${selectedPeriodeId})}" class="btn btn-primary">
             <i class="fas fa-file-pdf"></i> Export PDF
-          </button>
+          </a>
         </div>
     </div>
     
