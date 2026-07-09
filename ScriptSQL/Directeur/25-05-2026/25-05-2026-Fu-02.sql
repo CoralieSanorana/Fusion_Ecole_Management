@@ -1,8 +1,8 @@
--- ============================================================
+﻿-- ============================================================
 --  MIGRATION PHOTO_URL VERS LES PROFILS
 --  - ajoute photo_url aux profils manquants
 --  - retire photo_url de contrats_employes
---  - met à jour vue_employes_detail pour lire la photo depuis les profils
+--  - met a jour vue_employes_detail pour lire la photo depuis les profils
 -- ============================================================
 
 BEGIN;

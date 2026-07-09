@@ -1,8 +1,8 @@
--- ============================================================
+﻿-- ============================================================
 --  MIGRATION DIRECTEUR — HORAIRES EDT + GRILLE INTERACTIVE
---  - crée la table horaire_edt si elle n'existe pas
---  - rattache emploi_du_temps à un horaire de référence
---  - seed les plages horaires standards de l'école
+--  - cree la table horaire_edt si elle n'existe pas
+--  - rattache emploi_du_temps a un horaire de reference
+--  - seed les plages horaires standards de l'ecole
 -- ============================================================
 
 BEGIN;

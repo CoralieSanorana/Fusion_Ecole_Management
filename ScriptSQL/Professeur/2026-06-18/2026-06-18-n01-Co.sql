@@ -1,4 +1,4 @@
--- Table déterminant le professeur titulaire (professeur principal) d'une classe par année
+﻿-- Table determinant le professeur titulaire (professeur principal) d'une classe par annee
 -- UNIQUE sur (classe_id, annee_scolaire_id) : une classe n'a qu'un seul titulaire par an.
 CREATE TABLE titulaires_classes (
     id                SERIAL PRIMARY KEY,

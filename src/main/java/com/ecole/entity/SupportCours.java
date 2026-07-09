@@ -11,8 +11,9 @@ public class SupportCours {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "affectation_id")
-    private Integer affectationId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "affectation_id")
+    private AffectationEnseignement affectation;
 
     @Column(name = "type_fichier_id")
     private Integer typeFichierId;
@@ -66,12 +67,21 @@ public class SupportCours {
         this.id = id;
     }
 
-    public Integer getAffectationId() {
-        return affectationId;
+    public AffectationEnseignement getAffectation() {
+        return affectation;
     }
 
-    public void setAffectationId(Integer affectationId) {
-        this.affectationId = affectationId;
+    public void setAffectation(AffectationEnseignement affectation) {
+        this.affectation = affectation;
+    }
+
+    // Compatibilité avec le code existant
+    public Long getAffectationId() {
+        return affectation != null ? affectation.getId() : null;
+    }
+
+    public void setAffectationId(Long affectationId) {
+        this.affectation = null; // La relation doit être chargée via le service/repository
     }
 
     public Integer getTypeFichierId() {

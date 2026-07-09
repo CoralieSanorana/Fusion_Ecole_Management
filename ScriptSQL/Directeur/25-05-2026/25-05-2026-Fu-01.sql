@@ -1,6 +1,6 @@
--- ============================================================
---  EXTENSION SCHEMA (SANS DONNÉES DE SEED)
---  Contrats employés + vues + normalisation des profils
+﻿-- ============================================================
+--  EXTENSION SCHEMA (SANS DONNeES DE SEED)
+--  Contrats employes + vues + normalisation des profils
 -- ============================================================
 
 BEGIN;
@@ -177,7 +177,7 @@ BEGIN
 		ADD CONSTRAINT ck_contrats_employes_sexe_hf CHECK (sexe IN ('H', 'F'));
 END $$;
 
--- Liaison automatique du contrat le plus récent si id_contrat est vide
+-- Liaison automatique du contrat le plus recent si id_contrat est vide
 UPDATE profils_professeurs p
 SET id_contrat = (
 		SELECT ce.id
@@ -226,14 +226,14 @@ WHERE p.id_contrat IS NULL;
 
 INSERT INTO types_contrats_employes (code, libelle, duree_mois, description)
 VALUES
-	('permanent', 'Permanent', NULL, 'Contrat sans échéance fixe'),
-	('vacataire', 'Vacataire', 12, 'Contrat à durée limitée pour heures ponctuelles'),
-	('contractuel', 'Contractuel', 12, 'Contrat à durée déterminée renouvelable')
+	('permanent', 'Permanent', NULL, 'Contrat sans echeance fixe'),
+	('vacataire', 'Vacataire', 12, 'Contrat a duree limitee pour heures ponctuelles'),
+	('contractuel', 'Contractuel', 12, 'Contrat a duree determinee renouvelable')
 ON CONFLICT (code) DO NOTHING;
 
 INSERT INTO roles (nom, description) VALUES
 	('professeur',  'Saisie notes, absences, emploi du temps'),
-	('secretariat', 'Inscriptions, dossiers, finance opérationnelle')
+	('secretariat', 'Inscriptions, dossiers, finance operationnelle')
 ON CONFLICT (nom) DO NOTHING;
 
 COMMIT;
