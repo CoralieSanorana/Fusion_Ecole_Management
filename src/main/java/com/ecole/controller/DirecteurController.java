@@ -82,13 +82,6 @@ public class DirecteurController {
                 .body(pdf);
     }
 
-    @GetMapping("/directeur/finances")
-    public String finances(Model model) {
-        model.addAttribute("pageTitle", "Finances & Bénéfices");
-        model.addAttribute("currentRole", "directeur");
-        return "directeur/finances";
-    }
-
     @GetMapping("/directeur/professeurs")
     public String professeurs(
             @RequestParam(name = "keyword", required = false) String keyword,
