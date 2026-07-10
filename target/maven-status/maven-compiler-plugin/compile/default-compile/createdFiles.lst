@@ -52,6 +52,7 @@ com\ecole\entity\Moyenne.class
 com\ecole\repository\CoefficientRepository.class
 com\ecole\repository\VueEmployesDetailRepository.class
 com\ecole\dto\ImportExport\NiveauExportDTO.class
+com\ecole\dto\CoefficientDTO.class
 com\ecole\repository\ContratsEmployesRepository.class
 com\ecole\entity\Etablissement.class
 com\ecole\repository\SalleRepository.class
@@ -64,6 +65,7 @@ com\ecole\repository\ActualiteRepository.class
 com\ecole\repository\DevoirRepository.class
 com\ecole\dto\Secretaire\BilanGlobalDTO.class
 com\ecole\entity\Notification.class
+com\ecole\dto\ProfesseurDTO.class
 com\ecole\entity\Salle.class
 com\ecole\service\EvenementService.class
 com\ecole\dto\ImportExport\ImportErrorDTO$ErrorSeverity.class
@@ -112,6 +114,7 @@ com\ecole\entity\User.class
 com\ecole\controller\DirecteurController.class
 com\ecole\repository\ProfilsComptablesRepository.class
 com\ecole\dto\ImportExport\ExportDataDTO.class
+com\ecole\dto\AffectationDTO.class
 com\ecole\dto\ImportExport\ClasseExportDTO.class
 com\ecole\repository\ProfilsDirecteursRepository.class
 com\ecole\service\EdtService.class

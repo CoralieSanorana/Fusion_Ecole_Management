@@ -6,7 +6,10 @@ document.addEventListener('DOMContentLoaded', () => {
     niveaux: [],
     salles: [],
     classes: [],
-    matieres: []
+    matieres: [],
+    professeurs: [],
+    coefficients: [],
+    affectations: []
   };
 
   // Step Navigation
@@ -129,6 +132,30 @@ document.addEventListener('DOMContentLoaded', () => {
         </button>
       </div>
     `);
+
+    renderList('coefficient', data.coefficients, item => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:1rem;border:1px solid var(--border);border-radius:0.5rem;margin-bottom:0.5rem;">
+        <div>
+          <strong>${item.matiereNom || 'Matière inconnue'} - ${item.niveauNom || 'Niveau inconnu'}</strong>
+          <small style="display:block;color:var(--txt2);">Coefficient: ${item.valeur}</small>
+        </div>
+        <button class="btn btn-sm btn-danger" onclick="deleteItem('coefficient', ${item.id})">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    `);
+
+    renderList('affectation', data.affectations, item => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:1rem;border:1px solid var(--border);border-radius:0.5rem;margin-bottom:0.5rem;">
+        <div>
+          <strong>${item.professeurNom || 'Professeur inconnu'} - ${item.matiereNom || 'Matière inconnue'}</strong>
+          <small style="display:block;color:var(--txt2);">${item.classeNom || 'Classe inconnue'} | ${item.anneeScolaireNom || 'Année inconnue'} | ${item.heuresHebdo}h/semaine</small>
+        </div>
+        <button class="btn btn-sm btn-danger" onclick="deleteItem('affectation', ${item.id})">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    `);
   }
 
   function renderList(type, items, templateFn) {
@@ -141,6 +168,12 @@ document.addEventListener('DOMContentLoaded', () => {
   function populateSelects() {
     const selectNiveau = document.getElementById('select-niveau');
     const selectAnnee = document.getElementById('select-annee');
+    const selectMatiereCoeff = document.getElementById('select-matiere-coeff');
+    const selectNiveauCoeff = document.getElementById('select-niveau-coeff');
+    const selectProfesseur = document.getElementById('select-professeur');
+    const selectMatiereAffect = document.getElementById('select-matiere-affect');
+    const selectClasse = document.getElementById('select-classe');
+    const selectAnneeAffect = document.getElementById('select-annee-affect');
 
     if (selectNiveau) {
       selectNiveau.innerHTML = data.niveaux.map(n => `<option value="${n.id}">${n.libelle}</option>`).join('');
@@ -148,6 +181,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (selectAnnee) {
       selectAnnee.innerHTML = data.anneesScolaires.map(a => `<option value="${a.id}">${a.libelle}</option>`).join('');
+    }
+
+    if (selectMatiereCoeff) {
+      selectMatiereCoeff.innerHTML = data.matieres.map(m => `<option value="${m.id}">${m.nom}</option>`).join('');
+    }
+
+    if (selectNiveauCoeff) {
+      selectNiveauCoeff.innerHTML = data.niveaux.map(n => `<option value="${n.id}">${n.libelle}</option>`).join('');
+    }
+
+    if (selectProfesseur) {
+      selectProfesseur.innerHTML = data.professeurs.map(p => `<option value="${p.id}">${p.nom} ${p.prenom}</option>`).join('');
+    }
+
+    if (selectMatiereAffect) {
+      selectMatiereAffect.innerHTML = data.matieres.map(m => `<option value="${m.id}">${m.nom}</option>`).join('');
+    }
+
+    if (selectClasse) {
+      selectClasse.innerHTML = data.classes.map(c => `<option value="${c.id}">${c.nom}</option>`).join('');
+    }
+
+    if (selectAnneeAffect) {
+      selectAnneeAffect.innerHTML = data.anneesScolaires.map(a => `<option value="${a.id}">${a.libelle}</option>`).join('');
     }
   }
 
@@ -158,6 +215,8 @@ document.addEventListener('DOMContentLoaded', () => {
   setupForm('salle', '/api/directeur/initialize/salle');
   setupForm('classe', '/api/directeur/initialize/classe');
   setupForm('matiere', '/api/directeur/initialize/matiere');
+  setupForm('coefficient', '/api/directeur/initialize/coefficient');
+  setupForm('affectation', '/api/directeur/initialize/affectation');
 
   function setupForm(type, url) {
     const form = document.getElementById(`form-${type}`);
@@ -169,8 +228,11 @@ document.addEventListener('DOMContentLoaded', () => {
       formData.forEach((value, key) => {
         if (key === 'estActive' || key === 'isActive') {
           dataObj[key] = formData.get(key) === 'on';
-        } else if (key === 'niveauId' || key === 'anneeScolaireId' || key === 'capacite' || key === 'capaciteMax' || key === 'ordre') {
+        } else if (key === 'niveauId' || key === 'anneeScolaireId' || key === 'capacite' || key === 'capaciteMax' || key === 'ordre' || 
+                   key === 'matiereId' || key === 'professeurId' || key === 'classeId') {
           dataObj[key] = parseInt(value);
+        } else if (key === 'valeur' || key === 'heuresHebdo') {
+          dataObj[key] = parseFloat(value);
         } else {
           dataObj[key] = value;
         }

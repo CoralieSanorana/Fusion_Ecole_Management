@@ -10,6 +10,8 @@ D:\ITU\S4\Projet_Baovola\Fusion\Fusion_Ecole_Management\src\main\java\com\ecole\
 D:\ITU\S4\Projet_Baovola\Fusion\Fusion_Ecole_Management\src\main\java\com\ecole\controller\ProfesseurController.java
 D:\ITU\S4\Projet_Baovola\Fusion\Fusion_Ecole_Management\src\main\java\com\ecole\controller\SecretaireController.java
 D:\ITU\S4\Projet_Baovola\Fusion\Fusion_Ecole_Management\src\main\java\com\ecole\dto\ActualiteDTO.java
+D:\ITU\S4\Projet_Baovola\Fusion\Fusion_Ecole_Management\src\main\java\com\ecole\dto\AffectationDTO.java
+D:\ITU\S4\Projet_Baovola\Fusion\Fusion_Ecole_Management\src\main\java\com\ecole\dto\CoefficientDTO.java
 D:\ITU\S4\Projet_Baovola\Fusion\Fusion_Ecole_Management\src\main\java\com\ecole\dto\Directeur\AffectationDetailDTO.java
 D:\ITU\S4\Projet_Baovola\Fusion\Fusion_Ecole_Management\src\main\java\com\ecole\dto\Directeur\ClasseStatistique.java
 D:\ITU\S4\Projet_Baovola\Fusion\Fusion_Ecole_Management\src\main\java\com\ecole\dto\Directeur\CreneauDTO.java
@@ -37,6 +39,7 @@ D:\ITU\S4\Projet_Baovola\Fusion\Fusion_Ecole_Management\src\main\java\com\ecole\
 D:\ITU\S4\Projet_Baovola\Fusion\Fusion_Ecole_Management\src\main\java\com\ecole\dto\ImportExport\NiveauExportDTO.java
 D:\ITU\S4\Projet_Baovola\Fusion\Fusion_Ecole_Management\src\main\java\com\ecole\dto\ImportExport\SalleExportDTO.java
 D:\ITU\S4\Projet_Baovola\Fusion\Fusion_Ecole_Management\src\main\java\com\ecole\dto\NotificationDTO.java
+D:\ITU\S4\Projet_Baovola\Fusion\Fusion_Ecole_Management\src\main\java\com\ecole\dto\ProfesseurDTO.java
 D:\ITU\S4\Projet_Baovola\Fusion\Fusion_Ecole_Management\src\main\java\com\ecole\dto\Secretaire\AjoutEleveDTO.java
 D:\ITU\S4\Projet_Baovola\Fusion\Fusion_Ecole_Management\src\main\java\com\ecole\dto\Secretaire\BilanClasseDTO.java
 D:\ITU\S4\Projet_Baovola\Fusion\Fusion_Ecole_Management\src\main\java\com\ecole\dto\Secretaire\BilanGlobalDTO.java

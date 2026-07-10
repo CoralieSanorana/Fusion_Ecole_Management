@@ -146,6 +146,16 @@
         <i class="fas fa-book"></i>
         <strong>Matières</strong>
       </button>
+      <button class="step-btn" data-step="coefficient" type="button">
+        <span class="step-index">7</span>
+        <i class="fas fa-balance-scale"></i>
+        <strong>Coefficients</strong>
+      </button>
+      <button class="step-btn" data-step="affectation" type="button">
+        <span class="step-index">8</span>
+        <i class="fas fa-chalkboard-teacher"></i>
+        <strong>Affectations</strong>
+      </button>
     </div>
 
     <!-- Step Content : glisse horizontalement comme un carrousel -->
@@ -377,6 +387,92 @@
               <div id="list-matiere" style="margin-top:2rem;"></div>
               <div class="step-footer-nav">
                 <button type="button" class="btn-nav prev-step"><i class="fas fa-arrow-left"></i> Précédent</button>
+                <button type="button" class="btn-nav primary next-step">Suivant <i class="fas fa-arrow-right"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 7: Coefficients -->
+        <div class="step-content" id="step-coefficient" data-step="coefficient">
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-balance-scale"></i> Coefficients</h3>
+            </div>
+            <div class="card-body">
+              <div style="background:rgba(255,193,7,0.1);padding:1rem;border-radius:0.5rem;margin-bottom:1.5rem;border-left:4px solid var(--clr-amber);">
+                <strong style="color:var(--clr-amber);"><i class="fas fa-info-circle"></i> Prérequis</strong>
+                <p style="margin:0.5rem 0 0 0;">Vous devez d'abord créer des matières et des niveaux avant de définir les coefficients.</p>
+              </div>
+              <form id="form-coefficient" style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
+                <div>
+                  <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Matière</label>
+                  <select class="form-control searchable-select" name="matiereId" id="select-matiere-coeff" required></select>
+                </div>
+                <div>
+                  <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Niveau</label>
+                  <select class="form-control searchable-select" name="niveauId" id="select-niveau-coeff" required></select>
+                </div>
+                <div>
+                  <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Coefficient</label>
+                  <input type="number" class="form-control" name="valeur" placeholder="Ex: 2" step="0.5" min="0.5" required>
+                </div>
+                <div style="grid-column:span 3;display:flex;gap:1rem;justify-content:flex-end;">
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Enregistrer
+                  </button>
+                </div>
+              </form>
+              <div id="list-coefficient" style="margin-top:2rem;"></div>
+              <div class="step-footer-nav">
+                <button type="button" class="btn-nav prev-step"><i class="fas fa-arrow-left"></i> Précédent</button>
+                <button type="button" class="btn-nav primary next-step">Suivant <i class="fas fa-arrow-right"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 8: Affectations -->
+        <div class="step-content" id="step-affectation" data-step="affectation">
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-chalkboard-teacher"></i> Affectations</h3>
+            </div>
+            <div class="card-body">
+              <div style="background:rgba(255,193,7,0.1);padding:1rem;border-radius:0.5rem;margin-bottom:1.5rem;border-left:4px solid var(--clr-amber);">
+                <strong style="color:var(--clr-amber);"><i class="fas fa-info-circle"></i> Prérequis</strong>
+                <p style="margin:0.5rem 0 0 0;">Vous devez d'abord créer des professeurs, matières, classes et une année scolaire avant de créer des affectations.</p>
+              </div>
+              <form id="form-affectation" style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;">
+                <div>
+                  <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Professeur</label>
+                  <select class="form-control searchable-select" name="professeurId" id="select-professeur" required></select>
+                </div>
+                <div>
+                  <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Matière</label>
+                  <select class="form-control searchable-select" name="matiereId" id="select-matiere-affect" required></select>
+                </div>
+                <div>
+                  <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Classe</label>
+                  <select class="form-control searchable-select" name="classeId" id="select-classe" required></select>
+                </div>
+                <div>
+                  <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Année Scolaire</label>
+                  <select class="form-control searchable-select" name="anneeScolaireId" id="select-annee-affect" required></select>
+                </div>
+                <div>
+                  <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Heures hebdomadaires</label>
+                  <input type="number" class="form-control" name="heuresHebdo" placeholder="Ex: 18" min="1" required>
+                </div>
+                <div style="grid-column:span 2;display:flex;gap:1rem;justify-content:flex-end;">
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Enregistrer
+                  </button>
+                </div>
+              </form>
+              <div id="list-affectation" style="margin-top:2rem;"></div>
+              <div class="step-footer-nav">
+                <button type="button" class="btn-nav prev-step"><i class="fas fa-arrow-left"></i> Précédent</button>
                 <span class="spacer"></span>
               </div>
             </div>
@@ -393,7 +489,7 @@
 <!-- Navigation en carrousel : glissement fluide + accès direct via les onglets -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  var steps = ['etablissement', 'annee', 'niveau', 'salle', 'classe', 'matiere'];
+  var steps = ['etablissement', 'annee', 'niveau', 'salle', 'classe', 'matiere', 'coefficient', 'affectation'];
   var track = document.getElementById('steps-track');
   var navButtons = document.querySelectorAll('.step-btn');
   var current = 0;
@@ -433,6 +529,28 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   goTo(0);
+
+  // Searchable select functionality
+  document.querySelectorAll('.searchable-select').forEach(function(select) {
+    var wrapper = document.createElement('div');
+    wrapper.style.position = 'relative';
+    select.parentNode.insertBefore(wrapper, select);
+    wrapper.appendChild(select);
+
+    var searchInput = document.createElement('input');
+    searchInput.type = 'text';
+    searchInput.placeholder = 'Rechercher...';
+    searchInput.style.cssText = 'width:100%;padding:8px;margin-bottom:5px;border:1px solid #ddd;border-radius:4px;';
+    wrapper.insertBefore(searchInput, select);
+
+    searchInput.addEventListener('input', function() {
+      var filter = this.value.toLowerCase();
+      Array.from(select.options).forEach(function(option) {
+        var text = option.text.toLowerCase();
+        option.style.display = text.includes(filter) ? '' : 'none';
+      });
+    });
+  });
 });
 </script>
 
