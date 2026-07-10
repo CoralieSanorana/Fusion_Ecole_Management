@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head"></head>
+<body>
+<canvas id="particle-canvas"></canvas>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar" th:replace="fragments/header :: sidebar"></aside>
+  <header class="topbar" th:replace="fragments/header :: topbar"></header>
+  <main class="main-content">
+    <div class="page-header">
+        <div><h2>Finances & Bénéfices</h2><p>Analyse financière mensuelle de l'établissement</p></div>
+        <div class="page-header-actions">
+          <select class="form-control" style="width:auto;padding:8px 16px;">
+            <option>Avril 2026</option><option>Mars 2026</option><option>Février 2026</option>
+          </select>
+          <button class="btn btn-primary"><i class="fas fa-download"></i> Rapport PDF</button>
+        </div>
+      </div>
+
+      <div class="finance-summary" style="margin-bottom:var(--sp-xl);">
+        <div class="finance-block" style="border-top:4px solid var(--clr-teal);">
+          <h4>Total Recettes (Écolages)</h4>
+          <div class="finance-amount positive">6 650 000 <span style="font-size:16px;color:var(--txt3);">Ar</span></div>
+          <div class="stat-trend up" style="margin-top:var(--sp-sm);"><i class="fas fa-arrow-up"></i> +8% vs Mars</div>
+        </div>
+        <div class="finance-block" style="border-top:4px solid var(--clr-rose);">
+          <h4>Total Dépenses (Salaires)</h4>
+          <div class="finance-amount negative">2 450 000 <span style="font-size:16px;color:var(--txt3);">Ar</span></div>
+          <div class="stat-trend down" style="margin-top:var(--sp-sm);"><i class="fas fa-arrow-down"></i> −2% vs Mars</div>
+        </div>
+        <div class="finance-block" style="border-top:4px solid var(--clr-amber);grid-column:span 2;">
+          <h4>Bénéfice Net</h4>
+          <div class="finance-amount" style="color:var(--g);">4 200 000 <span style="font-size:16px;color:var(--txt3);">Ar</span></div>
+          <div class="stat-trend up" style="margin-top:var(--sp-sm);"><i class="fas fa-arrow-up"></i> +12% vs Mars</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h3>Dépenses salariales par département</h3></div>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr>
+              <th>Professeur</th><th>Matière</th><th>Heures/sem.</th><th>Salaire mensuel</th><th>Statut</th>
+            </tr></thead>
+            <tbody>
+              <tr><td><div style="display:flex;align-items:center;gap:var(--sp-md);"><div class="avatar-placeholder" style="width:32px;height:32px;background:linear-gradient(135deg,var(--g),var(--b));font-size:12px;">RB</div>Prof. Rabe</div></td><td>Mathématiques</td><td>18h</td><td class="grade-excellent">320 000 Ar</td><td><span class="badge badge-green">Payé</span></td></tr>
+              <tr><td><div style="display:flex;align-items:center;gap:var(--sp-md);"><div class="avatar-placeholder" style="width:32px;height:32px;background:linear-gradient(135deg,var(--g),#4DFFA0);font-size:12px;">RS</div>Prof. Rasoa</div></td><td>Français</td><td>16h</td><td class="grade-excellent">280 000 Ar</td><td><span class="badge badge-green">Payé</span></td></tr>
+              <tr><td><div style="display:flex;align-items:center;gap:var(--sp-md);"><div class="avatar-placeholder" style="width:32px;height:32px;background:linear-gradient(135deg,var(--warn),#FFD84D);font-size:12px;">AN</div>Prof. Andry</div></td><td>Sciences Physiques</td><td>14h</td><td class="grade-excellent">250 000 Ar</td><td><span class="badge badge-green">Payé</span></td></tr>
+              <tr><td><div style="display:flex;align-items:center;gap:var(--sp-md);"><div class="avatar-placeholder" style="width:32px;height:32px;background:linear-gradient(135deg,var(--clr-rose),#FF8FA3);font-size:12px;">HV</div>Prof. Hery</div></td><td>Histoire-Géo</td><td>12h</td><td class="grade-good">220 000 Ar</td><td><span class="badge badge-amber">En attente</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card-footer">
+          <span>Total: 4 professeurs listés</span>
+          <span style="font-weight:600;color:var(--txt);">Sous-total: 1 070 000 Ar</span>
+        </div>
+      </div>
+  </main>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>
