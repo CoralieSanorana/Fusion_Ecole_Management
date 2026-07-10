@@ -1,7 +1,18 @@
 package com.ecole.entity;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "supports_cours")
@@ -13,6 +24,10 @@ public class SupportCours {
 
     @Column(name = "affectation_id")
     private Integer affectationId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "affectation_id", insertable = false, updatable = false)
+    private AffectationEnseignement affectation;
 
     @Column(name = "type_fichier_id")
     private Integer typeFichierId;
@@ -72,6 +87,14 @@ public class SupportCours {
 
     public void setAffectationId(Integer affectationId) {
         this.affectationId = affectationId;
+    }
+
+    public AffectationEnseignement getAffectation() {
+        return affectation;
+    }
+
+    public void setAffectation(AffectationEnseignement affectation) {
+        this.affectation = affectation;
     }
 
     public Integer getTypeFichierId() {

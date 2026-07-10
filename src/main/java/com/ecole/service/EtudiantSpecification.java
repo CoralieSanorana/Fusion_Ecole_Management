@@ -1,12 +1,22 @@
 package com.ecole.service;
 
-import com.ecole.dto.Directeur.EtudiantFilterCriteria;
-import com.ecole.entity.*;
-import jakarta.persistence.criteria.*;
-import org.springframework.data.jpa.domain.Specification;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.springframework.data.jpa.domain.Specification;
+
+import com.ecole.dto.Directeur.EtudiantFilterCriteria;
+import com.ecole.entity.Classe;
+import com.ecole.entity.Inscription;
+import com.ecole.entity.Niveau;
+import com.ecole.entity.ProfilEtudiant;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 
 /**
  * Specification JPA pour le filtre multi-critères d'étudiants.
@@ -74,6 +84,12 @@ public Predicate toPredicate(Root<ProfilEtudiant> root,
 
     if (c.getClasseId() != null) {
         predicates.add(cb.equal(inscJoin.get("classeId"), c.getClasseId()));
+    }
+
+    if (c.getNiveauId() != null) {
+        Join<Inscription, Classe> classeJoin = inscJoin.join("classe", JoinType.INNER);
+        Join<Classe, Niveau> niveauJoin = classeJoin.join("niveau", JoinType.INNER);
+        predicates.add(cb.equal(niveauJoin.get("id"), c.getNiveauId()));
     }
 
     if (c.getAnneeScolaireId() != null) {

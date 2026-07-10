@@ -49,5 +49,35 @@ public interface AbsenceRepository extends JpaRepository<Absence, Long> {
     List<Object[]> countAbsencesParEtudiant(@Param("classeId") Long classeId,
                                              @Param("dateDebut") LocalDate dateDebut,
                                              @Param("dateFin") LocalDate dateFin);
-}
 
+    @Query(value = """
+            SELECT a.id,
+                   a.type,
+                   a.motif,
+                   a.justificatif_url,
+                   a.created_at,
+                   s.date_seance,
+                   s.heure_debut,
+                   s.heure_fin,
+                   m.nom AS matiere_nom,
+                   c.nom AS classe_nom,
+                   salle.nom AS salle_nom,
+                   prof.nom AS professeur_nom,
+                   prof.prenom AS professeur_prenom
+            FROM absences a
+            LEFT JOIN seances s ON s.id = a.seance_id
+            LEFT JOIN emploi_du_temps edt ON edt.id = s.emploi_du_temps_id
+            LEFT JOIN affectations_enseignement ae ON ae.id = edt.affectation_id
+            LEFT JOIN matieres m ON m.id = ae.matiere_id
+            LEFT JOIN classes c ON c.id = ae.classe_id
+            LEFT JOIN salles salle ON salle.id = edt.salle_id
+            LEFT JOIN profils_professeurs prof ON prof.id = ae.professeur_id
+            WHERE a.etudiant_id = :etudiantId
+            ORDER BY s.date_seance DESC, s.heure_debut DESC, a.created_at DESC
+            """, nativeQuery = true)
+    List<Object[]> findHistoriqueEtudiant(@Param("etudiantId") Long etudiantId);
+
+    long countByEtudiantId(Long etudiantId);
+
+    long countByEtudiantIdAndType(Long etudiantId, String type);
+}
