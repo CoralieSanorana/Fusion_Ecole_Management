@@ -243,54 +243,49 @@ public class DirecteurController {
 
     @GetMapping({"/directeur/edt", "/fragments/directeur/edt"})
     public String edt(
-            @RequestParam(name = "salle_id", required = false) Long salleId,
-            @RequestParam(name = "niveau_id", required = false) Long niveauId,
+            @RequestParam(name = "classe_id", required = false) Long classeId,
             Model model) {
         
         // First get all model data for the timetable
         AnneeScolaire annee = edtService.getAnneeActive();
         List<Niveau> niveaux = edtService.getAllNiveaux();
         List<Salle> salles = edtService.getActiveSalles();
-
-        if (salleId == null && !salles.isEmpty()) {
-            salleId = salles.get(0).getId();
-        }
-
+        List<Classe> classes = initializeService.getAllClasses();
+        
+        // Auto-determine salle from classe
+        Long determinedSalleId = null;
         Salle selectedSalle = null;
-        if (salleId != null) {
-            for (Salle s : salles) {
-                if (s.getId().equals(salleId)) {
-                    selectedSalle = s;
-                    break;
-                }
-            }
-        }
-
-        if (selectedSalle == null && !salles.isEmpty()) {
-            selectedSalle = salles.get(0);
-            salleId = selectedSalle.getId();
-        }
-
-        List<HoraireEdt> horaires = edtService.getHoraires(niveauId);
-
+        Classe selectedClasse = null;
         Niveau selectedNiveau = null;
-        if (niveauId != null) {
-            for (Niveau n : niveaux) {
-                if (n.getId().equals(niveauId)) {
-                    selectedNiveau = n;
+        
+        if (classeId != null) {
+            for (Classe c : classes) {
+                if (c.getId().equals(classeId)) {
+                    selectedClasse = c;
+                    selectedNiveau = c.getNiveau();
+                    if (c.getSalle() != null) {
+                        selectedSalle = c.getSalle();
+                        determinedSalleId = selectedSalle.getId();
+                    }
                     break;
                 }
             }
         }
 
-        String selectedNiveauLibelle = selectedNiveau != null ? selectedNiveau.getLibelle() : "";
+        // If no salle determined and salles exist, use first one
+        if (determinedSalleId == null && !salles.isEmpty()) {
+            selectedSalle = salles.get(0);
+            determinedSalleId = selectedSalle.getId();
+        }
+
+        List<HoraireEdt> horaires = edtService.getHoraires(selectedNiveau != null ? selectedNiveau.getId() : null);
 
         Map<Long, Map<Integer, CreneauDTO>> parHoraire = new HashMap<>();
-        if (annee != null && salleId != null) {
-            parHoraire = edtService.getCreneauxParSalle(annee.getId(), salleId, horaires);
+        if (annee != null && determinedSalleId != null) {
+            parHoraire = edtService.getCreneauxParSalle(annee.getId(), determinedSalleId, horaires);
         }
 
-        Integer creneauxCount = annee != null && salleId != null ? edtService.countCreneaux(annee.getId(), salleId) : 0;
+        Integer creneauxCount = annee != null && determinedSalleId != null ? edtService.countCreneaux(annee.getId(), determinedSalleId) : 0;
         List<AffectationDetailDTO> affectations = annee != null ? edtService.getAffectationsWithDetails(annee.getId()) : List.of();
 
         Map<Integer, String> jours = new HashMap<>();
@@ -303,10 +298,12 @@ public class DirecteurController {
 
         model.addAttribute("annee", annee);
         model.addAttribute("niveaux", niveaux);
-        model.addAttribute("selectedNiveauId", niveauId);
-        model.addAttribute("selectedNiveauLibelle", selectedNiveauLibelle);
+        model.addAttribute("classes", classes);
+        model.addAttribute("selectedClasseId", classeId);
+        model.addAttribute("selectedClasse", selectedClasse);
+        model.addAttribute("selectedNiveau", selectedNiveau);
         model.addAttribute("salles", salles);
-        model.addAttribute("selectedSalleId", salleId);
+        model.addAttribute("selectedSalleId", determinedSalleId);
         model.addAttribute("selectedSalle", selectedSalle);
         model.addAttribute("horaires", horaires);
         model.addAttribute("jours", jours);
@@ -321,21 +318,38 @@ public class DirecteurController {
 
     @PostMapping({"/directeur/edt", "/fragments/directeur/edt"})
     public String saveEdt(
-            @RequestParam("salle_id") Long salleId,
+            @RequestParam(name = "classe_id", required = false) Long classeId,
             @RequestParam("affectation_id") Long affectationId,
             @RequestParam(name = "cells", required = false) List<String> cells) {
 
         if (cells != null && !cells.isEmpty()) {
-            edtService.saveCreneaux(salleId, affectationId, cells);
+            // Get salle from classe
+            Long salleId = null;
+            if (classeId != null) {
+                Classe classe = initializeService.getAllClasses().stream()
+                    .filter(c -> c.getId().equals(classeId))
+                    .findFirst()
+                    .orElse(null);
+                if (classe != null && classe.getSalle() != null) {
+                    salleId = classe.getSalle().getId();
+                }
+            }
+            if (salleId != null) {
+                edtService.saveCreneaux(salleId, affectationId, cells);
+            }
         }
 
-        return "redirect:/directeur/edt?salle_id=" + salleId;
+        String redirectUrl = "redirect:/directeur/edt";
+        if (classeId != null) {
+            redirectUrl += "?classe_id=" + classeId;
+        }
+        return redirectUrl;
     }
 
     @PostMapping({"/directeur/edt/save-horaires", "/fragments/directeur/edt/save-horaires"})
     public String saveHoraires(
             @RequestParam("niveau_id") Long niveauId,
-            @RequestParam("salle_id") Long salleId,
+            @RequestParam(name = "classe_id", required = false) Long classeId,
             @RequestParam(name = "reset_to_global", required = false) Boolean resetToGlobal,
             jakarta.servlet.http.HttpServletRequest request) {
 
@@ -345,7 +359,11 @@ public class DirecteurController {
             e.printStackTrace();
             // Just redirect, even if there's an error
         }
-        return "redirect:/directeur/edt?salle_id=" + salleId + "&niveau_id=" + niveauId;
+        String redirectUrl = "redirect:/directeur/edt";
+        if (classeId != null) {
+            redirectUrl += "?classe_id=" + classeId;
+        }
+        return redirectUrl;
     }
 
     // --- Initialization Routes ---

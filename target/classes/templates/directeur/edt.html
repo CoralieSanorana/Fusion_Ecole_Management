@@ -37,28 +37,20 @@
           </div>
           <form id="edt-filter-form" style="display:flex;gap:var(--sp-sm);align-items:flex-end;flex-wrap:wrap;">
               <div class="form-group" style="min-width:200px;margin-bottom:0;">
-                  <label>Niveau</label>
-                  <select class="form-control" name="niveau_id" id="edt-niveau-select" onchange="updateEdtFilter()">
+                  <label>Classe</label>
+                  <select class="form-control" name="classe_id" id="edt-classe-select" onchange="updateEdtFilter()">
                       <option value="">Global (Standard)</option>
-                      <option th:each="niveau : ${niveaux}" th:value="${niveau.id}" th:text="${niveau.libelle}" th:selected="${selectedNiveauId != null and selectedNiveauId == niveau.id}"></option>
-                  </select>
-              </div>
-              <div class="form-group" style="min-width:200px;margin-bottom:0;">
-                  <label>Salle</label>
-                  <select class="form-control" name="salle_id" id="edt-salle-select" onchange="updateEdtFilter()">
-                      <option th:each="salle : ${salles}" th:value="${salle.id}" th:text="${salle.nom}" th:selected="${selectedSalleId != null and selectedSalleId == salle.id}"></option>
+                      <option th:each="classe : ${classes}" th:value="${classe.id}" th:text="${classe.nom}" th:selected="${selectedClasseId != null and selectedClasseId == classe.id}"></option>
                   </select>
               </div>
               <button class="btn btn-secondary" type="button" onclick="updateEdtFilter()">Charger</button>
           </form>
           <script>
               function updateEdtFilter() {
-                  const niveauId = document.getElementById('edt-niveau-select').value;
-                  const salleId = document.getElementById('edt-salle-select').value;
+                  const classeId = document.getElementById('edt-classe-select').value;
                   let url = '/directeur/edt';
                   const params = [];
-                  if (niveauId) params.push('niveau_id=' + encodeURIComponent(niveauId));
-                  if (salleId) params.push('salle_id=' + encodeURIComponent(salleId));
+                  if (classeId) params.push('classe_id=' + encodeURIComponent(classeId));
                   if (params.length > 0) {
                       url += '?' + params.join('&');
                   }
@@ -75,16 +67,16 @@
                       <strong th:text="${annee != null ? annee.libelle : 'Aucune'}"></strong>
                   </div>
                   <div class="edt-stat">
-                      <small>Salle sélectionnée</small>
+                      <small>Classe sélectionnée</small>
+                      <strong th:text="${selectedClasse != null ? selectedClasse.nom : 'Aucune'}"></strong>
+                  </div>
+                  <div class="edt-stat">
+                      <small>Salle</small>
                       <strong th:text="${selectedSalle != null ? selectedSalle.nom : 'Aucune'}"></strong>
                   </div>
                   <div class="edt-stat">
                       <small>Plages horaires</small>
                       <strong th:text="${#lists.size(horaires)}"></strong>
-                  </div>
-                  <div class="edt-stat">
-                      <small>Cases occupées</small>
-                      <strong th:text="${creneauxCount}"></strong>
                   </div>
               </div>
           </div>
@@ -93,11 +85,11 @@
               <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:var(--sp-md);">
                   <h3>Grille hebdomadaire</h3>
                   <div style="display:flex; gap:var(--sp-sm); align-items:center;">
-                      <button th:if="${selectedNiveauId != null and selectedNiveauId > 0}" class="btn btn-secondary btn-sm" type="button" onclick="openModal('modal-edt-horaires')">
-                          <i class="fas fa-clock"></i> <span th:text="'Configurer horaires (' + selectedNiveauLibelle + ')'"></span>
+                      <button th:if="${selectedNiveau != null}" class="btn btn-secondary btn-sm" type="button" onclick="openModal('modal-edt-horaires')">
+                          <i class="fas fa-clock"></i> <span th:text="'Configurer horaires (' + selectedNiveau.libelle + ')'"></span>
                       </button>
-                      <span th:if="${selectedNiveauId == null or selectedNiveauId == 0}" style="font-size:12px;color:var(--clr-text-muted);">
-                          <i class="fas fa-info-circle"></i> Choisissez un niveau pour modifier ses horaires
+                      <span th:if="${selectedNiveau == null}" style="font-size:12px;color:var(--clr-text-muted);">
+                          <i class="fas fa-info-circle"></i> Choisissez une classe pour configurer les horaires de son niveau
                       </span>
                       <button class="btn btn-primary btn-sm" type="button" onclick="openModal('modal-edt-insert')">
                           <i class="fas fa-calendar-plus"></i> Insérer l'emploi du temps
@@ -177,7 +169,7 @@
                   </div>
                   <form th:if="${annee != null}" method="post" action="/directeur/edt" data-edt-form>
                       <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-                      <input type="hidden" name="salle_id" th:value="${selectedSalleId}">
+                      <input type="hidden" name="classe_id" th:value="${selectedClasseId}">
                       <div class="modal-header">
                           <h3><i class="fas fa-calendar-plus" style="color:var(--clr-amber);margin-right:8px;"></i>Insérer l'emploi du temps</h3>
                           <button type="button" onclick="closeModal('modal-edt-insert')" style="color:var(--clr-text-muted);font-size:18px;"><i class="fas fa-times"></i></button>
@@ -213,14 +205,14 @@
               </div>
           </div>
 
-          <div th:if="${selectedNiveauId != null and selectedNiveauId > 0}" class="modal-backdrop" id="modal-edt-horaires">
+          <div th:if="${selectedNiveau != null}" class="modal-backdrop" id="modal-edt-horaires">
               <div class="modal" style="max-width: 650px; width: 95%;">
                   <form method="post" action="/directeur/edt/save-horaires">
                       <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-                      <input type="hidden" name="niveau_id" th:value="${selectedNiveauId}">
-                      <input type="hidden" name="salle_id" th:value="${selectedSalleId}">
+                      <input type="hidden" name="niveau_id" th:value="${selectedNiveau.id}">
+                      <input type="hidden" name="classe_id" th:value="${selectedClasseId}">
                       <div class="modal-header">
-                          <h3><i class="fas fa-clock" style="color:var(--clr-teal);margin-right:8px;"></i>Horaires du niveau : <span th:text="${selectedNiveauLibelle}"></span></h3>
+                          <h3><i class="fas fa-clock" style="color:var(--clr-teal);margin-right:8px;"></i>Horaires du niveau : <span th:text="${selectedNiveau.libelle}"></span></h3>
                           <button type="button" onclick="closeModal('modal-edt-horaires')" style="color:var(--clr-text-muted);font-size:18px;"><i class="fas fa-times"></i></button>
                       </div>
                       <div class="modal-body" style="max-height: 400px; overflow-y: auto; padding: var(--sp-md);">

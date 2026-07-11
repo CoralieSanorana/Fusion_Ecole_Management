@@ -120,6 +120,7 @@ com\ecole\repository\ProfilsDirecteursRepository.class
 com\ecole\service\EdtService.class
 com\ecole\entity\Coefficient.class
 com\ecole\entity\Evenement.class
+com\ecole\service\EdtService$DefaultHoraireTemplate.class
 com\ecole\dto\Directeur\DashboardMonthlyStatDTO.class
 com\ecole\service\UserRoleService.class
 com\ecole\dto\Directeur\HoraireEdtForm.class

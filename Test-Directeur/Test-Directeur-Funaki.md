@@ -27,6 +27,9 @@ Teste fait : J'ai inserer une annee scolaire puis j'ai ajouter des niveaux et de
 Solution : Il faut que l'initialisation se fasse dans un ordre logique et que chaque etape soit obligatoire avant de passer a l'autre
            Par exemple : on doit d'abord creer un etablissement puis une annee scolaire puis des niveaux puis des salles puis des matieres puis des classes puis des professeurs
            et chaque etape doit etre obligatoire avant de passer a l'autre
+                En modifiant : static/js/directeur-js/initialize.js et java/service/InitializeService.java 
+                le probleme est bien regler et fonctionnelles maintenant 
+                Tout est interdependant et chaque etape doit etre obligatoire avant de passer a l'autre
 
 Les tables utiliser : 
  
@@ -42,6 +45,13 @@ Scenariot : -> On affiche les emplois du temps de chaque salle a avec une forme 
 
 Teste fait : J'ai inserer des emplois du temps pour plusieurs salles et plusieurs jours et ca s'insere bien dans la base mais il y a un probleme 
              car il n'y a pas d'horaire par defaut dans la base de donnees 
-             Erreur constate : les emplois du temps se fait par salles alors que ca devrait etre par niveau
+             -> Erreurs quand je configure une horaire specifique pour un niveau ca ne s'inserere pas dans la base de donnees
+             -> Le filtre beug car si on choisit une salle qui n'est pas associe au meme niveau ca affiche un message d'erreur qu'il n'y a 
+             pas d'horaire en base 
+
+ 
+Solution : Mettre classe au lieu de niveau en filtrage et niveau servira a configurer son horaire speciales en database 
+
+Les tables utiliser :
             
 

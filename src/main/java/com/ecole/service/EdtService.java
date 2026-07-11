@@ -38,8 +38,57 @@ public class EdtService {
             if (!niveauHoraires.isEmpty()) {
                 return niveauHoraires;
             }
+            // If niveau has no horaires, create default horaires from template
+            Niveau niveau = niveauRepository.findById(niveauId).orElse(null);
+            if (niveau != null) {
+                createDefaultHorairesForNiveau(niveau);
+                niveauHoraires = horaireEdtRepository.findByNiveauIdOrderByOrdre(niveauId);
+                if (!niveauHoraires.isEmpty()) {
+                    return niveauHoraires;
+                }
+            }
         }
         return horaireEdtRepository.findByNiveauIsNullOrderByOrdre();
+    }
+
+    private void createDefaultHorairesForNiveau(Niveau niveau) {
+        // Default horaires template
+        List<DefaultHoraireTemplate> defaultHoraires = List.of(
+            new DefaultHoraireTemplate("07h00 - 08h00", "07:00", "08:00", 1),
+            new DefaultHoraireTemplate("08h00 - 09h00", "08:00", "09:00", 2),
+            new DefaultHoraireTemplate("09h00 - 10h00", "09:00", "10:00", 3),
+            new DefaultHoraireTemplate("10h00 - 11h00", "10:00", "11:00", 4),
+            new DefaultHoraireTemplate("11h00 - 12h00", "11:00", "12:00", 5),
+            new DefaultHoraireTemplate("13h00 - 14h00", "13:00", "14:00", 6),
+            new DefaultHoraireTemplate("14h00 - 15h00", "14:00", "15:00", 7),
+            new DefaultHoraireTemplate("15h00 - 16h00", "15:00", "16:00", 8),
+            new DefaultHoraireTemplate("16h00 - 17h00", "16:00", "17:00", 9)
+        );
+
+        for (DefaultHoraireTemplate template : defaultHoraires) {
+            HoraireEdt horaire = new HoraireEdt();
+            horaire.setLibelle(template.libelle);
+            horaire.setHeureDebut(LocalTime.parse(template.heureDebut));
+            horaire.setHeureFin(LocalTime.parse(template.heureFin));
+            horaire.setOrdre(template.ordre);
+            horaire.setIsActive(true);
+            horaire.setNiveau(niveau);
+            horaireEdtRepository.save(horaire);
+        }
+    }
+
+    private static class DefaultHoraireTemplate {
+        String libelle;
+        String heureDebut;
+        String heureFin;
+        int ordre;
+
+        DefaultHoraireTemplate(String libelle, String heureDebut, String heureFin, int ordre) {
+            this.libelle = libelle;
+            this.heureDebut = heureDebut;
+            this.heureFin = heureFin;
+            this.ordre = ordre;
+        }
     }
 
     public Map<Long, Map<Integer, CreneauDTO>> getCreneauxParSalle(Long anneeId, Long salleId, List<HoraireEdt> horaires) {
@@ -203,11 +252,28 @@ public class EdtService {
             String ordreStr = request.getParameter("horaires[" + index + "][ordre]");
             String idStr = request.getParameter("horaires[" + index + "][id]");
             
-            if (libelle == null && heureDebutStr == null && heureFinStr == null && ordreStr == null) {
+            // Treat empty strings as null
+            if (libelle != null && libelle.trim().isEmpty()) libelle = null;
+            if (heureDebutStr != null && heureDebutStr.trim().isEmpty()) heureDebutStr = null;
+            if (heureFinStr != null && heureFinStr.trim().isEmpty()) heureFinStr = null;
+            if (ordreStr != null && ordreStr.trim().isEmpty()) ordreStr = null;
+            
+            // Break if all parameters are null (end of list)
+            if (libelle == null && heureDebutStr == null && heureFinStr == null && ordreStr == null && idStr == null) {
                 break;
             }
             
-            if (libelle != null && heureDebutStr != null && heureFinStr != null && ordreStr != null) {
+            // Skip if idStr is "new" but required fields are missing (user didn't fill the new row)
+            if (idStr != null && idStr.equals("new") && 
+                (libelle == null || heureDebutStr == null || heureFinStr == null)) {
+                index++;
+                continue;
+            }
+            
+            if (libelle != null && !libelle.trim().isEmpty() && 
+                heureDebutStr != null && !heureDebutStr.trim().isEmpty() && 
+                heureFinStr != null && !heureFinStr.trim().isEmpty() && 
+                ordreStr != null && !ordreStr.trim().isEmpty()) {
                 HoraireEdt horaire;
                 if (idStr != null && !idStr.equals("new")) {
                     // Existing horaire
@@ -222,10 +288,10 @@ public class EdtService {
                     horaire = new HoraireEdt();
                 }
 
-                horaire.setLibelle(libelle);
-                horaire.setHeureDebut(LocalTime.parse(heureDebutStr));
-                horaire.setHeureFin(LocalTime.parse(heureFinStr));
-                horaire.setOrdre(Integer.parseInt(ordreStr));
+                horaire.setLibelle(libelle.trim());
+                horaire.setHeureDebut(LocalTime.parse(heureDebutStr.trim()));
+                horaire.setHeureFin(LocalTime.parse(heureFinStr.trim()));
+                horaire.setOrdre(Integer.parseInt(ordreStr.trim()));
                 horaire.setIsActive(true);
                 horaire.setNiveau(niveau);
                 HoraireEdt saved = horaireEdtRepository.save(horaire);
