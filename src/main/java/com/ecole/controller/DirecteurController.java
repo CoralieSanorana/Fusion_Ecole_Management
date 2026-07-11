@@ -517,7 +517,20 @@ public class DirecteurController {
     // Annee Scolaire
     @PostMapping("/api/directeur/initialize/annee-scolaire")
     @ResponseBody
-    public ResponseEntity<AnneeScolaire> saveAnneeScolaire(@RequestBody AnneeScolaire annee) {
+    public ResponseEntity<AnneeScolaire> saveAnneeScolaire(@RequestBody Map<String, Object> payload) {
+        AnneeScolaire annee = new AnneeScolaire();
+        
+        Long etablissementId = payload.get("etablissementId") != null ? ((Number) payload.get("etablissementId")).longValue() : null;
+        
+        if (etablissementId != null) {
+            initializeService.getEtablissementById(etablissementId).ifPresent(annee::setEtablissement);
+        }
+        
+        annee.setLibelle((String) payload.get("libelle"));
+        annee.setDateDebut(java.time.LocalDate.parse((String) payload.get("dateDebut")));
+        annee.setDateFin(java.time.LocalDate.parse((String) payload.get("dateFin")));
+        annee.setEstActive(payload.get("estActive") != null ? (Boolean) payload.get("estActive") : false);
+        
         return ResponseEntity.ok(initializeService.saveAnneeScolaire(annee));
     }
 
@@ -531,7 +544,18 @@ public class DirecteurController {
     // Niveau
     @PostMapping("/api/directeur/initialize/niveau")
     @ResponseBody
-    public ResponseEntity<Niveau> saveNiveau(@RequestBody Niveau niveau) {
+    public ResponseEntity<Niveau> saveNiveau(@RequestBody Map<String, Object> payload) {
+        Niveau niveau = new Niveau();
+        
+        Long etablissementId = payload.get("etablissementId") != null ? ((Number) payload.get("etablissementId")).longValue() : null;
+        
+        if (etablissementId != null) {
+            initializeService.getEtablissementById(etablissementId).ifPresent(niveau::setEtablissement);
+        }
+        
+        niveau.setLibelle((String) payload.get("libelle"));
+        niveau.setOrdre(((Number) payload.get("ordre")).intValue());
+        
         return ResponseEntity.ok(initializeService.saveNiveau(niveau));
     }
 
@@ -545,7 +569,20 @@ public class DirecteurController {
     // Salle
     @PostMapping("/api/directeur/initialize/salle")
     @ResponseBody
-    public ResponseEntity<Salle> saveSalle(@RequestBody Salle salle) {
+    public ResponseEntity<Salle> saveSalle(@RequestBody Map<String, Object> payload) {
+        Salle salle = new Salle();
+        
+        Long etablissementId = payload.get("etablissementId") != null ? ((Number) payload.get("etablissementId")).longValue() : null;
+        
+        if (etablissementId != null) {
+            initializeService.getEtablissementById(etablissementId).ifPresent(salle::setEtablissement);
+        }
+        
+        salle.setNom((String) payload.get("nom"));
+        salle.setCapacite(((Number) payload.get("capacite")).intValue());
+        salle.setType((String) payload.get("type"));
+        salle.setIsActive(payload.get("isActive") != null ? (Boolean) payload.get("isActive") : true);
+        
         return ResponseEntity.ok(initializeService.saveSalle(salle));
     }
 
@@ -559,7 +596,28 @@ public class DirecteurController {
     // Classe
     @PostMapping("/api/directeur/initialize/classe")
     @ResponseBody
-    public ResponseEntity<Classe> saveClasse(@RequestBody Classe classe) {
+    public ResponseEntity<Classe> saveClasse(@RequestBody Map<String, Object> payload) {
+        Classe classe = new Classe();
+        
+        Long niveauId = payload.get("niveauId") != null ? ((Number) payload.get("niveauId")).longValue() : null;
+        Long anneeScolaireId = payload.get("anneeScolaireId") != null ? ((Number) payload.get("anneeScolaireId")).longValue() : null;
+        Long salleId = payload.get("salleId") != null ? ((Number) payload.get("salleId")).longValue() : null;
+        
+        if (niveauId != null) {
+            initializeService.getNiveauById(niveauId).ifPresent(classe::setNiveau);
+        }
+        
+        if (anneeScolaireId != null) {
+            initializeService.getAnneeScolaireById(anneeScolaireId).ifPresent(classe::setAnneeScolaire);
+        }
+        
+        if (salleId != null) {
+            initializeService.getSalleById(salleId).ifPresent(classe::setSalle);
+        }
+        
+        classe.setNom((String) payload.get("nom"));
+        classe.setCapaciteMax(((Number) payload.get("capaciteMax")).intValue());
+        
         return ResponseEntity.ok(initializeService.saveClasse(classe));
     }
 
@@ -573,7 +631,18 @@ public class DirecteurController {
     // Matiere
     @PostMapping("/api/directeur/initialize/matiere")
     @ResponseBody
-    public ResponseEntity<Matiere> saveMatiere(@RequestBody Matiere matiere) {
+    public ResponseEntity<Matiere> saveMatiere(@RequestBody Map<String, Object> payload) {
+        Matiere matiere = new Matiere();
+        
+        Long etablissementId = payload.get("etablissementId") != null ? ((Number) payload.get("etablissementId")).longValue() : null;
+        
+        if (etablissementId != null) {
+            initializeService.getEtablissementById(etablissementId).ifPresent(matiere::setEtablissement);
+        }
+        
+        matiere.setNom((String) payload.get("nom"));
+        matiere.setCode((String) payload.get("code"));
+        
         return ResponseEntity.ok(initializeService.saveMatiere(matiere));
     }
 
@@ -593,7 +662,38 @@ public class DirecteurController {
         coefficient.setNiveauId(((Number) payload.get("niveauId")).longValue());
         coefficient.setValeur(new BigDecimal(payload.get("valeur").toString()));
         
-        Coefficient saved = coefficientService.save(coefficient);
+        Coefficient saved = initializeService.saveCoefficient(coefficient);
+        
+        CoefficientDTO dto = new CoefficientDTO();
+        dto.setId(saved.getId());
+        dto.setMatiereId(saved.getMatiereId());
+        dto.setNiveauId(saved.getNiveauId());
+        dto.setValeur(saved.getValeur());
+        
+        // Get matiere and niveau names
+        if (saved.getMatiereId() != null) {
+            matiereService.findById(saved.getMatiereId()).ifPresent(m -> dto.setMatiereNom(m.getNom()));
+        }
+        if (saved.getNiveauId() != null) {
+            initializeService.getAllNiveaux().stream()
+                .filter(n -> n.getId().equals(saved.getNiveauId()))
+                .findFirst()
+                .ifPresent(n -> dto.setNiveauNom(n.getLibelle()));
+        }
+        
+        return ResponseEntity.ok(dto);
+    }
+
+    @PutMapping("/api/directeur/initialize/coefficient/{id}")
+    @ResponseBody
+    public ResponseEntity<CoefficientDTO> updateCoefficient(@PathVariable Long id, @RequestBody Map<String, Object> payload) {
+        Coefficient coefficient = new Coefficient();
+        coefficient.setId(id);
+        coefficient.setMatiereId(((Number) payload.get("matiereId")).longValue());
+        coefficient.setNiveauId(((Number) payload.get("niveauId")).longValue());
+        coefficient.setValeur(new BigDecimal(payload.get("valeur").toString()));
+        
+        Coefficient saved = initializeService.saveCoefficient(coefficient);
         
         CoefficientDTO dto = new CoefficientDTO();
         dto.setId(saved.getId());
@@ -618,7 +718,7 @@ public class DirecteurController {
     @DeleteMapping("/api/directeur/initialize/coefficient/{id}")
     @ResponseBody
     public ResponseEntity<Void> deleteCoefficient(@PathVariable Long id) {
-        coefficientService.deleteById(id);
+        initializeService.deleteCoefficient(id);
         return ResponseEntity.ok().build();
     }
 
@@ -654,7 +754,7 @@ public class DirecteurController {
         affectation.setHeuresHebdo(new BigDecimal(payload.get("heuresHebdo").toString()));
         affectation.setCreatedAt(java.time.LocalDateTime.now());
         
-        AffectationEnseignement saved = affectationEnseignementService.save(affectation);
+        AffectationEnseignement saved = initializeService.saveAffectation(affectation);
         
         AffectationDTO dto = new AffectationDTO();
         dto.setId(saved.getId());
@@ -674,7 +774,7 @@ public class DirecteurController {
     @DeleteMapping("/api/directeur/initialize/affectation/{id}")
     @ResponseBody
     public ResponseEntity<Void> deleteAffectation(@PathVariable Long id) {
-        affectationEnseignementService.deleteById(id);
+        initializeService.deleteAffectation(id);
         return ResponseEntity.ok().build();
     }
 
