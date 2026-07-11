@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head"></head>
+<style>
+    .seance-card {
+        margin-bottom: 20px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    .seance-header {
+        background: var(--surf2);
+        padding: 15px 20px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .seance-date {
+        font-weight: 600;
+        color: var(--txt1);
+        font-size: 14px;
+    }
+    .seance-time {
+        font-size: 13px;
+        color: var(--txt3);
+    }
+    .absence-list {
+        padding: 0;
+    }
+    .absence-item {
+        padding: 12px 20px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    .absence-item:last-child {
+        border-bottom: none;
+    }
+    .absence-item:hover {
+        background: var(--surf1);
+    }
+    .student-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--g3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        color: var(--g);
+        font-size: 14px;
+    }
+    .student-info {
+        flex: 1;
+    }
+    .student-name {
+        font-weight: 600;
+        color: var(--txt1);
+        font-size: 14px;
+    }
+    .student-matricule {
+        font-size: 12px;
+        color: var(--txt3);
+        margin-top: 2px;
+    }
+    .absence-badge {
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+    }
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--txt3);
+    }
+    .empty-state i {
+        font-size: 48px;
+        margin-bottom: 15px;
+        opacity: 0.5;
+    }
+</style>
+<body>
+<canvas id="particle-canvas"></canvas>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar" th:replace="fragments/header :: sidebar"></aside>
+  <header class="topbar" th:replace="fragments/header :: topbar"></header>
+  
+  <main class="main-content">
+    <div class="page-header">
+        <div>
+            <h2>Historique des Absences</h2>
+            <p th:text="${classe != null ? 'Classe : ' + classe.nom : ''}">Classe</p>
+            <p th:if="${matiere != null}" style="margin-top:4px;font-size:14px;opacity:.8;" th:text="'Matière : ' + matiere">Matière</p>
+        </div>
+        <div class="page-header-actions">
+          <a th:href="@{/professeur/absences(classeId=${classeId}, matiere=${matiere})}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Retour
+          </a>
+        </div>
+    </div>
+    
+    <!-- Filters -->
+    <div class="card" style="margin-bottom:20px;">
+        <div class="card-body">
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <input type="text" id="filter-nom" placeholder="Filtrer par nom ou prénom" class="form-control" style="flex:1;min-width:200px;">
+                <input type="text" id="filter-matricule" placeholder="Filtrer par matricule" class="form-control" style="flex:1;min-width:200px;">
+                <input type="date" id="filter-date" class="form-control" style="flex:1;min-width:200px;">
+                <button type="button" onclick="clearFilters()" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Effacer
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div th:if="${absencesBySeance.isEmpty()}" class="card">
+        <div class="card-body">
+            <div class="empty-state">
+                <i class="fas fa-calendar-check"></i>
+                <p>Aucune absence enregistrée pour cette classe.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div th:if="${not absencesBySeance.isEmpty()}" id="absences-container">
+        <div th:each="seanceEntry : ${absencesBySeance}" class="seance-card seance-entry"
+            th:data-date="${#temporals.format(seanceMap[seanceEntry.key].dateSeance, 'yyyy-MM-dd')}">
+            <div class="seance-header">
+                <div>
+                    <div class="seance-date" th:text="${#temporals.format(seanceMap[seanceEntry.key].dateSeance, 'EEEE dd MMMM yyyy')}">Date</div>
+                    <div class="seance-time" th:text="'Séance #' + ${seanceEntry.key}">Séance</div>
+                </div>
+                <div style="text-align:right;">
+                    <span style="font-size:12px;color:var(--txt3);">Étudiants absents : </span>
+                    <span style="font-weight:600;color:var(--txt1);" th:text="${seanceEntry.value.size()}">0</span>
+                </div>
+            </div>
+            <div class="absence-list">
+                <div th:each="absence : ${seanceEntry.value}" class="absence-item absence-item-row"
+                    th:data-nom="${etudiantProfiles.get(absence.etudiantId) != null ? etudiantProfiles.get(absence.etudiantId).nom : ''}"
+                    th:data-prenom="${etudiantProfiles.get(absence.etudiantId) != null ? etudiantProfiles.get(absence.etudiantId).prenom : ''}"
+                    th:data-matricule="${etudiantProfiles.get(absence.etudiantId) != null ? etudiantProfiles.get(absence.etudiantId).matricule : ''}">
+                    <div class="student-avatar" th:text="${etudiantProfiles.get(absence.etudiantId) != null ? etudiantProfiles.get(absence.etudiantId).nom.substring(0,1).toUpperCase() + etudiantProfiles.get(absence.etudiantId).prenom.substring(0,1).toUpperCase() : '??'}">AB</div>
+                    <div class="student-info">
+                        <div class="student-name" th:text="${etudiantProfiles.get(absence.etudiantId) != null ? etudiantProfiles.get(absence.etudiantId).nom + ' ' + etudiantProfiles.get(absence.etudiantId).prenom : 'Étudiant inconnu'}">Nom Prénom</div>
+                        <div class="student-matricule" th:text="${etudiantProfiles.get(absence.etudiantId) != null ? 'Matricule : ' + etudiantProfiles.get(absence.etudiantId).matricule : ''}">Matricule</div>
+                    </div>
+                    <div class="absence-badge" th:text="${absence.type == 'justifiee' ? 'Justifiée' : 'Non justifiée'}">Non justifiée</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Pagination -->
+    <div th:if="${not absencesBySeance.isEmpty()}" class="pagination" style="margin-top:20px;display:flex;justify-content:center;align-items:center;gap:10px;">
+        <button type="button" onclick="changePage(-1)" class="btn btn-secondary" id="prev-btn" disabled>
+            <i class="fas fa-chevron-left"></i> Précédent
+        </button>
+        <span id="page-info">Page 1 sur 1</span>
+        <button type="button" onclick="changePage(1)" class="btn btn-secondary" id="next-btn" disabled>
+            Suivant <i class="fas fa-chevron-right"></i>
+        </button>
+    </div>
+  </main>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script th:inline="javascript">
+    // Filter and Pagination
+    let currentPage = 1;
+    const itemsPerPage = 10;
+    let filteredSeances = [];
+
+    function filterTable() {
+        const nomFilter = document.getElementById('filter-nom').value.toLowerCase();
+        const matriculeFilter = document.getElementById('filter-matricule').value.toLowerCase();
+        const dateFilter = document.getElementById('filter-date').value;
+        
+        const seanceCards = document.querySelectorAll('.seance-entry');
+        filteredSeances = [];
+        
+        seanceCards.forEach(card => {
+            const seanceDate = card.dataset.date;
+            const absenceItems = card.querySelectorAll('.absence-item-row');
+            let hasMatchingAbsence = false;
+            
+            // Check if any absence matches the filters
+            absenceItems.forEach(item => {
+                const nom = item.dataset.nom.toLowerCase();
+                const prenom = item.dataset.prenom.toLowerCase();
+                const matricule = item.dataset.matricule.toLowerCase();
+                
+                const matchesNom = !nomFilter || nom.includes(nomFilter) || prenom.includes(nomFilter);
+                const matchesMatricule = !matriculeFilter || matricule.includes(matriculeFilter);
+                const matchesDate = !dateFilter || seanceDate === dateFilter;
+                
+                if (matchesNom && matchesMatricule && matchesDate) {
+                    hasMatchingAbsence = true;
+                }
+            });
+            
+            // If no name/matricule filter, show all absences for matching dates
+            if (!nomFilter && !matriculeFilter && dateFilter) {
+                hasMatchingAbsence = seanceDate === dateFilter;
+            }
+            
+            // If no date filter, show seances with matching absences
+            if (!dateFilter && (nomFilter || matriculeFilter)) {
+                hasMatchingAbsence = hasMatchingAbsence;
+            }
+            
+            // If no filters, show all
+            if (!nomFilter && !matriculeFilter && !dateFilter) {
+                hasMatchingAbsence = true;
+            }
+            
+            if (hasMatchingAbsence) {
+                filteredSeances.push(card);
+            }
+        });
+        
+        currentPage = 1;
+        updatePagination();
+    }
+
+    function updatePagination() {
+        const seanceCards = document.querySelectorAll('.seance-entry');
+        seanceCards.forEach(card => card.style.display = 'none');
+        
+        const start = (currentPage - 1) * itemsPerPage;
+        const end = start + itemsPerPage;
+        
+        for (let i = start; i < end && i < filteredSeances.length; i++) {
+            filteredSeances[i].style.display = '';
+        }
+        
+        const totalPages = Math.ceil(filteredSeances.length / itemsPerPage) || 1;
+        document.getElementById('page-info').textContent = `Page ${currentPage} sur ${totalPages}`;
+        
+        document.getElementById('prev-btn').disabled = currentPage === 1;
+        document.getElementById('next-btn').disabled = currentPage === totalPages;
+    }
+
+    function changePage(delta) {
+        currentPage += delta;
+        updatePagination();
+    }
+
+    function clearFilters() {
+        document.getElementById('filter-nom').value = '';
+        document.getElementById('filter-matricule').value = '';
+        document.getElementById('filter-date').value = '';
+        filterTable();
+    }
+
+    // Initialize filters and pagination
+    document.addEventListener('DOMContentLoaded', function() {
+        const nomFilter = document.getElementById('filter-nom');
+        const matriculeFilter = document.getElementById('filter-matricule');
+        const dateFilter = document.getElementById('filter-date');
+        
+        if (nomFilter) {
+            nomFilter.addEventListener('input', filterTable);
+        }
+        if (matriculeFilter) {
+            matriculeFilter.addEventListener('input', filterTable);
+        }
+        if (dateFilter) {
+            dateFilter.addEventListener('change', filterTable);
+        }
+        
+        // Initialize with all seances
+        const seanceCards = document.querySelectorAll('.seance-entry');
+        filteredSeances = Array.from(seanceCards);
+        updatePagination();
+    });
+</script>
+</body>
+</html>
