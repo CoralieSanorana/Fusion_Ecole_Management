@@ -12,7 +12,12 @@
             <h2 th:text="'Supports pour ' + ${classeNames.get(selectedClasse.classeId)} + ' - ' + ${matiereNames.get(selectedClasse.matiereId)}">Supports</h2>
             <p>Gérez vos publications pour cette classe</p>
         </div>
-        <button class="btn btn-primary" onclick="toggleForm()"><i class="fas fa-plus"></i> Nouveau Support</button>
+        <div style="display:flex;gap:10px;">
+            <button class="btn btn-primary" onclick="toggleForm()"><i class="fas fa-plus"></i> Nouveau Support</button>
+            <a th:href="@{/professeur/devoirs}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Retour aux classes
+            </a>
+        </div>
     </div>
 
     <!-- Formulaire de publication (Masqué par défaut) -->
@@ -76,11 +81,43 @@
     <!-- Liste des supports publiés -->
     <div class="mt-4">
         <h4 style="font-family:var(--font-display);font-size:16px;margin-bottom:var(--sp-md);">Supports publiés</h4>
+        <!-- Filters -->
+        <div class="card-body" style="padding-bottom:0;">
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">
+            <input type="text" id="filter-titre" placeholder="Filtrer par titre" class="form-control" style="flex:1;min-width:200px;">
+            <select id="filter-type" class="form-control" style="flex:1;min-width:150px;">
+              <option value="">Tous les types</option>
+              <option value="cours">Cours</option>
+              <option value="devoir">Devoir</option>
+            </select>
+            <select id="filter-matiere" class="form-control" style="flex:1;min-width:200px;">
+              <option value="">Toutes les matières</option>
+              <option th:each="matiereName : ${matiereNames.values()}" 
+                      th:value="${matiereName}" 
+                      th:text="${matiereName}">Matière</option>
+            </select>
+            <select id="filter-classe" class="form-control" style="flex:1;min-width:200px;">
+              <option value="">Toutes les classes</option>
+              <option th:each="classeName : ${classeNames.values()}" 
+                      th:value="${classeName}" 
+                      th:text="${classeName}">Classe</option>
+            </select>
+            <input type="date" id="filter-date" class="form-control" style="flex:1;min-width:150px;">
+            <button type="button" onclick="clearFilters()" class="btn btn-secondary">
+              <i class="fas fa-times"></i> Effacer
+            </button>
+          </div>
+        </div>
         <div style="display:flex;flex-direction:column;gap:var(--sp-md);">
             <div th:if="${supports != null and !#lists.isEmpty(supports)}">
-                <div th:each="s : ${supports}" class="devoir-card" 
+                <div th:each="s : ${supports}" class="devoir-card support-row"
                      th:classappend="${s.typeContenu == 'devoir'} ? 'devoir-card' : 'devoir-card'"
-                     th:style="${s.typeContenu == 'cours'} ? 'border-left-color:var(--primary);' : ''">
+                     th:style="${s.typeContenu == 'cours'} ? 'border-left-color:var(--primary);' : ''"
+                     th:data-titre="${s.titre}"
+                     th:data-type="${s.typeContenu}"
+                     th:data-matiere="${matiereNames.get(selectedClasse.matiereId)}"
+                     th:data-classe="${classeNames.get(selectedClasse.classeId)}"
+                     th:data-date="${s.dateLimite != null ? #temporals.format(s.dateLimite, 'yyyy-MM-dd') : #temporals.format(s.createdAt, 'yyyy-MM-dd')}">
                     <div style="display:flex; justify-content:space-between; align-items:start;">
                         <h4 th:text="${s.titre}">Titre</h4>
                         <span th:class="${s.typeContenu == 'devoir'} ? 'badge badge-amber' : 'badge badge-navy'" 
@@ -97,34 +134,141 @@
                         <span class="badge badge-navy" th:text="${classeNames.get(selectedClasse.classeId)}">Classe</span>
                         <span class="badge badge-amber" th:text="${matiereNames.get(selectedClasse.matiereId)}">Matière</span>
                     </div>
-                    
+                    <div style="margin-top:var(--sp-md);display:flex;gap:var(--sp-sm);">
+                        <a th:href="@{/professeur/devoirs/details/pdf/{supportId}(supportId=${s.id})}"
+                           class="btn btn-secondary btn-sm"
+                           th:if="${s.typeContenu == 'cours'}"
+                           download>
+                            <i class="fas fa-file-pdf"></i> Export PDF
+                        </a>
+                    </div>
                 </div>
             </div>
             <div th:if="${supports == null or #lists.isEmpty(supports)}" class="card p-4 text-center">
                 <p>Aucun support publié pour cette classe.</p>
             </div>
         </div>
-    </div>
-
-    <div class="mt-4">
-        <a th:href="@{/professeur/devoirs}" class="btn btn-secondary">
-            <i class="fas fa-arrow-left"></i> Retour aux classes
-        </a>
+        <!-- Pagination -->
+        <div class="pagination" style="margin-top:20px;display:flex;justify-content:center;align-items:center;gap:10px;">
+          <button type="button" onclick="changePage(-1)" class="btn btn-secondary" id="prev-btn" disabled>
+            <i class="fas fa-chevron-left"></i> Précédent
+          </button>
+          <span id="page-info">Page 1 sur 1</span>
+          <button type="button" onclick="changePage(1)" class="btn btn-secondary" id="next-btn" disabled>
+            Suivant <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
     </div>
   </main>
 </div>
 <div th:replace="~{fragments/footer :: footer}"></div>
 
 <script>
-    function toggleForm() {
-        const container = document.getElementById('form-container');
-        container.style.display = container.style.display === 'none' ? 'block' : 'none';
-    }
+let currentPage = 1;
+const itemsPerPage = 10;
+let filteredRows = [];
 
-    function toggleDevoirFields() {
-        const type = document.getElementById('typeContenu').value;
-        document.getElementById('devoir-fields').style.display = type === 'devoir' ? 'block' : 'none';
+function toggleForm() {
+    const container = document.getElementById('form-container');
+    container.style.display = container.style.display === 'none' ? 'block' : 'none';
+}
+
+function toggleDevoirFields() {
+    const type = document.getElementById('typeContenu').value;
+    document.getElementById('devoir-fields').style.display = type === 'devoir' ? 'block' : 'none';
+}
+
+function filterTable() {
+    const titreFilter = document.getElementById('filter-titre').value.toLowerCase();
+    const typeFilter = document.getElementById('filter-type').value.toLowerCase();
+    const matiereFilter = document.getElementById('filter-matiere').value.toLowerCase();
+    const classeFilter = document.getElementById('filter-classe').value.toLowerCase();
+    const dateFilter = document.getElementById('filter-date').value;
+    
+    const rows = document.querySelectorAll('.support-row');
+    filteredRows = [];
+    
+    rows.forEach(row => {
+        const titre = row.dataset.titre ? row.dataset.titre.toLowerCase() : '';
+        const type = row.dataset.type ? row.dataset.type.toLowerCase() : '';
+        const matiere = row.dataset.matiere ? row.dataset.matiere.toLowerCase() : '';
+        const classe = row.dataset.classe ? row.dataset.classe.toLowerCase() : '';
+        const date = row.dataset.date || '';
+        
+        const matchesTitre = !titreFilter || titre.includes(titreFilter);
+        const matchesType = !typeFilter || type === typeFilter;
+        const matchesMatiere = !matiereFilter || matiere.includes(matiereFilter);
+        const matchesClasse = !classeFilter || classe.includes(classeFilter);
+        const matchesDate = !dateFilter || date === dateFilter;
+        
+        if (matchesTitre && matchesType && matchesMatiere && matchesClasse && matchesDate) {
+            filteredRows.push(row);
+        }
+    });
+    
+    currentPage = 1;
+    updatePagination();
+}
+
+function updatePagination() {
+    const rows = document.querySelectorAll('.support-row');
+    rows.forEach(row => row.style.display = 'none');
+    
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    
+    for (let i = start; i < end && i < filteredRows.length; i++) {
+        filteredRows[i].style.display = '';
     }
+    
+    const totalPages = Math.ceil(filteredRows.length / itemsPerPage) || 1;
+    document.getElementById('page-info').textContent = `Page ${currentPage} sur ${totalPages}`;
+    
+    document.getElementById('prev-btn').disabled = currentPage === 1;
+    document.getElementById('next-btn').disabled = currentPage === totalPages;
+}
+
+function changePage(delta) {
+    currentPage += delta;
+    updatePagination();
+}
+
+function clearFilters() {
+    document.getElementById('filter-titre').value = '';
+    document.getElementById('filter-type').value = '';
+    document.getElementById('filter-matiere').value = '';
+    document.getElementById('filter-classe').value = '';
+    document.getElementById('filter-date').value = '';
+    filterTable();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const titreFilter = document.getElementById('filter-titre');
+    const typeFilter = document.getElementById('filter-type');
+    const matiereFilter = document.getElementById('filter-matiere');
+    const classeFilter = document.getElementById('filter-classe');
+    const dateFilter = document.getElementById('filter-date');
+    
+    if (titreFilter) {
+        titreFilter.addEventListener('input', filterTable);
+    }
+    if (typeFilter) {
+        typeFilter.addEventListener('change', filterTable);
+    }
+    if (matiereFilter) {
+        matiereFilter.addEventListener('change', filterTable);
+    }
+    if (classeFilter) {
+        classeFilter.addEventListener('change', filterTable);
+    }
+    if (dateFilter) {
+        dateFilter.addEventListener('change', filterTable);
+    }
+    
+    const rows = document.querySelectorAll('.support-row');
+    filteredRows = Array.from(rows);
+    updatePagination();
+});
 </script>
 </body>
 </html>

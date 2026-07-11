@@ -10,15 +10,18 @@ public class AjoutEleveDTO {
     private String nom;
     private String prenom;
     private LocalDate dateNaissance;
+    private String sexe;
+    private String lieuNaissance;
+    private String nationalite;
     private String commune;
     private String adresse;
+    private String telephone;
     private String nomParent;
     private String prenomParent;
     private String telephoneParent;
     private String lienParente;
     private String classeId;
 
-    // Remplacer dans AjoutEleveDTO.java
     public Long getClasseIdAsLong() {
         try {
             return Long.parseLong(classeId);

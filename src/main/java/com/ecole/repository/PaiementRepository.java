@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -34,4 +35,17 @@ public interface PaiementRepository extends JpaRepository<Paiement, Integer>,
             ORDER BY p.date_paiement ASC
             """, nativeQuery = true)
     List<Paiement> findByEtudiantIdCurrentYear(@Param("etudiantId") Long etudiantId);
+
+    @Query("""
+            SELECT DISTINCT p
+            FROM Paiement p
+            JOIN FETCH p.inscription i
+            JOIN FETCH i.etudiant e
+            LEFT JOIN FETCH i.classe c
+            LEFT JOIN FETCH p.echeance ec
+            WHERE p.datePaiement BETWEEN :dateDebut AND :dateFin
+            ORDER BY p.datePaiement DESC, p.createdAt DESC
+            """)
+    List<Paiement> findDetailedByDatePaiementBetween(@Param("dateDebut") LocalDate dateDebut,
+                                                     @Param("dateFin") LocalDate dateFin);
 }

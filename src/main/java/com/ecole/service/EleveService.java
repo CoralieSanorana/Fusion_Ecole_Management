@@ -174,6 +174,109 @@ public class EleveService {
     }
 
     @Transactional
+    public ProfilEtudiant inscrireEleveComplet(AjoutEleveDTO dto) {
+        // Vérifier si l'année scolaire active existe
+        AnneeScolaire anneeActive = anneeScolaireRepo.findByEstActiveTrue()
+                .orElseThrow(() -> new RuntimeException("Aucune année scolaire active. Veuillez d'abord initialiser l'année scolaire."));
+
+        ProfilEtudiant etudiant = new ProfilEtudiant();
+        etudiant.setNom(dto.getNom());
+        etudiant.setPrenom(dto.getPrenom());
+        etudiant.setDateNaissance(dto.getDateNaissance());
+        etudiant.setSexe(dto.getSexe());
+        etudiant.setLieuNaissance(dto.getLieuNaissance());
+        etudiant.setNationalite(dto.getNationalite() != null ? dto.getNationalite() : "Malgache");
+        etudiant.setCommune(dto.getCommune());
+        etudiant.setAdresse(dto.getAdresse());
+        etudiant.setTelephone(dto.getTelephone());
+        etudiant.setMatricule(genererMatricule());
+        etudiant.setCreatedAt(LocalDateTime.now());
+        etudiant.setUpdatedAt(LocalDateTime.now());
+        etudiant.setIsArchived(false);
+        ProfilEtudiant saved = etudiantRepo.save(etudiant);
+        log.info("Nouvel élève créé : {} {} (matricule: {})", saved.getPrenom(), saved.getNom(), saved.getMatricule());
+
+        // Enregistrer le parent
+        if (dto.getNomParent() != null && !dto.getNomParent().isBlank()) {
+            ProfilParent parent = new ProfilParent();
+            parent.setNom(dto.getNomParent());
+            parent.setPrenom(dto.getPrenomParent() != null ? dto.getPrenomParent() : "");
+            parent.setTelephone(dto.getTelephoneParent());
+            parent.setLienParente(dto.getLienParente());
+            parent.setCreatedAt(LocalDateTime.now());
+            parent = parentRepo.save(parent);
+            log.info("Parent enregistré : {} {}", parent.getPrenom(), parent.getNom());
+            
+            // Lier le parent à l'étudiant via la table de jointure
+            jdbc.update("INSERT INTO etudiants_parents (etudiant_id, parent_id, est_contact_principal) VALUES (?, ?, true)",
+                    saved.getId(), parent.getId());
+        }
+
+        // Créer l'inscription
+        Long classeId = dto.getClasseIdAsLong();
+        if (classeId != null) {
+            Inscription inscription = new Inscription();
+            inscription.setEtudiantId(saved.getId());
+            inscription.setClasseId(classeId);
+            inscription.setAnneeScolaireId(anneeActive.getId());
+            inscription.setTypeInscription("nouvelle");
+            inscription.setDateInscription(LocalDate.now());
+            inscription.setStatut("active");
+            inscription.setCreatedAt(LocalDateTime.now());
+            inscription.setUpdatedAt(LocalDateTime.now());
+            inscriptionRepo.save(inscription);
+            log.info("Inscription créée — élève {} dans classe ID {}", saved.getId(), classeId);
+        }
+
+        return saved;
+    }
+
+    @Transactional
+    public Inscription reinscrireEleve(Long etudiantId, Long classeId) {
+        // Vérifier que l'élève existe
+        ProfilEtudiant etudiant = etudiantRepo.findById(etudiantId)
+                .orElseThrow(() -> new RuntimeException("Élève introuvable (ID: " + etudiantId + ")"));
+
+        // Vérifier année scolaire active
+        AnneeScolaire anneeActive = anneeScolaireRepo.findByEstActiveTrue()
+                .orElseThrow(() -> new RuntimeException("Aucune année scolaire active."));
+
+        // Vérifier que la classe existe
+        Classe classe = classeRepo.findById(classeId)
+                .orElseThrow(() -> new RuntimeException("Classe introuvable (ID: " + classeId + ")"));
+
+        // Vérifier si l'élève n'est pas déjà inscrit cette année
+        Optional<Inscription> existante = inscriptionRepo.findByEtudiantIdAndAnneeScolaireId(etudiantId, anneeActive.getId());
+        if (existante.isPresent()) {
+            throw new RuntimeException("Cet élève est déjà inscrit pour l'année scolaire " + anneeActive.getLibelle());
+        }
+
+        Inscription inscription = new Inscription();
+        inscription.setEtudiantId(etudiantId);
+        inscription.setClasseId(classeId);
+        inscription.setAnneeScolaireId(anneeActive.getId());
+        inscription.setTypeInscription("reinscription");
+        inscription.setDateInscription(LocalDate.now());
+        inscription.setStatut("active");
+        inscription.setCreatedAt(LocalDateTime.now());
+        inscription.setUpdatedAt(LocalDateTime.now());
+        Inscription saved = inscriptionRepo.save(inscription);
+
+        log.info("Réinscription effectuée — élève {} {} ({}) en classe {} pour l'année {}",
+                etudiant.getPrenom(), etudiant.getNom(), etudiant.getMatricule(),
+                classe.getNom(), anneeActive.getLibelle());
+
+        return saved;
+    }
+
+    public List<ProfilEtudiant> rechercherElevesPourReinscription(String search) {
+        if (search == null || search.isBlank()) {
+            return List.of();
+        }
+        return etudiantRepo.searchByNomOrPrenomOrMatricule(search);
+    }
+
+    @Transactional
     public void soumettreDemandeModification(Long etudiantId, String champModifie,
                                               String ancienneValeur, String nouvelleValeur,
                                               String motif) {

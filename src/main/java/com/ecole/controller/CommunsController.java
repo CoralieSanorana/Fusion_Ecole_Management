@@ -30,7 +30,8 @@ public class CommunsController {
     public String notifications(Model model, Authentication authentication) {
         model.addAttribute("pageTitle", "Notifications");
         model.addAttribute("currentRole", "directeur");
-        model.addAttribute("notifications", notificationService.findAll());
+        Integer userId = Math.toIntExact(((com.ecole.entity.User) model.getAttribute("currentUser")).getId());
+        model.addAttribute("notifications", notificationService.findVisibleForUser(userId));
         return "communs/notifications";
     }
 }

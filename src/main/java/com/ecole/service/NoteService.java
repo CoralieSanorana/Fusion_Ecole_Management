@@ -1,14 +1,21 @@
 package com.ecole.service;
 
-import com.ecole.entity.Note;
-import com.ecole.repository.NoteRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import com.ecole.entity.AffectationEnseignement;
-
-import java.util.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.ecole.entity.AffectationEnseignement;
+import com.ecole.entity.Classe;
+import com.ecole.entity.Note;
+import com.ecole.repository.NoteRepository;
 
 @Service
 public class NoteService {
@@ -18,6 +25,9 @@ public class NoteService {
 
     @Autowired
     private CoefficientService coefficientService;
+
+    @Autowired
+    private ClasseService classeService;
 
     @Autowired
     private MatiereService matiereService;
@@ -65,6 +75,10 @@ public class NoteService {
         
         // Get all affectations for the class to determine subjects
         List<AffectationEnseignement> affectations = affectationEnseignementService.findByClasseId(classeId);
+
+        Classe classe = classeId != null ? classeService.findById(classeId).orElse(null) : null;
+        Long niveauId = classe != null ? classe.getNiveauId() : null;
+        Map<Long, BigDecimal> coefficientsMap = coefficientService.findCoefficientsMapByNiveau(niveauId);
         
         // Group notes by subject
         Map<Long, List<Note>> notesByMatiere = new HashMap<>();
@@ -98,11 +112,8 @@ public class NoteService {
                 }
                 BigDecimal moyenne = sum.divide(BigDecimal.valueOf(matiereNotes.size()), 2, RoundingMode.HALF_UP);
                 
-                // Get coefficient for this subject and class level
-                // Assuming we have a way to get niveauId from classeId
-                // For now, we'll use a default coefficient of 1
-                BigDecimal coefficient = BigDecimal.ONE;
-                // TODO: Get actual coefficient from CoefficientService based on matiereId and niveauId
+                // Get coefficient for this subject and the student's level
+                BigDecimal coefficient = coefficientsMap.getOrDefault(matiereId, BigDecimal.ONE);
                 
                 // Add to weighted total
                 totalPoints = totalPoints.add(moyenne.multiply(coefficient));

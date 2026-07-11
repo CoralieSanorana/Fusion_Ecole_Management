@@ -21,9 +21,7 @@
         <h2>Liste des Élèves</h2>
         <p th:text="'Année scolaire active – ' + ${#lists.size(eleves)} + ' élève(s) trouvé(s)'"></p>
       </div>
-      <button class="btn btn-primary" onclick="openModal('modal-add-eleve')">
-        <i class="fas fa-plus"></i> Nouvel élève
-      </button>
+      <!-- Bouton supprimé : l'ajout d'élève se fait désormais via Inscription/Réinscription -->
     </div>
 
     <!-- Filtres niveau + recherche -->

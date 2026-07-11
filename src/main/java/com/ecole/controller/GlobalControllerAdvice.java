@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 
 import java.util.Optional;
 
+import com.ecole.service.ActualiteService;
+import com.ecole.service.NotificationService;
+
 @ControllerAdvice
 public class GlobalControllerAdvice {
 
@@ -27,6 +30,12 @@ public class GlobalControllerAdvice {
 
     @Autowired
     private ProfilsDirecteursRepository profilsDirecteursRepository;
+
+    @Autowired
+    private ActualiteService actualiteService;
+
+    @Autowired
+    private NotificationService notificationService;
 
     @ModelAttribute
     public void addUserInfoToModel(Model model, Authentication authentication) {
@@ -91,6 +100,12 @@ public class GlobalControllerAdvice {
                 model.addAttribute("currentUserName", userName);
                 model.addAttribute("currentUserRoleLabel", userRoleLabel);
                 model.addAttribute("currentUserInitials", userInitials);
+
+                Integer userId = Math.toIntExact(user.getId());
+                model.addAttribute("actualitesCount", actualiteService.countActive());
+                model.addAttribute("notificationsCount", notificationService.countVisibleForUser(userId));
+                model.addAttribute("notificationsUnreadCount", notificationService.countUnreadVisibleForUser(userId));
+                model.addAttribute("topbarNotifications", notificationService.findTopVisibleForUser(userId, 4));
             }
         }
     }
