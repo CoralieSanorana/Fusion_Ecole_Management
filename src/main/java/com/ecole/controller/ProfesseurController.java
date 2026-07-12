@@ -695,10 +695,27 @@ public class ProfesseurController {
 
         ProfilsProfesseursService.findById(professeurId).ifPresent(professeur -> {
             model.addAttribute("professeur", professeur);
+            model.addAttribute("photoUrl", resolveProfessorPhotoUrl(professeur));
         });
         // Si le professeur n'est pas trouvé, l'attribut "professeur" ne sera pas dans le modèle,
         // et la vue devra gérer ce cas (ex: afficher un message d'erreur).
         return "Professeur/profil";
+    }
+
+    private String resolveProfessorPhotoUrl(ProfilsProfesseurs professeur) {
+        if (professeur == null || professeur.getPhotoUrl() == null || professeur.getPhotoUrl().isBlank()) {
+            String sexe = professeur != null ? professeur.getSexe() : null;
+            return "F".equalsIgnoreCase(sexe) ? "/photo/DefaultIMG_Femme.png" : "/photo/DefaultIMG_Homme.png";
+        }
+
+        String value = professeur.getPhotoUrl().trim();
+        if (value.startsWith("/")) {
+            return value;
+        }
+        if (value.contains("DefaultIMG")) {
+            return "/photo/" + value;
+        }
+        return "/photo/photo-employes/" + value;
     }
 
 @GetMapping("/professeur/profil/pdf")

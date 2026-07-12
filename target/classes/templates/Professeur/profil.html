@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head"></head>
+<body>
+<canvas id="particle-canvas"></canvas>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar" th:replace="fragments/header :: sidebar"></aside>
+  <header class="topbar" th:replace="fragments/header :: topbar"></header>
+  <main class="main-content">
+    <style>
+      .contract-cv {
+        max-width: 1080px;
+        margin: 0 auto;
+        background: linear-gradient(180deg, #f8fafc 0%, #ffffff 65%);
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        box-shadow: 0 14px 38px rgba(15, 23, 42, 0.08);
+        overflow: hidden;
+      }
+
+      .contract-cv-header {
+        padding: 28px;
+        color: #fff;
+        background: linear-gradient(120deg, #0f172a, #1e293b 60%, #334155);
+        display: grid;
+        grid-template-columns: 160px 1fr;
+        gap: 22px;
+        align-items: center;
+      }
+
+      .contract-photo-wrap {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        border: 5px solid rgba(255, 255, 255, 0.35);
+        overflow: hidden;
+        background: #fff;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+        cursor: pointer;
+        position: relative;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .contract-photo-wrap:hover {
+        transform: translateY(-2px) scale(1.01);
+        box-shadow: 0 14px 34px rgba(0, 0, 0, 0.3);
+      }
+
+      .contract-photo-overlay {
+        position: absolute;
+        inset: auto 0 0 0;
+        padding: 8px;
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0) 0%, rgba(15, 23, 42, 0.72) 100%);
+        color: #fff;
+        font-size: 12px;
+        text-align: center;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        pointer-events: none;
+      }
+
+      .contract-photo-wrap:hover .contract-photo-overlay {
+        opacity: 1;
+      }
+
+      .photo-actions-sheet {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.58);
+        display: none;
+        align-items: flex-end;
+        justify-content: center;
+        padding: 18px;
+        z-index: 1200;
+      }
+
+      .photo-actions-sheet.is-open {
+        display: flex;
+      }
+
+      .photo-actions-card {
+        width: min(420px, 100%);
+        background: #fff;
+        border-radius: 22px;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+        overflow: hidden;
+      }
+
+      .photo-actions-header {
+        padding: 14px 18px;
+        font-size: 13px;
+        color: #64748b;
+        text-align: center;
+        border-bottom: 1px solid #e2e8f0;
+        background: #f8fafc;
+      }
+
+      .photo-actions-list {
+        display: grid;
+      }
+
+      .photo-action-btn,
+      .photo-action-danger {
+        width: 100%;
+        padding: 16px 18px;
+        border: 0;
+        background: #fff;
+        font-size: 15px;
+        font-weight: 600;
+        text-align: left;
+        cursor: pointer;
+        border-top: 1px solid #eef2f7;
+      }
+
+      .photo-action-btn:hover {
+        background: #f8fafc;
+      }
+
+      .photo-action-danger {
+        color: #b91c1c;
+      }
+
+      .photo-action-danger:hover {
+        background: #fef2f2;
+      }
+
+      .photo-action-note {
+        padding: 0 18px 16px;
+        font-size: 12px;
+        color: #64748b;
+        text-align: center;
+      }
+
+      .contract-photo-wrap img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .contract-cv-title h2 {
+        margin: 0;
+        font-size: 34px;
+        letter-spacing: 0.3px;
+      }
+
+      .contract-cv-title p {
+        margin: 8px 0 0;
+        color: #cbd5e1;
+        font-size: 15px;
+      }
+
+      .contract-badges {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 14px;
+      }
+
+      .contract-badge {
+        background: rgba(255, 255, 255, 0.14);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        color: #e2e8f0;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 7px 11px;
+        border-radius: 999px;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+      }
+
+      .contract-cv-body {
+        display: grid;
+        grid-template-columns: 1fr 1.2fr;
+        gap: 0;
+      }
+
+      .contract-panel {
+        padding: 24px 26px;
+        border-right: 1px solid #e2e8f0;
+      }
+
+      .contract-panel:last-child {
+        border-right: none;
+      }
+
+      .contract-section {
+        margin-bottom: 24px;
+      }
+
+      .contract-section h3 {
+        margin: 0 0 12px;
+        font-size: 14px;
+        color: #0f172a;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        border-bottom: 2px solid #e2e8f0;
+        padding-bottom: 8px;
+      }
+
+      .contract-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .contract-item {
+        display: grid;
+        grid-template-columns: 140px 1fr;
+        gap: 10px;
+        align-items: baseline;
+        font-size: 14px;
+        color: #334155;
+      }
+
+      .contract-item strong {
+        color: #0f172a;
+        font-weight: 700;
+      }
+
+      .contract-highlight {
+        margin-top: 8px;
+        padding: 14px;
+        border-radius: 12px;
+        background: linear-gradient(120deg, #e2e8f0, #f8fafc);
+        border: 1px solid #cbd5e1;
+        color: #0f172a;
+      }
+
+      .contract-highlight .value {
+        font-size: 24px;
+        font-weight: 700;
+        margin: 6px 0 2px;
+      }
+
+      .profile-edit-card {
+        margin-top: 28px;
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        background: #fff;
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+        overflow: hidden;
+      }
+
+      .profile-edit-card .card-header {
+        padding: 18px 22px;
+        border-bottom: 1px solid #e2e8f0;
+        background: linear-gradient(120deg, #f8fafc, #eef2ff);
+      }
+
+      .profile-edit-card .card-header h3 {
+        margin: 0;
+        font-size: 18px;
+        color: #0f172a;
+      }
+
+      .profile-edit-body {
+        padding: 22px;
+      }
+
+      .profile-edit-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .profile-edit-field {
+        display: grid;
+        gap: 8px;
+      }
+
+      .profile-edit-field label {
+        font-size: 13px;
+        font-weight: 700;
+        color: #334155;
+      }
+
+      .profile-edit-field input {
+        border: 1px solid #cbd5e1;
+        border-radius: 12px;
+        padding: 12px 14px;
+        font-size: 14px;
+        background: #fff;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      }
+
+      .profile-edit-field input:focus {
+        outline: none;
+        border-color: #64748b;
+        box-shadow: 0 0 0 4px rgba(100, 116, 139, 0.12);
+      }
+
+      .profile-edit-span-2 {
+        grid-column: span 2;
+      }
+
+      .profile-edit-photo {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 14px;
+        border: 1px dashed #cbd5e1;
+        border-radius: 14px;
+        background: #f8fafc;
+      }
+
+      .profile-edit-photo-preview {
+        width: 68px;
+        height: 68px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 3px solid #fff;
+        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.16);
+        flex: 0 0 auto;
+      }
+
+      .profile-edit-photo-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .profile-edit-note {
+        margin: 0;
+        font-size: 12px;
+        color: #64748b;
+      }
+
+      .profile-form-actions {
+        margin-top: 22px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .profile-form-actions .btn {
+        min-width: 140px;
+      }
+
+      @media (max-width: 900px) {
+        .contract-cv-header {
+          grid-template-columns: 1fr;
+          text-align: center;
+        }
+
+        .contract-photo-wrap {
+          margin: 0 auto;
+        }
+
+        .contract-badges {
+          justify-content: center;
+        }
+
+        .contract-cv-body {
+          grid-template-columns: 1fr;
+        }
+
+        .contract-panel {
+          border-right: none;
+          border-top: 1px solid #e2e8f0;
+        }
+
+        .contract-item {
+          grid-template-columns: 1fr;
+        }
+
+        .profile-edit-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .profile-edit-span-2 {
+          grid-column: span 1;
+        }
+
+        .profile-edit-photo {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+    </style>
+
+    <div class="page-header">
+      <div>
+        <h2>Mon Profil</h2>
+        <p>Informations personnelles et professionnelles</p>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <a th:href="@{/professeur/profil/pdf}" class="btn btn-secondary">
+          <i class="fas fa-file-pdf"></i> Export PDF
+        </a>
+        <button class="btn btn-primary" onclick="showUpdateForm()">
+          <i class="fas fa-edit"></i> Modifier
+        </button>
+      </div>
+    </div>
+
+    <!-- Update Form (Hidden by default) -->
+    <div id="update-form" class="profile-edit-card" style="display: none;" th:if="${professeur != null}">
+        <div class="card-header">
+          <h3>Modifier mes informations</h3>
+        </div>
+        <div class="profile-edit-body">
+          <form th:action="@{/professeur/profil/update}" method="post" enctype="multipart/form-data">
+            <div class="profile-edit-grid">
+              <div class="profile-edit-field">
+                <label for="nom">Nom</label>
+                <input id="nom" type="text" name="nom" th:value="${professeur.nom}" required>
+              </div>
+              <div class="profile-edit-field">
+                <label for="prenom">Prénom</label>
+                <input id="prenom" type="text" name="prenom" th:value="${professeur.prenom}" required>
+              </div>
+              <div class="profile-edit-field profile-edit-span-2">
+                <label for="email">Email</label>
+                <input id="email" type="email" name="email" th:value="${professeur.user != null ? professeur.user.email : ''}" required>
+              </div>
+              <div class="profile-edit-field">
+                <label for="telephone">Numéro de téléphone</label>
+                <input id="telephone" type="text" name="telephone" th:value="${professeur.telephone}" required>
+              </div>
+              <div class="profile-edit-field">
+                <label for="dateNaissance">Date de naissance</label>
+                <input id="dateNaissance" type="date" name="dateNaissance" th:value="${professeur.dateNaissance}" required>
+              </div>
+              <div class="profile-edit-field profile-edit-span-2">
+                <label for="adresse">Adresse</label>
+                <input id="adresse" type="text" name="adresse" th:value="${professeur.adresse}" required>
+              </div>
+              <div class="profile-edit-field profile-edit-span-2">
+                <label for="motDePasse">Mot de passe</label>
+                <input id="motDePasse" type="password" name="motDePasse" placeholder="Laisser vide pour conserver le mot de passe actuel">
+              </div>
+              <div class="profile-edit-field profile-edit-span-2">
+                <label for="photo">Photo de profil</label>
+                <div class="profile-edit-photo">
+                  <div class="profile-edit-photo-preview">
+                    <img th:src="${professeur.photoUrl != null && !#strings.isEmpty(professeur.photoUrl) ? professeur.photoUrl : '/photo/DefaultIMG_Homme.png'}" alt="Aperçu de la photo de profil">
+                  </div>
+                  <div style="flex:1;display:grid;gap:8px;">
+                    <input id="photo" type="file" name="photo" accept="image/*">
+                    <p class="profile-edit-note">Formats acceptés: JPG, PNG, WEBP. La photo peut aussi être modifiée en cliquant sur l’avatar du profil.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="profile-form-actions">
+              <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Enregistrer</button>
+              <button type="button" class="btn btn-secondary" onclick="hideUpdateForm()">Annuler</button>
+            </div>
+          </form>
+        </div>
+    </div>
+
+    <div class="photo-actions-sheet" id="photo-actions-sheet" aria-hidden="true" th:if="${professeur != null}">
+      <div class="photo-actions-card" role="dialog" aria-modal="true" aria-labelledby="photo-actions-title">
+        <div class="photo-actions-header" id="photo-actions-title">Choisir une action pour la photo</div>
+        <div class="photo-actions-list">
+          <button class="photo-action-btn" type="button" id="photo-add-btn">Ajouter une nouvelle photo</button>
+          <form method="post" th:action="@{/professeur/profil/photo/delete}" style="margin:0;">
+            <button class="photo-action-danger" type="submit">Supprimer la photo actuelle</button>
+          </form>
+          <button class="photo-action-btn" type="button" id="photo-cancel-btn" style="text-align:center;color:#334155;">Annuler</button>
+        </div>
+        <div class="photo-action-note">La nouvelle image sera automatiquement compressée pour rester nette et légère.</div>
+      </div>
+    </div>
+
+    <form id="photo-upload-form" method="post" th:action="@{/professeur/profil/photo}" enctype="multipart/form-data" style="display:none;" th:if="${professeur != null}">
+      <input id="photo-upload-input" class="form-control" type="file" name="photo" accept=".jpg,.jpeg,.png,.webp" required>
+    </form>
+
+    <div th:if="${professeur == null}">
+      <div class="contract-cv" style="padding: 40px; text-align: center;">
+        <h3>Profil introuvable</h3>
+        <p>Impossible de charger votre profil. Veuillez contacter l'administrateur.</p>
+      </div>
+    </div>
+
+    <article class="contract-cv" th:if="${professeur != null}">
+      <header class="contract-cv-header">
+        <div class="contract-photo-wrap" id="employee-photo-trigger" role="button" tabindex="0" aria-label="Modifier la photo de profil">
+          <img th:src="${professeur.photoUrl != null && !#strings.isEmpty(professeur.photoUrl) ? professeur.photoUrl : '/photo/DefaultIMG_Homme.png'}" alt="Photo de profil">
+          <div class="contract-photo-overlay">Appuyer pour modifier</div>
+        </div>
+        <div class="contract-cv-title">
+          <h2 th:text="${professeur.nom + ' ' + professeur.prenom}">Nom Prénom</h2>
+          <p>Profil professionnel du professeur</p>
+          <div class="contract-badges">
+            <span class="contract-badge" th:text="${professeur.specialite != null ? professeur.specialite : 'Professeur'}">Mathématiques</span>
+            <span class="contract-badge" th:text="${professeur.typeContrat != null ? professeur.typeContrat : 'Sans type'}">CDI</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="contract-cv-body">
+        <section class="contract-panel">
+          <div class="contract-section">
+            <h3>Photo de profil</h3>
+            <div style="border: 1px dashed #cbd5e1; border-radius: 12px; padding: 14px; background: #f8fafc;">
+              <p style="margin:0;font-size:13px;color:#475569;">La photo est affichée depuis votre profil. Si aucune photo n'est enregistrée, l'image par défaut s'affiche automatiquement.</p>
+            </div>
+          </div>
+
+          <div class="contract-section">
+            <h3>Identité</h3>
+            <div class="contract-list">
+              <div class="contract-item"><strong>Matricule</strong><span th:text="${professeur.matricule != null ? professeur.matricule : '—'}">MAT-001</span></div>
+              <div class="contract-item"><strong>Spécialité</strong><span th:text="${professeur.specialite != null ? professeur.specialite : '—'}">Mathématiques</span></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="contract-panel">
+          <div class="contract-section">
+            <h3>Informations personnelles</h3>
+            <div class="contract-list">
+              <div class="contract-item"><strong>Email</strong><span th:text="${professeur.user != null && professeur.user.email != null ? professeur.user.email : '—'}">professeur@ecole.com</span></div>
+              <div class="contract-item"><strong>Téléphone</strong><span th:text="${professeur.telephone != null ? professeur.telephone : '—'}">034 12 345 67</span></div>
+              <div class="contract-item"><strong>Adresse</strong><span th:text="${professeur.adresse != null ? professeur.adresse : '—'}">Analakely, Antananarivo</span></div>
+              <div class="contract-item"><strong>Date de naissance</strong><span th:text="${professeur.dateNaissance != null ? #temporals.format(professeur.dateNaissance, 'dd MMM yyyy') : '—'}">15 Jan. 1980</span></div>
+            </div>
+          </div>
+
+          <div class="contract-section" style="margin-bottom:0;">
+            <h3>Contrat</h3>
+            <div class="contract-list">
+              <div class="contract-item"><strong>Type de contrat</strong><span th:text="${professeur.typeContrat != null ? professeur.typeContrat : '—'}">CDI</span></div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </article>
+
+    <script>
+      function showUpdateForm() {
+        document.getElementById('update-form').style.display = 'block';
+      }
+
+      function hideUpdateForm() {
+        document.getElementById('update-form').style.display = 'none';
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        const photoTrigger = document.getElementById('employee-photo-trigger');
+        const photoSheet = document.getElementById('photo-actions-sheet');
+        const addButton = document.getElementById('photo-add-btn');
+        const cancelButton = document.getElementById('photo-cancel-btn');
+        const uploadForm = document.getElementById('photo-upload-form');
+        const uploadInput = document.getElementById('photo-upload-input');
+
+        function openSheet() {
+          if (!photoSheet) return;
+          photoSheet.classList.add('is-open');
+          photoSheet.setAttribute('aria-hidden', 'false');
+        }
+
+        function closeSheet() {
+          if (!photoSheet) return;
+          photoSheet.classList.remove('is-open');
+          photoSheet.setAttribute('aria-hidden', 'true');
+        }
+
+        if (photoTrigger) {
+          photoTrigger.addEventListener('click', openSheet);
+          photoTrigger.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              openSheet();
+            }
+          });
+        }
+
+        if (cancelButton) {
+          cancelButton.addEventListener('click', closeSheet);
+        }
+
+        if (photoSheet) {
+          photoSheet.addEventListener('click', (event) => {
+            if (event.target === photoSheet) {
+              closeSheet();
+            }
+          });
+        }
+
+        if (addButton && uploadInput) {
+          addButton.addEventListener('click', () => {
+            closeSheet();
+            uploadInput.click();
+          });
+        }
+
+        if (uploadInput && uploadForm) {
+          uploadInput.addEventListener('change', () => {
+            if (uploadInput.files && uploadInput.files.length > 0) {
+              uploadForm.submit();
+            }
+          });
+        }
+      });
+    </script>
+  </main>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>
