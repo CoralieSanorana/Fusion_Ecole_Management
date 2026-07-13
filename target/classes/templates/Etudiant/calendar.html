@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="fragments/header :: head"></head>
+
+<body>
+  <canvas id="particle-canvas"></canvas>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar" th:replace="fragments/header :: sidebar"></aside>
+    <header class="topbar" th:replace="fragments/header :: topbar"></header>
+    <main class="main-content">
+      <div class="pdf" id="pdf">
+
+        <div class="page-header" id="page-header">
+          <div>
+            <h2>Mon Emploi du Temps</h2>
+            <p th:text="${semaineLabel + (classe != null ? ' — ' + classe.nom : '')}">Semaine</p>
+          </div>
+          <div class="page-header-actions" style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button type="button" class="btn btn-secondary" onclick="exportCalendarPdf()">
+              <i class="fas fa-file-pdf"></i> PDF
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="exportCalendarExcel()">
+              <i class="fas fa-file-excel"></i> Excel
+            </button>
+          </div>
+        </div>
+        <div class="card" id="calendar-export">
+          <div class="card-body" style="padding:var(--sp-md);">
+            <div th:if="${grille == null or #lists.isEmpty(grille)}" class="empty-state">
+              <p>Aucun emploi du temps n'est encore disponible pour ta classe.</p>
+            </div>
+            <div th:if="${grille != null and !#lists.isEmpty(grille)}" class="schedule-grid"
+              th:style="'grid-template-columns: 90px repeat(' + ${#lists.size(jours)} + ', 1fr);'">
+              <div class="schedule-header">Heure</div>
+              <div class="schedule-header" th:each="jour : ${jours}" th:text="${jour.nom}">Jour</div>
+
+              <th:block th:each="ligne : ${grille}">
+                <div class="schedule-cell schedule-time" th:text="${ligne.label}">Heure</div>
+                <div class="schedule-cell" th:each="jour : ${jours}">
+                  <div th:if="${ligne.cases[jour.numero] != null}"
+                    th:class="'schedule-class ' + ${ligne.cases[jour.numero].couleur}">
+                    <span th:text="${ligne.cases[jour.numero].matiere}">Matière</span>
+                    <small th:text="${ligne.cases[jour.numero].professeur}">Professeur</small>
+                  </div>
+                </div>
+              </th:block>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <table id="calendar-excel-table" style="display:none;">
+        <thead>
+          <tr>
+            <th>Jour</th>
+            <th>Heure</th>
+            <th>Matiere</th>
+            <th>Professeur</th>
+          </tr>
+        </thead>
+        <tbody>
+          <th:block th:each="ligne : ${grille}">
+            <tr th:each="jour : ${jours}" th:if="${ligne.cases[jour.numero] != null}">
+              <td th:text="${jour.nom}">Jour</td>
+              <td th:text="${ligne.label}">Heure</td>
+              <td th:text="${ligne.cases[jour.numero].matiere}">Matiere</td>
+              <td th:text="${ligne.cases[jour.numero].professeur}">Professeur</td>
+            </tr>
+          </th:block>
+        </tbody>
+      </table>
+    </main>
+  </div>
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script>
+    function exportCalendarPdf() {
+      const element = document.getElementById('pdf');
+      if (!element || typeof html2pdf === 'undefined') return;
+      html2pdf().set({
+        margin: 8,
+        filename: 'emploi-du-temps.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, backgroundColor: '#ffffff' },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+      }).from(element).save();
+    }
+
+    function exportCalendarExcel() {
+      exportTableAsExcel('calendar-excel-table', 'emploi-du-temps.xls');
+    }
+
+    function exportTableAsExcel(tableId, filename) {
+      const table = document.getElementById(tableId);
+      if (!table) return;
+      const html = '<html><head><meta charset="UTF-8"></head><body>' + table.outerHTML + '</body></html>';
+      const blob = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
+      URL.revokeObjectURL(link.href);
+    }
+  </script>
+</body>
+
+</html>

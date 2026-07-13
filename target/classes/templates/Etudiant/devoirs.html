@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+
+<body>
+<canvas id="particle-canvas"></canvas>
+
+<div class="app-shell">
+
+  <aside class="sidebar" id="sidebar" th:replace="~{fragments/header :: sidebar}"></aside>
+  <header class="topbar" th:replace="~{fragments/header :: topbar}"></header>
+
+  <main class="main-content">
+
+    <div class="page-header">
+      <div>
+        <h2>Supports de cours</h2>
+        <p>Devoirs et leçons publiés par vos professeurs</p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:var(--sp-lg);">
+      <div class="card-header"><h3>Filtres</h3></div>
+      <div class="card-body">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:var(--sp-md);align-items:end;">
+          <div>
+            <label style="font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--txt3);display:block;margin-bottom:6px;">Matière</label>
+            <input id="filter-matiere" class="form-control" type="text" placeholder="Ex: Maths" oninput="filterSupports()">
+          </div>
+          <div>
+            <label style="font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--txt3);display:block;margin-bottom:6px;">Professeur</label>
+            <input id="filter-prof" class="form-control" type="text" placeholder="Nom du prof" oninput="filterSupports()">
+          </div>
+          <div>
+            <label style="font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--txt3);display:block;margin-bottom:6px;">Date</label>
+            <input id="filter-date" class="form-control" type="date" oninput="filterSupports()">
+          </div>
+          <div>
+            <label style="font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--txt3);display:block;margin-bottom:6px;">Titre</label>
+            <input id="filter-titre" class="form-control" type="text" placeholder="Titre" oninput="filterSupports()">
+          </div>
+          <div>
+            <label style="font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--txt3);display:block;margin-bottom:6px;">Type</label>
+            <select id="filter-type" class="form-control" onchange="filterSupports()">
+              <option value="">Tous</option>
+              <option value="devoir">Devoir</option>
+              <option value="lecon">Leçon</option>
+            </select>
+          </div>
+          <button type="button" class="btn btn-secondary" onclick="resetSupportFilters()">
+            <i class="fas fa-rotate-left"></i> Réinitialiser
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:var(--sp-lg);">
+
+      <!-- EMPTY STATE -->
+      <div th:if="${supports.isEmpty()}"
+           style="color:var(--txt2);font-style:italic;padding:8px 0 16px 14px;">
+        Aucun support publié pour le moment.
+      </div>
+
+      <!-- SUPPORT LIST -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:var(--sp-md);">
+      <div class="support-card support-item"
+           th:each="support : ${supports}"
+           th:data-type="${support.typeContenu != null ? #strings.toLowerCase(support.typeContenu) : ''}"
+           th:data-prof="${support.affectation != null && support.affectation.professeur != null ? #strings.toLowerCase(support.affectation.professeur.prenom + ' ' + support.affectation.professeur.nom) : ''}"
+           th:data-matiere="${support.affectation != null && support.affectation.matiere != null ? #strings.toLowerCase(support.affectation.matiere.nom) : ''}"
+           th:data-titre="${support.titre != null ? #strings.toLowerCase(support.titre) : ''}"
+           th:data-date="${support.dateLimite != null ? support.dateLimite : support.createdAt}"
+           style="padding:0;overflow:hidden;border:1px solid var(--border);box-shadow:0 16px 34px rgba(15,23,42,.08);">
+
+        <div style="padding:var(--sp-lg);display:flex;flex-direction:column;gap:var(--sp-md);min-height:260px;">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:var(--sp-md);">
+            <div>
+              <div style="font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--txt3);margin-bottom:6px;">Matière</div>
+              <h3 style="margin:0;font-size:20px;font-family:var(--font-display);" th:text="${support.affectation?.matiere?.nom}">
+                Matière
+              </h3>
+            </div>
+            <span class="badge"
+                  style="white-space:nowrap;"
+                  th:styleappend="${support.typeContenu == 'lecon' ? 'background:rgba(20,184,166,.14);color:var(--success);' : ''}">
+              <i th:class="${support.typeContenu == 'lecon' ? 'fas fa-book-open' : 'fas fa-clipboard-list'}"></i>
+              <span th:text="${support.typeContenu}">type</span>
+            </span>
+          </div>
+
+          <div>
+            <h4 style="margin:0 0 8px;font-size:18px;line-height:1.3;color:var(--txt);" th:text="${support.titre}">
+              Titre
+            </h4>
+            <p style="margin:0;color:var(--txt2);line-height:1.6;" th:text="${support.description}">
+              Description
+            </p>
+          </div>
+
+          <div style="margin-top:auto;display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-sm);">
+            <div style="padding:12px;border-radius:8px;background:rgba(148,163,184,.10);">
+              <div style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--txt3);margin-bottom:4px;">Professeur</div>
+              <strong style="font-size:14px;" th:text="${support.affectation?.professeur?.prenom + ' ' + support.affectation?.professeur?.nom}">
+                Professeur
+              </strong>
+            </div>
+            <div style="padding:12px;border-radius:8px;background:rgba(245,158,11,.12);" th:if="${support.dateLimite != null}">
+              <div style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--txt3);margin-bottom:4px;">À rendre</div>
+              <strong style="font-size:14px;">
+                <i class="fas fa-calendar-day"></i>
+                <span th:text="${support.dateLimite}">Date limite</span>
+              </strong>
+            </div>
+            <div style="padding:12px;border-radius:8px;background:rgba(59,130,246,.10);" th:if="${support.dateLimite == null}">
+              <div style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--txt3);margin-bottom:4px;">Publié</div>
+              <strong style="font-size:14px;">
+                <i class="fas fa-calendar-check"></i>
+                <span th:text="${support.createdAt}">Date publication</span>
+              </strong>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      </div>
+
+    </div>
+  </main>
+
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+<script>
+function normalizeSupportText(value) {
+  return (value || '').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+}
+
+function filterSupports() {
+  const matiere = normalizeSupportText(document.getElementById('filter-matiere')?.value);
+  const prof = normalizeSupportText(document.getElementById('filter-prof')?.value);
+  const titre = normalizeSupportText(document.getElementById('filter-titre')?.value);
+  const type = normalizeSupportText(document.getElementById('filter-type')?.value);
+  const date = document.getElementById('filter-date')?.value || '';
+
+  document.querySelectorAll('.support-item').forEach(card => {
+    const cardDate = (card.dataset.date || '').substring(0, 10);
+    const visible =
+      (!matiere || normalizeSupportText(card.dataset.matiere).includes(matiere)) &&
+      (!prof || normalizeSupportText(card.dataset.prof).includes(prof)) &&
+      (!titre || normalizeSupportText(card.dataset.titre).includes(titre)) &&
+      (!type || normalizeSupportText(card.dataset.type) === type) &&
+      (!date || cardDate === date);
+    card.style.display = visible ? '' : 'none';
+  });
+}
+
+function resetSupportFilters() {
+  ['filter-matiere', 'filter-prof', 'filter-date', 'filter-titre'].forEach(id => {
+    const input = document.getElementById(id);
+    if (input) input.value = '';
+  });
+  const type = document.getElementById('filter-type');
+  if (type) type.value = '';
+  filterSupports();
+}
+</script>
+</body>
+</html>

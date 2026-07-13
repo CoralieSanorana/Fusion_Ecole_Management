@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head"></head>
+<body>
+<canvas id="particle-canvas"></canvas>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar" th:replace="fragments/header :: sidebar"></aside>
+  <header class="topbar" th:replace="fragments/header :: topbar"></header>
+  <main class="main-content">
+    <div class="page-header">
+        <div>
+            <h2>Bulletin de l'Élève</h2>
+            <p th:text="${etudiant != null ? etudiant.nom + ' ' + etudiant.prenom : 'Élève'}">Élève</p>
+        </div>
+        <div class="page-header-actions">
+          <a href="/professeur/bulletins" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Retour
+          </a>
+                    <a th:href="@{/professeur/bulletin/{etudiantId}/pdf(etudiantId=${etudiantId}, periodeId=${selectedPeriodeId})}" class="btn btn-primary">
+            <i class="fas fa-file-pdf"></i> Export PDF
+          </a>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h3>Sélection de la Période</h3>
+        </div>
+        <div class="card-body">
+            <form th:action="@{/professeur/bulletin/{etudiantId}(etudiantId=${etudiantId})}" method="get">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Période</label>
+                        <select name="periodeId" class="form-control" onchange="this.form.submit()">
+                            <option value="">Sélectionner une période</option>
+                            <option th:each="periode : ${periodes}" 
+                                    th:value="${periode.id}" 
+                                    th:text="${periode.libelle}"
+                                    th:selected="${param.periodeId != null && param.periodeId[0] == periode.id.toString()}">Période</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div th:if="${bulletin != null}" class="bulletin">
+        <div class="bulletin-head">
+            <div>
+                <h3>BULLETIN DE NOTES</h3>
+                <p th:text="${anneeScolaire != null ? 'Année ' + anneeScolaire.libelle : 'Année scolaire'} + ' · ' + ${periodes.?[id == #root.selectedPeriodeId].![libelle].![0] != null ? periodes.?[id == #root.selectedPeriodeId].![libelle].![0] : 'Période'} + ' · ' + ${classe != null ? classe.nom : 'Classe'}">Année scolaire · Période · Classe</p>
+                <p style="margin-top:8px;font-size:14px;opacity:.8;">
+                    Élève : <strong th:text="${etudiant != null ? etudiant.nom + ' ' + etudiant.prenom : 'Étudiant'}">Nom Prénom</strong>
+                </p>
+                <p style="margin-top:4px;font-size:14px;opacity:.8;">
+                    Matricule : <strong th:text="${etudiant != null ? etudiant.matricule : ''}">Matricule</strong>
+                </p>
+            </div>
+        </div>
+        <div class="bulletin-body">
+            <div class="bulletin-row header">
+                <div>Matière</div>
+                <div>Note /20</div>
+                <div>Coeff.</div>
+                <div>Appréciation</div>
+            </div>
+            <div th:each="matiereData : ${bulletin.matieres}" class="bulletin-row">
+                <div th:text="${matiereData.matiereNom}">Matière</div>
+                <div th:class="${matiereData.moyenne >= 16 ? 'grade-excellent' : matiereData.moyenne >= 14 ? 'grade-good' : matiereData.moyenne >= 12 ? 'grade-average' : 'grade-fail'}"
+                    th:text="${matiereData.moyenne}">Note</div>
+                <div th:text="${matiereData.coefficient}">Coeff</div>
+                <div style="font-size:12px;" 
+                     th:class="${matiereData.moyenne >= 16 ? 'color:var(--success)' : matiereData.moyenne >= 14 ? 'color:var(--b)' : matiereData.moyenne >= 12 ? 'color:var(--g)' : 'color:var(--danger)'}"
+                     th:text="${matiereData.appreciation}">Appréciation</div>
+            </div>
+        </div>
+        <div class="bulletin-footer">
+            <div>
+                <div style="font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--txt3);">Moyenne Générale</div>
+                <div class="moy" th:class="${bulletin.moyenneGenerale >= 16 ? 'grade-excellent' : bulletin.moyenneGenerale >= 14 ? 'grade-good' : bulletin.moyenneGenerale >= 12 ? 'grade-average' : 'grade-fail'}"
+                     th:text="${bulletin.moyenneGenerale} + ' / 20'">Moyenne</div>
+            </div>
+            <div style="text-align:right;">
+                <div style="font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--txt3);">Appréciation du Professeur Principal</div>
+                <div style="font-size:13px;font-style:italic;margin-top:4px;" th:text="'&quot;' + ${bulletin.appreciationGenerale} + '&quot;'">Appréciation</div>
+            </div>
+        </div>
+    </div>
+    
+    <div th:if="${bulletin == null}" class="card">
+        <div class="card-body">
+            <p style="text-align:center;color:var(--txt3);padding:40px;">
+                Sélectionnez une période pour afficher le bulletin de l'élève.
+            </p>
+        </div>
+    </div>
+  </main>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script th:inline="javascript">
+    const etudiantId = /*[[${etudiantId}]]*/ 0;
+    const periodeId = /*[[${param.periodeId != null ? param.periodeId[0] : null}]]*/ null;
+    
+    function exportPDF() {
+        showToast('📄 Export PDF en cours de développement...');
+    }
+    
+    // Load bulletin data when period is selected
+    if (periodeId) {
+        loadBulletin(etudiantId, periodeId);
+    }
+    
+    function loadBulletin(etudiantId, periodeId) {
+        // This will be implemented with the NoteService.getBulletinEtudiant method
+        // For now, showing placeholder data
+        const bulletinRows = document.getElementById('bulletin-rows');
+        bulletinRows.innerHTML = `
+            <div class="bulletin-row">
+                <div>Mathématiques</div>
+                <div class="grade-excellent">15.5</div>
+                <div>5</div>
+                <div style="font-size:12px;color:var(--success);">Très bien</div>
+            </div>
+            <div class="bulletin-row">
+                <div>Français</div>
+                <div class="grade-good">13.0</div>
+                <div>4</div>
+                <div style="font-size:12px;color:var(--b);">Bien</div>
+            </div>
+            <div class="bulletin-row">
+                <div>Sciences Physiques</div>
+                <div class="grade-good">14.5</div>
+                <div>4</div>
+                <div style="font-size:12px;color:var(--b);">Bien</div>
+            </div>
+        `;
+        document.getElementById('moyenne-generale').innerHTML = '<span class="grade-excellent">14.33 / 20</span>';
+    }
+</script>
+</body>
+</html>

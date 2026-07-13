@@ -33,8 +33,6 @@ public class PaiementService {
         @Autowired
         private EcheanceRepository echeanceRepository;
         @Autowired
-        private EcheancierRepository echeancierRepository;
-        @Autowired
         private InscriptionRepository inscriptionRepository;
         @Autowired
         private AnneeScolaireRepository anneeScolaireRepository;
@@ -44,6 +42,8 @@ public class PaiementService {
         private ClasseRepository classeRepository;
         @Autowired
         private ProfilEtudiantRepository profilEtudiantRepository;
+        @Autowired
+        private EcolageMensuelRepository ecolageMensuelRepository;
 
         // Retourner l'année scolaire active
         public AnneeScolaire getAnneeActive() {
@@ -57,17 +57,54 @@ public class PaiementService {
                 return inscriptionRepository.findByAnneeScolaireAndStatut(annee, "active");
         }
 
-        // Retourner les échéances non soldées d'une inscription
-        public List<Echeance> getEcheancesOuvertes(Long inscriptionId) {
+        public List<Echeance> getMoisParInscription(Long inscriptionId) {
                 Inscription inscription = inscriptionRepository.findById(inscriptionId)
                                 .orElseThrow(() -> new RuntimeException("Inscription introuvable"));
+                return echeanceRepository.findByInscriptionOrderByAnneeAscMoisAsc(inscription);
+        }
 
-                List<Echeancier> echeanciers = echeancierRepository.findByInscription(inscription);
-                if (echeanciers.isEmpty())
-                        return List.of();
+        @Transactional
+        public void genererEcheancesMensuelles(Inscription inscription) {
+                AnneeScolaire annee = anneeScolaireRepository.findById(inscription.getAnneeScolaireId())
+                                .orElseThrow(() -> new RuntimeException("Année scolaire introuvable"));
 
-                // On prend le premier écheancier (un seul par inscription en général)
-                return echeanceRepository.findByEcheancierAndEstSoldeeFalse(echeanciers.get(0));
+                // Récupérer le niveau via la classe
+                Classe classe = classeRepository.findById(inscription.getClasseId())
+                                .orElseThrow(() -> new RuntimeException("Classe introuvable"));
+
+                Niveau niveau = classe.getNiveau();
+
+                EcolageMensuel ecolage = ecolageMensuelRepository
+                                .findByNiveauAndAnneeScolaire(niveau, annee)
+                                .orElseThrow(() -> new RuntimeException(
+                                                "Aucun écolage mensuel configuré pour le niveau : "
+                                                                + niveau.getLibelle()));
+
+                java.time.LocalDate debut = annee.getDateDebut();
+                java.time.LocalDate fin = annee.getDateFin();
+                java.time.YearMonth moisCourant = java.time.YearMonth.of(debut.getYear(), debut.getMonth());
+                java.time.YearMonth moisFin = java.time.YearMonth.of(fin.getYear(), fin.getMonth());
+
+                while (!moisCourant.isAfter(moisFin)) {
+                        boolean existe = echeanceRepository
+                                        .findByInscriptionAndMoisAndAnnee(
+                                                        inscription,
+                                                        moisCourant.getMonthValue(),
+                                                        moisCourant.getYear())
+                                        .isPresent();
+
+                        if (!existe) {
+                                Echeance e = new Echeance();
+                                e.setInscription(inscription);
+                                e.setMois(moisCourant.getMonthValue());
+                                e.setAnnee(moisCourant.getYear());
+                                e.setMontantEcolage(ecolage.getMontant());
+                                e.setEstSoldee(false);
+                                e.setCreatedAt(java.time.LocalDateTime.now());
+                                echeanceRepository.save(e);
+                        }
+                        moisCourant = moisCourant.plusMonths(1);
+                }
         }
 
         // Enregistrer un paiement et vérifier si l'échéance est soldée
@@ -80,17 +117,14 @@ public class PaiementService {
                 Echeance echeance = echeanceRepository.findById(dto.getEcheanceId())
                                 .orElseThrow(() -> new RuntimeException("Échéance introuvable"));
 
-                // Récupérer le secrétaire connecté
                 String email = SecurityContextHolder.getContext().getAuthentication().getName();
                 User saisiPar = userRepository.findByEmail(email).orElse(null);
 
-                // Générer référence groupe unique
                 String refGroupe = "GRP-"
                                 + java.time.LocalDate.now()
                                                 .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"))
                                 + "-" + UUID.randomUUID().toString().substring(0, 6).toUpperCase();
 
-                // Sauvegarder chaque ligne
                 for (PaiementGroupeDTO.LignePaiement ligne : dto.getLignes()) {
                         Paiement p = new Paiement();
                         p.setInscription(inscription);
@@ -104,13 +138,14 @@ public class PaiementService {
                         paiementRepository.save(p);
                 }
 
-                // Vérifier si l'échéance est soldée
-                BigDecimal totalEcheance = paiementRepository.findByEcheance(echeance)
+                // Vérifier si le mois est soldé — utiliser montantEcolage (snapshot)
+                BigDecimal totalVerse = paiementRepository.findByEcheance(echeance)
                                 .stream()
                                 .map(Paiement::getMontant)
                                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-                if (totalEcheance.compareTo(echeance.getMontantAttendu()) >= 0) {
+                if (echeance.getMontantEcolage() != null &&
+                                totalVerse.compareTo(echeance.getMontantEcolage()) >= 0) {
                         echeance.setEstSoldee(true);
                         echeanceRepository.save(echeance);
                 }
@@ -130,9 +165,6 @@ public class PaiementService {
                 return paiementRepository.totalEncaisseParInscription(inscription);
         }
 
-        // ===================================== BILAN
-        // =================================== //
-
         public BilanGlobalDTO getBilanGlobal() {
                 AnneeScolaire annee;
                 try {
@@ -151,8 +183,10 @@ public class PaiementService {
                 // Regrouper par classe
                 Map<String, List<Inscription>> parClasse = new java.util.LinkedHashMap<>();
                 for (Inscription insc : inscriptions) {
-                        String nomClasse = classeRepository.findById(insc.getClasseId()).get().getNom();
-                        parClasse.computeIfAbsent(nomClasse, k -> new ArrayList<>()).add(insc);
+                        Classe classe = classeRepository.findById(insc.getClasseId()).orElse(null);
+                        if (classe == null)
+                                continue;
+                        parClasse.computeIfAbsent(classe.getNom(), k -> new ArrayList<>()).add(insc);
                 }
 
                 List<BilanClasseDTO> lignes = new ArrayList<>();
@@ -168,13 +202,13 @@ public class PaiementService {
                         int nombreSoldes = 0;
 
                         for (Inscription insc : inscsClasse) {
-                                // Total attendu = somme des échéances de l'écheancier
-                                List<Echeancier> echeanciers = echeancierRepository.findByInscription(insc);
-                                if (!echeanciers.isEmpty()) {
-                                        List<Echeance> echeances = echeanceRepository
-                                                        .findByEcheancier(echeanciers.get(0));
-                                        for (Echeance e : echeances) {
-                                                totalAttendu = totalAttendu.add(e.getMontantAttendu());
+                                // Total attendu = somme des montantEcolage de toutes les échéances mensuelles
+                                List<Echeance> echeances = echeanceRepository
+                                                .findByInscriptionOrderByAnneeAscMoisAsc(insc);
+
+                                for (Echeance e : echeances) {
+                                        if (e.getMontantEcolage() != null) {
+                                                totalAttendu = totalAttendu.add(e.getMontantEcolage());
                                         }
                                 }
 
@@ -182,21 +216,16 @@ public class PaiementService {
                                 BigDecimal encaisse = paiementRepository.totalEncaisseParInscription(insc);
                                 totalEncaisse = totalEncaisse.add(encaisse);
 
-                                // Solde = toutes les échéances soldées
-                                if (!echeanciers.isEmpty()) {
-                                        List<Echeance> ouvertes = echeanceRepository
-                                                        .findByEcheancierAndEstSoldeeFalse(echeanciers.get(0));
-                                        if (ouvertes.isEmpty())
-                                                nombreSoldes++;
-                                }
+                                // Élève soldé = tous les mois soldés
+                                boolean toutSolde = !echeances.isEmpty() &&
+                                                echeances.stream().allMatch(e -> Boolean.TRUE.equals(e.getEstSoldee()));
+                                if (toutSolde)
+                                        nombreSoldes++;
                         }
 
                         lignes.add(new BilanClasseDTO(
-                                        nomClasse,
-                                        totalAttendu,
-                                        totalEncaisse,
-                                        inscsClasse.size(),
-                                        nombreSoldes));
+                                        nomClasse, totalAttendu, totalEncaisse,
+                                        inscsClasse.size(), nombreSoldes));
 
                         totalAttenduGlobal = totalAttenduGlobal.add(totalAttendu);
                         totalEncaisseGlobal = totalEncaisseGlobal.add(totalEncaisse);
@@ -654,18 +683,20 @@ public class PaiementService {
                 tableEleve.setWidths(new float[] { 1f, 2f });
                 tableEleve.setSpacingAfter(12);
 
-                ProfilEtudiant etudiant = profilEtudiantRepository.findById(p.getInscription().getEtudiantId()).orElse(null);
+                ProfilEtudiant etudiant = profilEtudiantRepository.findById(p.getInscription().getEtudiantId())
+                                .orElse(null);
                 String nomComplet = etudiant.getNom().toUpperCase()
                                 + " " + etudiant.getPrenom();
 
                 Classe classe = classeRepository.findById(p.getInscription().getClasseId()).orElse(null);
 
-
                 ajouterLigneInfo(tableEleve, "Nom complet", nomComplet, fLabel, fValeur, gris);
                 ajouterLigneInfo(tableEleve, "Matricule", etudiant.getMatricule(), fLabel,
-                                fValeur,com.itextpdf.text.BaseColor.WHITE);
+                                fValeur, com.itextpdf.text.BaseColor.WHITE);
                 ajouterLigneInfo(tableEleve, "Classe", classe.getNom(), fLabel, fValeur, gris);
-                ajouterLigneInfo(tableEleve, "Année scolaire", anneeScolaireRepository.findById(p.getInscription().getAnneeScolaireId()).orElse(null).getLibelle(),
+                ajouterLigneInfo(tableEleve, "Année scolaire",
+                                anneeScolaireRepository.findById(p.getInscription().getAnneeScolaireId()).orElse(null)
+                                                .getLibelle(),
                                 fLabel,
                                 fValeur, com.itextpdf.text.BaseColor.WHITE);
                 doc.add(tableEleve);
@@ -681,17 +712,13 @@ public class PaiementService {
                 tablePaiement.setWidths(new float[] { 1f, 2f });
                 tablePaiement.setSpacingAfter(14);
 
-                String tranche = "Tranche " + p.getEcheance().getNumeroTranche();
-                String statut = p.getEcheance().getEstSoldee() ? "✔ SOLDÉE" : "⏳ EN ATTENTE";
-                String dateLimite = p.getEcheance().getDateLimite()
-                                .format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+                String tranche = p.getEcheance().getLabel(); // ex : "Septembre 2025"
+                String statut = p.getEcheance().getEstSoldee() ? "✔ SOLDÉ" : "⏳ EN ATTENTE";
 
-                ajouterLigneInfo(tablePaiement, "Tranche", tranche, fLabel, fValeur, gris);
-                ajouterLigneInfo(tablePaiement, "Date limite", dateLimite, fLabel, fValeur,
-                                com.itextpdf.text.BaseColor.WHITE);
+                ajouterLigneInfo(tablePaiement, "Mois", tranche, fLabel, fValeur, gris);
                 ajouterLigneInfo(tablePaiement, "Mode de paiement",
-                                p.getModePaiement().toUpperCase(), fLabel, fValeur, gris);
-                ajouterLigneInfo(tablePaiement, "Statut", statut, fLabel, fValeur, com.itextpdf.text.BaseColor.WHITE);
+                                p.getModePaiement().toUpperCase(), fLabel, fValeur, com.itextpdf.text.BaseColor.WHITE);
+                ajouterLigneInfo(tablePaiement, "Statut", statut, fLabel, fValeur, gris);
                 doc.add(tablePaiement);
 
                 // ── MONTANT ENCADRÉ ──
@@ -909,23 +936,25 @@ public class PaiementService {
                 tableEleve.setWidths(new float[] { 1f, 2f });
                 tableEleve.setSpacingAfter(12);
 
-                ProfilEtudiant etudiant = profilEtudiantRepository.findById(premier.getInscription().getEtudiantId()).orElse(null);
-                
+                ProfilEtudiant etudiant = profilEtudiantRepository.findById(premier.getInscription().getEtudiantId())
+                                .orElse(null);
+
                 String nomComplet = etudiant.getNom().toUpperCase()
                                 + " " + etudiant.getPrenom();
 
                 ajouterLigneInfo(tableEleve, "Nom complet", nomComplet, fLabel, fValeur, gris);
-                ajouterLigneInfo(tableEleve, "Matricule", etudiant.getMatricule(), fLabel, fValeur, com.itextpdf.text.BaseColor.WHITE);
-                ajouterLigneInfo(tableEleve, "Classe", classeRepository.findById(premier.getInscription().getClasseId()).orElse(null).getNom(), fLabel, fValeur,
+                ajouterLigneInfo(tableEleve, "Matricule", etudiant.getMatricule(), fLabel, fValeur,
+                                com.itextpdf.text.BaseColor.WHITE);
+                ajouterLigneInfo(tableEleve, "Classe",
+                                classeRepository.findById(premier.getInscription().getClasseId()).orElse(null).getNom(),
+                                fLabel, fValeur,
                                 gris);
-                ajouterLigneInfo(tableEleve, "Année scolaire", anneeScolaireRepository.findById(premier.getInscription().getAnneeScolaireId()).orElse(null).getLibelle(),
+                ajouterLigneInfo(tableEleve, "Année scolaire",
+                                anneeScolaireRepository.findById(premier.getInscription().getAnneeScolaireId())
+                                                .orElse(null).getLibelle(),
                                 fLabel, fValeur, com.itextpdf.text.BaseColor.WHITE);
-                ajouterLigneInfo(tableEleve, "Tranche", "Tranche " + premier.getEcheance().getNumeroTranche(), fLabel,
-                                fValeur, gris);
-                ajouterLigneInfo(tableEleve, "Date limite",
-                                premier.getEcheance().getDateLimite()
-                                                .format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")),
-                                fLabel, fValeur, com.itextpdf.text.BaseColor.WHITE);
+                ajouterLigneInfo(tableEleve, "Mois concerné",
+                                premier.getEcheance().getLabel(), fLabel, fValeur, gris);
                 doc.add(tableEleve);
 
                 // ── TABLEAU LIGNES PAIEMENT ──
