@@ -1,0 +1,58 @@
+-- ============================================================
+-- SCRIPT DIRECTEUR - MASTER
+-- Script principal qui inclut tous les scripts du directeur
+-- Basé sur les tests effectués par Funaki Live ETU004169
+-- Date : 11 Juillet 2026
+-- ============================================================
+
+-- Ce script est un fichier de référence.
+-- Pour exécuter les scripts du directeur, utilisez les fichiers suivants :
+--
+-- 1. directeur-dashboard.sql    - Tables pour le tableau de bord
+-- 2. directeur-initialize.sql  - Tables pour l'initialisation de l'école
+-- 3. directeur-edt.sql         - Tables pour la gestion des emplois du temps
+--
+-- Pour exécuter tous les scripts du directeur, lancez-les dans l'ordre suivant :
+-- \i directeur-initialize.sql
+-- \i directeur-dashboard.sql
+-- \i directeur-edt.sql
+--
+-- Ou exécutez chaque script indépendamment selon vos besoins.
+
+-- ============================================================
+-- RÉSUMÉ DES TABLES PAR FONCTIONNALITÉ
+-- ============================================================
+
+-- DASHBOARD.HTML:
+--   - transactions
+--   - depenses
+--   - paiements
+--   - categories_depenses
+--   - fournisseurs
+
+-- INITIALIZE.HTML:
+--   - etablissements
+--   - annees_scolaires
+--   - niveaux
+--   - salles
+--   - matieres
+--   - classes
+--   - users
+--   - roles
+--   - user_roles
+--   - profils_directeurs
+--   - profils_professeurs
+--   - contrats_employes
+--   - types_contrats_employes
+
+-- EDT.HTML:
+--   - horaire_edt
+--   - emploi_du_temps
+--   - affectations_enseignement
+--   - niveaux (référence)
+--   - salles (référence)
+--   - classes (référence)
+--   - matieres (référence)
+--   - annees_scolaires (référence)
+--   - profils_professeurs (référence)
+--   - etablissements (référence)

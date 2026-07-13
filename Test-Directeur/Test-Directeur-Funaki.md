@@ -1,57 +1,113 @@
 Date : 11 Juillet 2026 à 15h49
 Testeur : Funaki Live ETU004169
-Page : Directeur/Dashboard.html
-Scenariot : Des la connction , on est redirige vers la page Dashboard . on voit bien le bilan financier
-            Nombres de Professeur  Actifs Actuellement et le nombre d'Etudiants ayant paye ou pas paye leur ecoles de ce mois
-            -> Lors d'un ajout de Depences via le secretaire , le bilan se met a jour automatiquement , filtre pour voir les benefice mensuel 
-            -> Affichage de Gaphe sur les depenses et les revenus et un graphe en fromage sur les paiement des eleves 
-            -> Export dees bilans et des transactions issue de l'ecole en pdf 
 
-Teste fait : Ajouter des depenses via le secretaire sur l'achat de plusieuers tole pour la renovation de l'ecole 
-            -> Le bilan se met a jour automatiquement 
-            -> j 'ai exporter le bilan et les transactions en pdf et ca liste bien tout 
-            -> Le depenses est visibles par le directeur
+---
 
-Les tables utiliser :
+## Page : Directeur/Dashboard.html
 
+**Scénario :**
+Dès la connexion, on est redirigé vers la page Dashboard. On voit bien le bilan financier, le nombre de professeurs actifs actuellement et le nombre d'étudiants ayant payé ou non leur école de ce mois.
+- Lors d'un ajout de dépenses via le secrétaire, le bilan se met à jour automatiquement
+- Filtre pour voir les bénéfices mensuels
+- Affichage de graphes sur les dépenses et les revenus et un graphe en camembert sur les paiements des élèves
+- Export des bilans et des transactions de l'école en PDF
 
-Page : Directeur/initialize.html (Initialisation de l'ecole)
-Scenariot : On inserere une annee scolaire puis on peut ajouter des niveaux et des salles et des matieres puis on affectes les professeurs au matieres qu'il enseigne 
-        -> Rien ne marche sans une anne scolaire actif , Les classes devraient avoir des salles et sans salles actifs on ne peut pas cree de classe  
+**Tests effectués :**
+Ajout de dépenses via le secrétaire pour l'achat de plusieurs tôles pour la rénovation de l'école :
+- Le bilan se met à jour automatiquement
+- Export du bilan et des transactions en PDF réussi
+- Les dépenses sont visibles par le directeur
 
-Teste fait : J'ai inserer une annee scolaire puis j'ai ajouter des niveaux et des salles et des matieres puis j'ai affectes les professeurs au matieres qu'il enseigne 
-             -> Tout ceci se fait bien dans la base de donnees mais il sont inserer individuellement 
-             exemple : on peut inserer des classes sans salles de classe et on peut inserer des niveaux sans classes et meme sans etablissement on peut ajouter des 
-             annes scolaire 
+**Tables utilisées :**
+- `transactions`
+- `depenses`
+- `annees_scolaires`
+- `profils_professeurs`
+- `profils_etudiants`
+- `paiements`
 
-Solution : Il faut que l'initialisation se fasse dans un ordre logique et que chaque etape soit obligatoire avant de passer a l'autre
-           Par exemple : on doit d'abord creer un etablissement puis une annee scolaire puis des niveaux puis des salles puis des matieres puis des classes puis des professeurs
-           et chaque etape doit etre obligatoire avant de passer a l'autre
-                En modifiant : static/js/directeur-js/initialize.js et java/service/InitializeService.java 
-                le probleme est bien regler et fonctionnelles maintenant 
-                Tout est interdependant et chaque etape doit etre obligatoire avant de passer a l'autre
+**Statut :** ✅ Opérationnel
 
-Les tables utiliser : 
- 
+---
 
+## Page : Directeur/initialize.html (Initialisation de l'école)
 
-Page : Directeur/edt.html (Insertion des emplois du Temps)
-Scenariot : -> On affiche les emplois du temps de chaque salle a avec une forme de tables 
-            -> On cliques sur une cases dans le tables et on peut inserer cliquer sur plusieurs cases et puis 
-             ajouter a cette heure et jour qui correspont a la case selectionner un professeur qui ensaigne la matiere
-            -> On peut aussi changer les horaires des cours selon les salles 
-            -> Si on clique sur une case deja associe a une affectation elle ecrase directement celle de cette colonne
-            -> on pourra choir quelle salle on veut observer l'emplois du temps etc 
+**Scénario :**
+On insère une année scolaire puis on peut ajouter des niveaux, des salles et des matières puis on affecte les professeurs aux matières qu'ils enseignent.
+- Rien ne marche sans une année scolaire active
+- Les classes devraient avoir des salles et sans salles actifs on ne peut pas créer de classe
 
-Teste fait : J'ai inserer des emplois du temps pour plusieurs salles et plusieurs jours et ca s'insere bien dans la base mais il y a un probleme 
-             car il n'y a pas d'horaire par defaut dans la base de donnees 
-             -> Erreurs quand je configure une horaire specifique pour un niveau ca ne s'inserere pas dans la base de donnees
-             -> Le filtre beug car si on choisit une salle qui n'est pas associe au meme niveau ca affiche un message d'erreur qu'il n'y a 
-             pas d'horaire en base 
+**Tests effectués :**
+Insertion d'une année scolaire, ajout de niveaux, salles, matières et affectation des professeurs aux matières :
+- Tout ceci se fait bien dans la base de données mais ils sont insérés individuellement
+- Problème : on peut insérer des classes sans salles de classe, des niveaux sans classes et même sans établissement on peut ajouter des années scolaires
 
- 
-Solution : Mettre classe au lieu de niveau en filtrage et niveau servira a configurer son horaire speciales en database 
+**Solution appliquée :**
+L'initialisation se fait maintenant dans un ordre logique et chaque étape est obligatoire avant de passer à l'autre :
+1. Création d'un établissement
+2. Création d'une année scolaire
+3. Création des niveaux
+4. Création des salles
+5. Création des matières
+6. Création des classes
+7. Création des professeurs
 
-Les tables utiliser :
-            
+Modifications effectuées dans `static/js/directeur-js/initialize.js` et `java/service/InitializeService.java`.
+
+**Tables utilisées :**
+- `etablissements`
+- `annees_scolaires`
+- `niveaux`
+- `salles`
+- `matieres`
+- `classes`
+- `profils_professeurs`
+- `users`
+- `roles`
+- `user_roles`
+
+**Statut :** ✅ Opérationnel et fonctionnel
+
+---
+
+## Page : Directeur/edt.html (Gestion des Emplois du Temps)
+
+**Scénario :**
+- Affichage des emplois du temps de chaque salle sous forme de tableau
+- Sélection de plusieurs cases dans le tableau pour insérer une affectation (professeur + matière)
+- Configuration des horaires des cours par niveau
+- Écrasement automatique si on clique sur une case déjà associée à une affectation
+- Filtrage par classe pour observer l'emploi du temps
+
+**Tests effectués :**
+Insertion d'emplois du temps pour plusieurs salles et plusieurs jours :
+- L'insertion fonctionne bien dans la base de données
+- Problème initial : pas d'horaires par défaut dans la base de données
+- Erreur lors de la configuration d'horaires spécifiques pour un niveau
+- Bug du filtre : si on choisit une salle non associée au même niveau, message d'erreur
+
+**Solution appliquée :**
+1. **Filtrage par classe** : Remplacement du filtre "Niveau" par un filtre "Classe"
+2. **Auto-détermination de la salle** : La salle est automatiquement déterminée à partir de la classe choisie via la relation `classes.salle_id`
+3. **Configuration des horaires par niveau** : Le niveau sert uniquement à configurer les horaires spécifiques en base de données
+4. **Création automatique d'horaires par défaut** : Les niveaux sans horaires configurées reçoivent automatiquement les 9 plages horaires par défaut (07h00-17h00)
+5. **Correction de l'insertion** : Les horaires spécifiques s'insèrent maintenant correctement dans la base de données
+
+**Modifications effectuées :**
+- `templates/directeur/edt.html` : Remplacement du filtre niveau par classe, mise à jour des stats
+- `controller/DirecteurController.java` : Gestion du paramètre `classe_id` et auto-détermination de la salle
+- `service/EdtService.java` : Création automatique d'horaires par défaut et correction de l'insertion
+
+**Tables utilisées :**
+- `emploi_du_temps`
+- `horaire_edt`
+- `affectations_enseignement`
+- `classes`
+- `salles`
+- `niveaux`
+- `annees_scolaires`
+- `matieres`
+- `profils_professeurs`
+
+**Statut :** ✅ Opérationnel et bien configuré
 
