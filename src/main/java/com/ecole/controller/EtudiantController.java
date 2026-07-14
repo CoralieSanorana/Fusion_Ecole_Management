@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.DayOfWeek;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +26,7 @@ import com.ecole.entity.Lecon;
 import com.ecole.entity.Note;
 import com.ecole.entity.Periode;
 import com.ecole.entity.ProfilEtudiant;
+import com.ecole.entity.SupportCours;
 import com.ecole.entity.User;
 import com.ecole.entity.EmploiDuTemps;
 import com.ecole.repository.CoefficientRepository;
@@ -35,9 +37,12 @@ import com.ecole.repository.NoteRepository;
 import com.ecole.repository.PeriodeRepository;
 import com.ecole.repository.UserRepository;
 import com.ecole.repository.ClasseRepository;
+import com.ecole.repository.AbsenceRepository;
+import com.ecole.repository.ProfilEtudiantRepository;
 import com.ecole.service.UserService;
 import com.ecole.service.ProfilEtudiantService;
 import com.ecole.repository.EmploiDuTempsRepository;
+import com.ecole.repository.SupportCoursRepository;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
@@ -53,13 +58,42 @@ public class EtudiantController {
     @Autowired public CoefficientRepository coefficientRepository;
     @Autowired public PeriodeRepository periodeRepository;  
     @Autowired public ProfilEtudiantService profilEtudiantService;
+    @Autowired public ProfilEtudiantRepository profilEtudiantRepository;
     @Autowired public EmploiDuTempsRepository emploiDuTempsRepository;
+    @Autowired public SupportCoursRepository supportCoursRepository;
+    @Autowired public AbsenceRepository absenceRepository;
 
     private static final List<String> NOMS_JOURS =
             List.of("Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche");
 
     private static final List<String> COULEURS_MATIERE =
             List.of("math", "french", "science", "history");
+
+    @GetMapping({"/etudiant/abscences", "/etudiant/absences"})
+    public String absences(Model model, Authentication authentication) {
+        ProfilEtudiant profilEtudiant = getProfilEtudiantConnecte(authentication);
+        if (profilEtudiant == null) {
+            return "redirect:/login";
+        }
+
+        List<Map<String, Object>> absences = absenceRepository.findHistoriqueEtudiant(profilEtudiant.getId())
+                .stream()
+                .map(this::toAbsenceRow)
+                .toList();
+        long totalJustifiees = absences.stream()
+                .filter(absence -> "justifiee".equals(absence.get("type")))
+                .count();
+
+        model.addAttribute("pageTitle", "Mes absences");
+        model.addAttribute("currentRole", "etudiant");
+        model.addAttribute("profilEtudiant", profilEtudiant);
+        model.addAttribute("absences", absences);
+        model.addAttribute("totalAbsences", absences.size());
+        model.addAttribute("totalJustifiees", totalJustifiees);
+        model.addAttribute("totalNonJustifiees", absences.size() - totalJustifiees);
+
+        return "Etudiant/abscences";
+    }
 
     @GetMapping("/etudiant/emploi")
     public String emploi(Model model, HttpSession session) {
@@ -297,16 +331,14 @@ public class EtudiantController {
 
         List<Inscription> inscriptions = inscriptionRepository.findActiveByEtudiant(profilEtudiant.getId());
         Long classeId = inscriptions.isEmpty() ? null : inscriptions.get(0).getClasseId();
-
-        List<Devoir> devoirs = List.of();
-        List<Lecon> lecons = List.of();
+        List<SupportCours> supports = List.of();
+       
         try {
             if (classeId != null) {
-                devoirs = devoirRepository.findByClasse(classeId);
-                lecons = leconRepository.findByClasseId(classeId);
+                 supports = supportCoursRepository.findByClasse(classeId);
             }
         } catch (Exception e) {
-            // Log the exception and continue with empty lists
+           
             e.printStackTrace();
         }
 
@@ -314,8 +346,8 @@ public class EtudiantController {
         model.addAttribute("currentRole", "etudiant");
         model.addAttribute("user", null);
         model.addAttribute("profilEtudiant", profilEtudiant);
-        model.addAttribute("devoirs", devoirs);
-        model.addAttribute("lecons", lecons);
+        model.addAttribute("supports", supports);
+        
         return "Etudiant/devoirs";
     }
 
@@ -542,5 +574,44 @@ public class EtudiantController {
         model.addAttribute("user", null);
         model.addAttribute("profilEtudiant", profilEtudiant);
         return "Etudiant/profil";
+    }
+
+    private ProfilEtudiant getProfilEtudiantConnecte(Authentication authentication) {
+        if (authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getName())) {
+            User user = userRepository.findByEmail(authentication.getName()).orElse(null);
+            if (user != null) {
+                ProfilEtudiant profil = profilEtudiantRepository.findByUserId(user.getId()).orElse(null);
+                if (profil != null) {
+                    return profil;
+                }
+            }
+        }
+        return profilEtudiantService.findById(1L).orElse(null);
+    }
+
+    private Map<String, Object> toAbsenceRow(Object[] row) {
+        Map<String, Object> absence = new LinkedHashMap<>();
+        absence.put("id", row[0]);
+        absence.put("type", row[1]);
+        absence.put("motif", row[2]);
+        absence.put("justificatifUrl", row[3]);
+        absence.put("createdAt", row[4]);
+        absence.put("dateSeance", row[5]);
+        absence.put("heureDebut", row[6]);
+        absence.put("heureFin", row[7]);
+        absence.put("matiere", row[8] != null ? row[8] : "Matiere non definie");
+        absence.put("classe", row[9] != null ? row[9] : "-");
+        absence.put("salle", row[10] != null ? row[10] : "-");
+        absence.put("professeur", formatNomProfesseur(row[11], row[12]));
+        absence.put("typeLabel", "justifiee".equals(row[1]) ? "Justifiee" : "Non justifiee");
+        absence.put("badgeClass", "justifiee".equals(row[1]) ? "badge badge-green" : "badge badge-red");
+        return absence;
+    }
+
+    private String formatNomProfesseur(Object nom, Object prenom) {
+        String nomTexte = nom != null ? nom.toString() : "";
+        String prenomTexte = prenom != null ? prenom.toString() : "";
+        String complet = (prenomTexte + " " + nomTexte).trim();
+        return complet.isBlank() ? "-" : complet;
     }
 }

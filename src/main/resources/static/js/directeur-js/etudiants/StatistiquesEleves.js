@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ── Éléments DOM ─────────────────────────────────────────────────
   const btnToggle    = $('btn-toggle-filters');
   const filterPanel  = $('filter-panel');
+  const fAnnee       = $('f-annee');
   const fClasse      = $('f-classe');
   const fPeriodeFin  = $('f-periode-fin');
   const fSeuilBaisse = $('f-seuil-baisse');
@@ -28,6 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const chartInstances = {}; // classeId -> instance Chart.js
 
+  let anneesChargees = false;
+
   // ── Toggle panneau filtres ────────────────────────────────────────
   btnToggle.addEventListener('click', () => {
     const visible = filterPanel.style.display !== 'none';
@@ -42,10 +45,22 @@ document.addEventListener('DOMContentLoaded', () => {
     el.addEventListener('change', () => charger());
   });
 
+  fAnnee.addEventListener('change', async () => {
+    await chargerClasses();
+    await chargerPeriodes();
+    await charger();
+  });
+
+  function getAnneeScolaireId() {
+    return fAnnee.value || '';
+  }
+
   // ── Charger la liste des classes pour le select ───────────────────
   async function chargerClasses() {
     try {
-      const res = await fetch('/api/directeur/statistiques-eleves/classes');
+      const params = new URLSearchParams();
+      if (getAnneeScolaireId()) params.set('anneeScolaireId', getAnneeScolaireId());
+      const res = await fetch('/api/directeur/statistiques-eleves/classes?' + params.toString());
       const classes = await res.json();
       fClasse.innerHTML = '<option value="">Toutes les classes</option>' +
         classes.map(c => `<option value="${c.id}">${escapeHtml(c.nom)}</option>`).join('');
@@ -57,20 +72,45 @@ document.addEventListener('DOMContentLoaded', () => {
   // ── Charger la liste des périodes pour le select "période de fin" ──
   async function chargerPeriodes() {
     try {
-      const res = await fetch('/api/directeur/statistiques-eleves/periodes');
+      const params = new URLSearchParams();
+      if (getAnneeScolaireId()) params.set('anneeScolaireId', getAnneeScolaireId());
+      const res = await fetch('/api/directeur/statistiques-eleves/periodes?' + params.toString());
       const periodes = await res.json();
       // Période la plus récente en premier dans la liste déroulante
-      const triees = [...periodes].sort((a, b) => b.ordre - a.ordre);
+      const triees = [...periodes].reverse();
       fPeriodeFin.innerHTML = '<option value="">Dernière période disponible</option>' +
-        triees.map(p => `<option value="${p.id}">${escapeHtml(p.libelle)}</option>`).join('');
+        triees.map(p => `<option value="${p.value}">${escapeHtml(p.label)}</option>`).join('');
     } catch (e) {
       console.error('Erreur chargement périodes', e);
+    }
+  }
+
+  async function chargerAnnees() {
+    try {
+      const res = await fetch('/api/directeur/statistiques-eleves/annees');
+      const annees = await res.json();
+      const options = ['<option value="">Année active</option>'];
+      let selectedValue = '';
+      annees.forEach(a => {
+        options.push(`<option value="${a.id}">${escapeHtml(a.libelle)}</option>`);
+        if (a.selected && selectedValue === '') {
+          selectedValue = String(a.id);
+        }
+      });
+      fAnnee.innerHTML = options.join('');
+      if (selectedValue) {
+        fAnnee.value = selectedValue;
+      }
+      anneesChargees = true;
+    } catch (e) {
+      console.error('Erreur chargement années scolaires', e);
     }
   }
 
   // ── Charger l'analyse principale ──────────────────────────────────
   async function charger() {
     const params = new URLSearchParams();
+    if (fAnnee.value)        params.set('anneeScolaireId', fAnnee.value);
     if (fClasse.value)       params.set('classeId', fClasse.value);
     if (fPeriodeFin.value)   params.set('periodeFinId', fPeriodeFin.value);
     if (fSeuilBaisse.value)  params.set('seuilBaisseMoyenne', fSeuilBaisse.value);
@@ -240,7 +280,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ── Init ─────────────────────────────────────────────────────────
-  chargerClasses();
-  chargerPeriodes();
-  charger();
+  (async () => {
+    await chargerAnnees();
+    await chargerClasses();
+    await chargerPeriodes();
+    await charger();
+  })();
 });

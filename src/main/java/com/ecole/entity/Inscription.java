@@ -14,11 +14,11 @@ public class Inscription {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "etudiant_id", insertable = false, updatable = false)
+    @Column(name = "etudiant_id")
     private Long etudiantId;
 
     @ManyToOne
-    @JoinColumn(name = "etudiant_id")
+    @JoinColumn(name = "etudiant_id", insertable = false, updatable = false)
     private ProfilEtudiant etudiant;
 
     @ManyToOne

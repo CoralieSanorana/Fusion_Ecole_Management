@@ -54,11 +54,11 @@
   </main>
 </div>
 <script th:inline="javascript">
-  const etudiantId = /*[[${etudiantId}]]*/ null;
-  
   document.addEventListener('DOMContentLoaded', async () => {
+    const etudiantId = new URLSearchParams(window.location.search).get('id');
     if (etudiantId) {
       try {
+        // Appel à une API qui doit exister pour récupérer les données de l'étudiant
         const res = await fetch(`/api/directeur/etudiants/${etudiantId}`);
         if (res.ok) {
           const data = await res.json();

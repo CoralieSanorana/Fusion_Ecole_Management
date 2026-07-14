@@ -33,13 +33,16 @@
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
             <input type="hidden" name="inscriptionId" id="hiddenInscriptionId"/>
  
-            <!-- Filtre par classe -->
+            <!-- Filtre par classe (taper + scroller) -->
             <div class="form-group">
               <label>Filtrer par classe</label>
-              <select class="form-control" id="classeFilter" onchange="filtrerEleves()">
-                <option value="">Toutes les classes</option>
-                <option th:each="c : ${classes}" th:value="${c.id}" th:text="${c.nom}"></option>
-              </select>
+              <input type="text" class="form-control" id="classeFilter" list="classesList"
+                     placeholder="Tapez ou scrollez pour choisir une classe..."
+                     autocomplete="off" oninput="filtrerElevesParClasse()" />
+              <datalist id="classesList">
+                <option value="Toutes les classes">Toutes les classes</option>
+                <option th:each="c : ${classes}" th:value="${c.nom}" th:data-id="${c.id}"></option>
+              </datalist>
             </div>
 
             <!-- Sélection élève (taper + sélectionner) -->
@@ -135,13 +138,27 @@ window.allInscriptions.push({
 </script>
 
 <script th:inline="javascript">
-function filtrerEleves() {
-    const classeId = document.getElementById('classeFilter').value;
+function filtrerElevesParClasse() {
+    const classeInput = document.getElementById('classeFilter');
+    const classeNom = classeInput.value.trim();
+    let classeId = null;
+
+    // Résoudre le nom de classe en ID
+    if (classeNom && classeNom !== 'Toutes les classes') {
+        const datalistClasse = document.getElementById('classesList');
+        for (let opt of datalistClasse.options) {
+            if (opt.value === classeNom) {
+                classeId = opt.getAttribute('data-id');
+                break;
+            }
+        }
+    }
+
     const datalist = document.getElementById('elevesList');
     datalist.innerHTML = '';
 
     window.allInscriptions.forEach(insc => {
-        if (!classeId || insc.classeId == classeId) {
+        if (!classeId || !classeNom || classeNom === 'Toutes les classes' || insc.classeId == classeId) {
             const opt = document.createElement('option');
             opt.value = insc.label;
             opt.setAttribute('data-id', insc.id);
@@ -153,15 +170,15 @@ function filtrerEleves() {
     const eleveInput = document.getElementById('eleveInput');
     if (eleveInput.value) {
         const selectedInsc = window.allInscriptions.find(i => i.label === eleveInput.value);
-        if (selectedInsc && classeId && selectedInsc.classeId != classeId) {
+        if (selectedInsc && classeId && selectedInsc.classeId != classeId && classeNom !== 'Toutes les classes') {
             eleveInput.value = '';
-            onEleveInput(); // Pour réinitialiser les champs dépendants
+            onEleveInput();
         }
     }
 }
 
 // Appel initial pour peupler la liste avec tous les élèves
-filtrerEleves();
+filtrerElevesParClasse();
 
 function onEleveInput() {
     const val = document.getElementById('eleveInput').value.trim();

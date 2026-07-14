@@ -39,7 +39,7 @@ public class SecretaireController {
     @Autowired
     private DepenseService depenseService;
 
-    // ─── PAIEMENT ────────────────────────────────────────────────
+    // ─── PAIEMENT ────────────────────────────────────────────
 
     @GetMapping("/secretariat/paiement")
     public String paiement(Model model) {

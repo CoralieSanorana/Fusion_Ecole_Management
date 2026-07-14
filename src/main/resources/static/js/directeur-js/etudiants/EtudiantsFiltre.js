@@ -158,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     tbody.innerHTML = data.content.map(e => `
-      <tr style="cursor:pointer;" onclick="window.location.href='/directeur/profil_etudiant?id=${e.etudiantId}'">
+      <tr>
         <td><code style="font-size:0.78rem;">${esc(e.matricule)}</code></td>
         <td>
           <div style="font-weight:600;">${esc(e.nom)} ${esc(e.prenom)}</div>

@@ -809,6 +809,12 @@ public class DirecteurController {
         model.addAttribute("currentRole", "directeur");
         return "directeur/statistiques-eleves";
     }
+    
+    @GetMapping("/api/directeur/statistiques-eleves/annees")
+    @ResponseBody
+    public ResponseEntity<List<DashboardAnneeOptionDTO>> getAnneesStatistiquesEleves() {
+        return ResponseEntity.ok(statistiquesElevesService.listerAnneesScolaires());
+    }
 
     // ----------------------------------------------------------------
     // API — classes disponibles pour le filtre
@@ -819,6 +825,13 @@ public class DirecteurController {
     public ResponseEntity<List<Classe>> getClassesStatistiques(
             @RequestParam(required = false) Long anneeScolaireId) {
         return ResponseEntity.ok(statistiquesElevesService.listerClasses(anneeScolaireId));
+    }
+    
+    @GetMapping("/api/directeur/statistiques-eleves/periodes")
+    @ResponseBody
+    public ResponseEntity<List<com.ecole.dto.Secretaire.PeriodeOptionDTO>> getPeriodesStatistiquesEleves(
+            @RequestParam(required = false) Long anneeScolaireId) {
+        return ResponseEntity.ok(statistiquesElevesService.listerPeriodes(anneeScolaireId));
     }
 
     // ----------------------------------------------------------------

@@ -81,6 +81,11 @@ INSERT INTO annees_scolaires (id, etablissement_id, libelle, date_debut, date_fi
 SELECT 1, 1, '2025-2026', '2025-09-01', '2026-07-31', TRUE
 WHERE NOT EXISTS (SELECT 1 FROM annees_scolaires WHERE id = 1);
 
+-- Année scolaire supplémentaire pour tester les filtres multi-années
+INSERT INTO annees_scolaires (id, etablissement_id, libelle, date_debut, date_fin, est_active)
+SELECT 2, 1, '2024-2025', '2024-09-01', '2025-07-31', FALSE
+WHERE NOT EXISTS (SELECT 1 FROM annees_scolaires WHERE id = 2);
+
 -- Niveaux
 INSERT INTO niveaux (id, etablissement_id, libelle, ordre)
 VALUES
@@ -138,6 +143,13 @@ VALUES
     (1, 1, '1er Trimestre', 'trimestre', 1, '2025-09-01', '2025-11-30', '2025-12-15'),
     (2, 1, '2ème Trimestre', 'trimestre', 2, '2025-12-01', '2026-03-31', '2026-04-15'),
     (3, 1, '3ème Trimestre', 'trimestre', 3, '2026-04-01', '2026-07-31', '2026-08-15')
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO periodes (id, annee_scolaire_id, libelle, type, ordre, date_debut, date_fin, date_publication_notes)
+VALUES
+    (4, 2, '1er Trimestre', 'trimestre', 1, '2024-09-01', '2024-11-30', '2024-12-15'),
+    (5, 2, '2ème Trimestre', 'trimestre', 2, '2024-12-01', '2025-03-31', '2025-04-15'),
+    (6, 2, '3ème Trimestre', 'trimestre', 3, '2025-04-01', '2025-07-31', '2025-08-15')
 ON CONFLICT (id) DO NOTHING;
 
 -- Horaire EDT (référentiel)
@@ -203,6 +215,13 @@ INSERT INTO users (id, email, password, is_active) VALUES
     (41, 'prof@ecole.mg', '$2a$10$cDhdDnmh8rsr0IGdsvqTnuoswY47vKD01K1eACxt1lb7gXYlqTzXS', TRUE),
     (42, 'etudiant@ecole.mg', '$2a$10$cDhdDnmh8rsr0IGdsvqTnuoswY47vKD01K1eACxt1lb7gXYlqTzXS', TRUE)
 ON CONFLICT (id) DO NOTHING;
+
+-- Réaligner la séquence users après les insertions avec id explicites
+SELECT setval(
+    pg_get_serial_sequence('users', 'id'),
+    COALESCE((SELECT MAX(id) FROM users), 0) + 1,
+    false
+);
 
 -- User_roles
 INSERT INTO user_roles (user_id, role_id) VALUES
