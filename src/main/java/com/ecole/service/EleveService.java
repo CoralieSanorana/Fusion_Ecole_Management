@@ -5,6 +5,8 @@ import com.ecole.entity.*;
 import com.ecole.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +29,10 @@ public class EleveService {
     private final ProfilParentRepository parentRepo;
     private final AnneeScolaireRepository anneeScolaireRepo;
     private final JdbcTemplate jdbc;
+
+    @Autowired
+    @Lazy
+    private PaiementService paiementService;
 
     public EleveService(ProfilEtudiantRepository etudiantRepo,
                         InscriptionRepository inscriptionRepo,
@@ -211,8 +217,10 @@ public class EleveService {
         // Créer l'inscription
         Long classeId = dto.getClasseIdAsLong();
         if (classeId != null) {
+
             Inscription inscription = new Inscription();
-            inscription.setEtudiantId(saved.getId());
+            // Utiliser l'objet ProfilEtudiant — pas le Long
+            inscription.setEtudiant(saved);
             inscription.setClasseId(classeId);
             inscription.setAnneeScolaireId(anneeActive.getId());
             inscription.setTypeInscription("nouvelle");
@@ -220,10 +228,17 @@ public class EleveService {
             inscription.setStatut("active");
             inscription.setCreatedAt(LocalDateTime.now());
             inscription.setUpdatedAt(LocalDateTime.now());
-            inscriptionRepo.save(inscription);
+            Inscription savedInscription = inscriptionRepo.save(inscription);
             log.info("Inscription créée — élève {} dans classe ID {}", saved.getId(), classeId);
-        }
 
+            // Générer les échéances mensuelles automatiquement
+            try {
+                paiementService.genererEcheancesMensuelles(savedInscription);
+                log.info("Échéances mensuelles générées pour inscription ID {}", savedInscription.getId());
+            } catch (Exception e) {
+                log.warn("Impossible de générer les échéances mensuelles : {}", e.getMessage());
+            }
+        }
         return saved;
     }
 

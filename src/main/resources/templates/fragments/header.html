@@ -67,6 +67,9 @@
     <!-- Secretariat nav -->
     <nav class="nav-section" id="nav-secretariat" sec:authorize="hasRole('SECRETARIAT')">
       <p class="nav-section-title">Secrétariat</p>
+      <a th:href="@{/secretariat/ecolage}" class="nav-item">
+        <i class="fas fa-sliders-h"></i> Écolage mensuel
+      </a>
       <a th:href="@{/secretariat/paiement}" class="nav-item">
         <i class="fas fa-plus-circle"></i> Ajouter Paiement
       </a>

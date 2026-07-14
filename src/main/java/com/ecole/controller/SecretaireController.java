@@ -4,6 +4,7 @@ import com.ecole.dto.Secretaire.*;
 import com.ecole.entity.*;
 import com.ecole.service.EleveService;
 import com.ecole.service.DepenseService;
+import com.ecole.service.EcolageMensuelService;
 import com.ecole.service.PaiementService;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -26,7 +27,6 @@ import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
-
 @Controller
 public class SecretaireController {
 
@@ -39,8 +39,11 @@ public class SecretaireController {
     @Autowired
     private DepenseService depenseService;
 
-    // ─── PAIEMENT ────────────────────────────────────────────
 
+    @Autowired
+    private EcolageMensuelService ecolageMensuelService;
+
+// Paiment 
     @GetMapping("/secretariat/paiement")
     public String paiement(Model model) {
         List<Inscription> inscriptions;
@@ -48,7 +51,8 @@ public class SecretaireController {
             inscriptions = paiementService.getInscriptionsActives();
         } catch (RuntimeException e) {
             inscriptions = List.of();
-            model.addAttribute("warning", "Aucune année scolaire active ou aucune inscription n'est disponible pour le moment.");
+            model.addAttribute("warning",
+                    "Aucune année scolaire active ou aucune inscription n'est disponible pour le moment.");
         }
 
         if (inscriptions.isEmpty() && !model.containsAttribute("warning")) {
@@ -61,11 +65,10 @@ public class SecretaireController {
         return "Secretaire/paiement";
     }
 
-    // Chargement AJAX des échéances ouvertes quand on sélectionne un élève
     @GetMapping("/secretariat/paiement/echeances")
     @ResponseBody
     public List<Echeance> getEcheances(@RequestParam Long inscriptionId) {
-        return paiementService.getEcheancesOuvertes(inscriptionId);
+        return paiementService.getMoisParInscription(inscriptionId);
     }
 
     // Enregistrement du paiement
@@ -177,7 +180,8 @@ public class SecretaireController {
     public String bilan(Model model) {
         BilanGlobalDTO bilan = paiementService.getBilanGlobal();
         if (bilan.getLignes() == null || bilan.getLignes().isEmpty()) {
-            model.addAttribute("warning", "Aucune année scolaire active ou aucune donnée de paiement n'est disponible pour générer un bilan.");
+            model.addAttribute("warning",
+                    "Aucune année scolaire active ou aucune donnée de paiement n'est disponible pour générer un bilan.");
         }
         model.addAttribute("bilan", bilan);
         model.addAttribute("pageTitle", "Bilan de Paiement");
@@ -208,10 +212,13 @@ public class SecretaireController {
                 : List.of();
 
         model.addAttribute("anneesScolaires", annees);
-        model.addAttribute("periodes", selectedAnneeId != null ? depenseService.getPeriodes(selectedAnneeId) : List.of());
+        model.addAttribute("periodes",
+                selectedAnneeId != null ? depenseService.getPeriodes(selectedAnneeId) : List.of());
         model.addAttribute("typesDepenses", depenseService.getTypesDepenses());
         model.addAttribute("depenses", depenses);
-        model.addAttribute("totalDepenses", selectedAnneeId != null ? depenseService.totalDepenses(selectedAnneeId, selectedPeriode) : BigDecimal.ZERO);
+        model.addAttribute("totalDepenses",
+                selectedAnneeId != null ? depenseService.totalDepenses(selectedAnneeId, selectedPeriode)
+                        : BigDecimal.ZERO);
         model.addAttribute("selectedAnneeId", selectedAnneeId);
         model.addAttribute("selectedPeriode", selectedPeriode != null ? selectedPeriode.toString() : null);
         model.addAttribute("pageTitle", "Dépenses");
@@ -230,7 +237,8 @@ public class SecretaireController {
             @RequestParam(required = false) LocalDate dateDepense,
             RedirectAttributes redirectAttributes) {
         try {
-            depenseService.saveDepense(anneeScolaireId, typeDepenseId, description, prixUnitaire, quantite, dateDepense);
+            depenseService.saveDepense(anneeScolaireId, typeDepenseId, description, prixUnitaire, quantite,
+                    dateDepense);
             redirectAttributes.addFlashAttribute("success", "Dépense enregistrée avec succès.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
@@ -285,12 +293,12 @@ public class SecretaireController {
 
     @PostMapping("/secretariat/inscription")
     public String enregistrerInscription(@ModelAttribute AjoutEleveDTO dto,
-                                         RedirectAttributes redirectAttrs) {
+            RedirectAttributes redirectAttrs) {
         try {
             ProfilEtudiant eleve = eleveService.inscrireEleveComplet(dto);
             redirectAttrs.addFlashAttribute("successMessage",
                     "Élève " + eleve.getPrenom() + " " + eleve.getNom()
-                    + " inscrit avec succès (matricule : " + eleve.getMatricule() + ") !");
+                            + " inscrit avec succès (matricule : " + eleve.getMatricule() + ") !");
         } catch (Exception e) {
             redirectAttrs.addFlashAttribute("errorMessage", e.getMessage());
             return "redirect:/secretariat/inscription";
@@ -319,7 +327,8 @@ public class SecretaireController {
         try {
             Inscription insc = eleveService.reinscrireEleve(etudiantId, classeId);
             ProfilEtudiant etudiant = eleveService.getProfil(etudiantId) != null
-                    ? new ProfilEtudiant() : null;
+                    ? new ProfilEtudiant()
+                    : null;
             redirectAttrs.addFlashAttribute("successMessage",
                     "Réinscription effectuée avec succès !");
         } catch (Exception e) {
@@ -438,7 +447,7 @@ public class SecretaireController {
             eleveService.soumettreDemandeModification(id, champModifie, ancienneValeur, nouvelleValeur, motif);
             redirectAttrs.addFlashAttribute("successMessage", "Demande de modification soumise avec succès.");
         } catch (Exception e) {
-           throw e;
+            throw e;
         }
         return "redirect:/secretariat/profil/" + id;
     }
@@ -526,6 +535,30 @@ public class SecretaireController {
                     .append("<td>").append(p.getStatut()).append("</td></tr>");
         }
         return sb.toString();
+    }
+
+    // ─── ÉCOLAGE MENSUEL ─────────────────────────────────────────
+
+    @GetMapping("/secretariat/ecolage")
+    public String ecolage(Model model) {
+        model.addAttribute("tarifs", ecolageMensuelService.getTarifsAnneeActive());
+        model.addAttribute("niveaux", ecolageMensuelService.getAllNiveaux());
+        model.addAttribute("pageTitle", "Configuration Écolage Mensuel");
+        return "Secretaire/ecolage";
+    }
+
+    @PostMapping("/secretariat/ecolage")
+    public String configurerEcolage(
+            @RequestParam Long niveauId,
+            @RequestParam BigDecimal montant,
+            RedirectAttributes redirectAttrs) {
+        try {
+            ecolageMensuelService.configurer(niveauId, montant);
+            redirectAttrs.addFlashAttribute("success", "Écolage configuré avec succès !");
+        } catch (Exception e) {
+            redirectAttrs.addFlashAttribute("error", "Erreur : " + e.getMessage());
+        }
+        return "redirect:/secretariat/ecolage";
     }
 
 }

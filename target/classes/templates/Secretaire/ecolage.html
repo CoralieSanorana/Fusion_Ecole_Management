@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+<body>
+<canvas id="particle-canvas"></canvas>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar" th:replace="~{fragments/header :: sidebar}"></aside>
+  <header class="topbar" th:replace="~{fragments/header :: topbar}"></header>
+  <main class="main-content">
+
+    <div class="page-header">
+      <div>
+        <h2>Configuration Écolage Mensuel</h2>
+        <p>Définir le montant mensuel par niveau pour l'année scolaire active</p>
+      </div>
+    </div>
+
+    <!-- Messages -->
+    <div th:if="${success}"
+         style="background:#d4edda;color:#155724;padding:12px 16px;border-radius:8px;margin-bottom:16px;">
+      <i class="fas fa-check-circle"></i> <span th:text="${success}"></span>
+    </div>
+    <div th:if="${error}"
+         style="background:#f8d7da;color:#721c24;padding:12px 16px;border-radius:8px;margin-bottom:16px;">
+      <i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
+    </div>
+
+    <div class="grid-2">
+
+      <!-- Formulaire configuration -->
+      <div class="card">
+        <div class="card-header"><h3>Configurer un tarif</h3></div>
+        <div class="card-body">
+          <form th:action="@{/secretariat/ecolage}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+            <div class="form-group">
+              <label>Niveau</label>
+              <select class="form-control" name="niveauId" required>
+                <option value="">— Sélectionner un niveau —</option>
+                <option th:each="n : ${niveaux}"
+                        th:value="${n.id}"
+                        th:text="${n.libelle}">
+                </option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Montant mensuel (Ar)</label>
+              <input type="number" class="form-control" name="montant"
+                     placeholder="80 000" min="0" required/>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width:100%;">
+              <i class="fas fa-save"></i> Enregistrer le tarif
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Tarifs actuels -->
+      <div class="card">
+        <div class="card-header"><h3>Tarifs de l'année active</h3></div>
+        <div class="card-body" style="padding:0;">
+          <table style="width:100%;border-collapse:collapse;font-size:13px;">
+            <thead>
+              <tr style="background:var(--surface2);">
+                <th style="padding:10px 16px;text-align:left;">Niveau</th>
+                <th style="padding:10px 16px;text-align:right;">Montant / mois (Ar)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:if="${tarifs.isEmpty()}">
+                <td colspan="2"
+                    style="padding:24px;text-align:center;color:var(--txt3);">
+                  Aucun tarif configuré pour l'année active.
+                </td>
+              </tr>
+              <tr th:each="t, stat : ${tarifs}"
+                  th:style="${stat.odd ? 'background:var(--surface2)' : ''}">
+                <td style="padding:10px 16px;font-weight:500;"
+                    th:text="${t.niveau.libelle}"></td>
+                <td style="padding:10px 16px;text-align:right;font-weight:600;color:var(--teal);"
+                    th:text="${#numbers.formatDecimal(t.montant, 0, 'COMMA', 0, 'POINT') + ' Ar'}"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Explication du flux -->
+    <div class="card" style="margin-top:1.5rem;">
+      <div class="card-header"><h3>Comment ça fonctionne ?</h3></div>
+      <div class="card-body">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;font-size:13px;">
+          <div style="background:var(--surface2);border-radius:8px;padding:1rem;">
+            <div style="font-weight:600;margin-bottom:6px;color:var(--teal);">
+              <i class="fas fa-cog"></i> 1. Configuration
+            </div>
+            <p>Définir ici le montant mensuel par niveau (ex : Seconde = 80 000 Ar/mois).</p>
+          </div>
+          <div style="background:var(--surface2);border-radius:8px;padding:1rem;">
+            <div style="font-weight:600;margin-bottom:6px;color:var(--teal);">
+              <i class="fas fa-user-plus"></i> 2. Inscription
+            </div>
+            <p>À l'inscription d'un élève, le système génère automatiquement une échéance par mois de l'année scolaire.</p>
+          </div>
+          <div style="background:var(--surface2);border-radius:8px;padding:1rem;">
+            <div style="font-weight:600;margin-bottom:6px;color:var(--teal);">
+              <i class="fas fa-money-bill-wave"></i> 3. Paiement
+            </div>
+            <p>Le secrétaire sélectionne l'élève, choisit le mois à payer, saisit le montant et le mode.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head"></head>
+<body>
+<canvas id="particle-canvas"></canvas>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar" th:replace="fragments/header :: sidebar"></aside>
+  <header class="topbar" th:replace="fragments/header :: topbar"></header>
+  <main class="main-content">
+    <div class="page-header">
+        <div><h2>Écolages du Mois</h2><p>Élèves ayant payé en Avril 2026</p></div>
+        <select class="form-control" style="width:auto;padding:8px 16px;">
+          <option>Avril 2026</option><option>Mars 2026</option>
+        </select>
+      </div>
+      <div class="stats-grid" style="margin-bottom:var(--sp-xl);">
+        <div class="stat-card teal"><div class="stat-icon teal"><i class="fas fa-check-circle"></i></div><div class="stat-value">187</div><div class="stat-label">Ont payé</div></div>
+        <div class="stat-card rose"><div class="stat-icon rose"><i class="fas fa-times-circle"></i></div><div class="stat-value">16</div><div class="stat-label">N'ont pas payé</div></div>
+        <div class="stat-card amber"><div class="stat-icon amber"><i class="fas fa-coins"></i></div><div class="stat-value">14 960 000</div><div class="stat-label">Total collecté (Ar)</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>Liste des paiements</h3>
+          <div style="display:flex;gap:var(--sp-sm);">
+            <input type="text" class="form-control" placeholder="Rechercher…" style="width:200px;"/>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Élève</th><th>Classe</th><th>Date de paiement</th><th>Montant</th><th>Statut</th></tr></thead>
+            <tbody>
+              <tr><td>Rakoto Jean</td><td>1ère A</td><td>02/04/2026</td><td>80 000 Ar</td><td><span class="badge badge-green">Payé</span></td></tr>
+              <tr><td>Andria Miora</td><td>Seconde B</td><td>03/04/2026</td><td>80 000 Ar</td><td><span class="badge badge-green">Payé</span></td></tr>
+              <tr><td>Ratsima Lova</td><td>Terminale C</td><td>05/04/2026</td><td>80 000 Ar</td><td><span class="badge badge-green">Payé</span></td></tr>
+              <tr><td>Hery Njaka</td><td>1ère B</td><td>—</td><td>—</td><td><span class="badge badge-red">Impayé</span></td></tr>
+              <tr><td>Lalao Feno</td><td>Seconde A</td><td>08/04/2026</td><td>80 000 Ar</td><td><span class="badge badge-green">Payé</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+  </main>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

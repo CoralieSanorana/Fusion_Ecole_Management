@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+<body>
+<canvas id="particle-canvas"></canvas>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar" th:replace="~{fragments/header :: sidebar}"></aside>
+  <header class="topbar" th:replace="~{fragments/header :: topbar}"></header>
+  <main class="main-content">
+
+    <style>
+      /* ===== Correctif de mise en page : plus de chevauchement, transition en glissière ===== */
+      .page-header{
+        display:flex;flex-wrap:wrap;gap:1rem;justify-content:space-between;align-items:flex-start;
+        margin-bottom:1.5rem;
+      }
+
+      /* --- Barre d'étapes (onglets) --- */
+      .steps-nav{
+        display:flex;
+        gap:0.75rem;
+        margin-bottom:2rem;
+        overflow-x:auto;
+        padding:0.25rem 0.25rem 0.75rem;
+        scrollbar-width:thin;
+        position:relative;
+      }
+      .step-btn{
+        flex:1 1 0;
+        min-width:130px;
+        padding:1rem 0.75rem;
+        border:2px solid var(--border);
+        border-radius:0.75rem;
+        background:var(--bg);
+        cursor:pointer;
+        transition:border-color .2s ease, background .2s ease, transform .2s ease, box-shadow .2s ease;
+        text-align:center;
+        position:relative;
+      }
+      .step-btn i{font-size:1.4rem;margin-bottom:0.4rem;display:block;}
+      .step-btn strong{display:block;font-size:0.9rem;white-space:nowrap;}
+      .step-btn .step-index{
+        position:absolute;top:-8px;right:-8px;
+        width:22px;height:22px;border-radius:50%;
+        background:var(--border);color:#fff;font-size:0.7rem;
+        display:flex;align-items:center;justify-content:center;font-weight:600;
+      }
+      .step-btn:hover{transform:translateY(-2px);box-shadow:0 4px 10px rgba(0,0,0,0.08);}
+      .step-btn.active{
+        border-color:var(--clr-primary,#4f46e5);
+        background:rgba(79,70,229,0.06);
+      }
+      .step-btn.active .step-index{background:var(--clr-primary,#4f46e5);}
+      .step-btn.done .step-index{background:var(--clr-green,#16a34a);}
+      .step-btn.done{border-color:var(--clr-green,#16a34a);}
+
+      /* --- Zone de contenu en carrousel --- */
+      .steps-viewport{
+        overflow:hidden;
+        width:100%;
+        position:relative;
+      }
+      .steps-track{
+        display:flex;
+        width:100%;
+        transition:transform 0.45s cubic-bezier(.65,0,.35,1);
+        will-change:transform;
+      }
+      .step-content{
+        flex:0 0 100%;
+        max-width:100%;
+        box-sizing:border-box;
+        padding:0 0.25rem;
+        /* on annule l'ancien système display:none / active */
+        display:block !important;
+      }
+
+      /* --- Navigation Précédent / Suivant en bas de chaque carte --- */
+      .step-footer-nav{
+        display:flex;justify-content:space-between;align-items:center;
+        margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border);
+      }
+      .step-footer-nav .spacer{flex:1;}
+      .btn-nav{
+        display:inline-flex;align-items:center;gap:0.5rem;
+        padding:0.6rem 1.1rem;border-radius:0.6rem;border:2px solid var(--border);
+        background:var(--bg);cursor:pointer;font-weight:500;transition:all .2s ease;
+      }
+      .btn-nav:hover{border-color:var(--clr-primary,#4f46e5);}
+      .btn-nav:disabled{opacity:0.4;cursor:not-allowed;}
+      .btn-nav.primary{
+        background:var(--clr-primary,#4f46e5);color:#fff;border-color:var(--clr-primary,#4f46e5);
+      }
+
+      @media (max-width: 768px){
+        .steps-nav{gap:0.4rem;}
+        .step-btn{min-width:100px;padding:0.7rem 0.4rem;}
+        .step-btn strong{font-size:0.75rem;white-space:normal;}
+      }
+    </style>
+
+    <div class="page-header">
+      <div>
+        <h2>Initialisation de l'application</h2>
+        <p>Configurez les données de base pour commencer</p>
+      </div>
+      <div style="display:flex;gap:1rem;align-items:center;">
+        <button id="btn-import" class="btn btn-success" style="display:flex;align-items:center;gap:0.5rem;">
+          <i class="fas fa-file-import"></i> Importer CSV
+        </button>
+        <button id="btn-export" class="btn btn-info" style="display:flex;align-items:center;gap:0.5rem;">
+          <i class="fas fa-file-export"></i> Exporter tout (CSV)
+        </button>
+      </div>
+    </div>
+
+    <!-- Steps Navigation : cliquer ici mène directement au formulaire concerné -->
+    <div class="steps-nav" id="steps-nav">
+      <button class="step-btn active" data-step="etablissement" type="button">
+        <span class="step-index">1</span>
+        <i class="fas fa-school"></i>
+        <strong>Établissement</strong>
+      </button>
+      <button class="step-btn" data-step="annee" type="button">
+        <span class="step-index">2</span>
+        <i class="fas fa-calendar-alt"></i>
+        <strong>Année Scolaire</strong>
+      </button>
+      <button class="step-btn" data-step="niveau" type="button">
+        <span class="step-index">3</span>
+        <i class="fas fa-layer-group"></i>
+        <strong>Niveaux</strong>
+      </button>
+      <button class="step-btn" data-step="salle" type="button">
+        <span class="step-index">4</span>
+        <i class="fas fa-door-open"></i>
+        <strong>Salles</strong>
+      </button>
+      <button class="step-btn" data-step="classe" type="button">
+        <span class="step-index">5</span>
+        <i class="fas fa-users-class"></i>
+        <strong>Classes</strong>
+      </button>
+      <button class="step-btn" data-step="matiere" type="button">
+        <span class="step-index">6</span>
+        <i class="fas fa-book"></i>
+        <strong>Matières</strong>
+      </button>
+    </div>
+
+    <!-- Step Content : glisse horizontalement comme un carrousel -->
+    <div class="steps-viewport">
+      <div class="steps-track" id="steps-track">
+
+        <!-- Step 1: Établissement -->
+        <div class="step-content" id="step-etablissement" data-step="etablissement">
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-school"></i> Établissement</h3>
+            </div>
+            <div class="card-body">
+              <form id="form-etablissement" style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;">
+                <div style="grid-column:span 2;">
+                  <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Nom de l'établissement</label>
+                  <input type="text" class="form-control" name="nom" required>
+                </div>
+                <div style="grid-column:span 2;">
+                  <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Adresse</label>
+                  <textarea class="form-control" name="adresse" rows="2"></textarea>
+                </div>
+                <div>
+                  <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Téléphone</label>
+                  <input type="text" class="form-control" name="telephone">
+                </div>
+                <div>
+                  <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Email</label>
+                  <input type="email" class="form-control" name="email">
+                </div>
+                <div style="grid-column:span 2;display:flex;gap:1rem;justify-content:flex-end;">
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Enregistrer
+                  </button>
+                </div>
+              </form>
+              <div id="list-etablissement" style="margin-top:2rem;"></div>
+              <div class="step-footer-nav">
+                <span class="spacer"></span>
+                <button type="button" class="btn-nav primary next-step">Suivant <i class="fas fa-arrow-right"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: Année Scolaire -->
+        <div class="step-content" id="step-annee" data-step="annee">
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-calendar-alt"></i> Année Scolaire</h3>
+            </div>
+            <div class="card-body">
+              <div style="background:rgba(255,193,7,0.1);padding:1rem;border-radius:0.5rem;margin-bottom:1.5rem;border-left:4px solid var(--clr-amber);">
+                <strong style="color:var(--clr-amber);"><i class="fas fa-info-circle"></i> Important</strong>
+                <p style="margin:0.5rem 0 0 0;">L'année scolaire active est utilisée pour toutes les opérations de l'application.</p>
+              </div>
+              <form id="form-annee" style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
+                <div>
+                  <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Libellé</label>
+                  <input type="text" class="form-control" name="libelle" placeholder="Ex: 2024-2025" required>
+                </div>
+                <div>
+                  <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Date de début</label>
+                  <input type="date" class="form-control" name="dateDebut" required>
+                </div>
+                <div>
+                  <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Date de fin</label>
+                  <input type="date" class="form-control" name="dateFin" required>
+                </div>
+                <div style="display:flex;align-items:center;gap:0.5rem;">
+                  <input type="checkbox" id="estActive" name="estActive">
+                  <label for="estActive" style="margin:0;">Année active</label>
+                </div>
+                <div style="grid-column:span 3;display:flex;gap:1rem;justify-content:flex-end;">
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Enregistrer
+                  </button>
+                </div>
+              </form>
+              <div id="list-annee" style="margin-top:2rem;"></div>
+              <div class="step-footer-nav">
+                <button type="button" class="btn-nav prev-step"><i class="fas fa-arrow-left"></i> Précédent</button>
+                <button type="button" class="btn-nav primary next-step">Suivant <i class="fas fa-arrow-right"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Niveaux -->
+        <div class="step-content" id="step-niveau" data-step="niveau">
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-layer-group"></i> Niveaux</h3>
+            </div>
+            <div class="card-body">
+              <form id="form-niveau" style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;">
+                <div>
+                  <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Libellé</label>
+                  <input type="text" class="form-control" name="libelle" placeholder="Ex: Seconde" required>
+                </div>
+                <div>
+                  <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Ordre</label>
+                  <input type="number" class="form-control" name="ordre" placeholder="Ex: 1" required>
+                </div>
+                <div style="grid-column:span 2;display:flex;gap:1rem;justify-content:flex-end;">
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Enregistrer
+                  </button>
+                </div>
+              </form>
+              <div id="list-niveau" style="margin-top:2rem;"></div>
+              <div class="step-footer-nav">
+                <button type="button" class="btn-nav prev-step"><i class="fas fa-arrow-left"></i> Précédent</button>
+                <button type="button" class="btn-nav primary next-step">Suivant <i class="fas fa-arrow-right"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4: Salles -->
+        <div class="step-content" id="step-salle" data-step="salle">
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-door-open"></i> Salles</h3>
+            </div>
+            <div class="card-body">
+              <form id="form-salle" style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
+                <div>
+                  <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Nom</label>
+                  <input type="text" class="form-control" name="nom" placeholder="Ex: Salle 101" required>
+                </div>
+                <div>
+                  <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Capacité</label>
+                  <input type="number" class="form-control" name="capacite" placeholder="Ex: 30" required>
+                </div>
+                <div>
+                  <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Type</label>
+                  <select class="form-control" name="type">
+                    <option value="cours">Cours</option>
+                    <option value="laboratoire">Laboratoire</option>
+                    <option value="amphi">Amphithéâtre</option>
+                    <option value="sport">Sport</option>
+                  </select>
+                </div>
+                <div style="display:flex;align-items:center;gap:0.5rem;">
+                  <input type="checkbox" id="isActiveSalle" name="isActive" checked>
+                  <label for="isActiveSalle" style="margin:0;">Active</label>
+                </div>
+                <div style="grid-column:span 3;display:flex;gap:1rem;justify-content:flex-end;">
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Enregistrer
+                  </button>
+                </div>
+              </form>
+              <div id="list-salle" style="margin-top:2rem;"></div>
+              <div class="step-footer-nav">
+                <button type="button" class="btn-nav prev-step"><i class="fas fa-arrow-left"></i> Précédent</button>
+                <button type="button" class="btn-nav primary next-step">Suivant <i class="fas fa-arrow-right"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 5: Classes -->
+        <div class="step-content" id="step-classe" data-step="classe">
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-users-class"></i> Classes</h3>
+            </div>
+            <div class="card-body">
+              <div style="background:rgba(255,193,7,0.1);padding:1rem;border-radius:0.5rem;margin-bottom:1.5rem;border-left:4px solid var(--clr-amber);">
+                <strong style="color:var(--clr-amber);"><i class="fas fa-info-circle"></i> Prérequis</strong>
+                <p style="margin:0.5rem 0 0 0;">Vous devez d'abord créer des niveaux et une année scolaire avant de créer des classes.</p>
+              </div>
+              <form id="form-classe" style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
+                <div>
+                  <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Nom</label>
+                  <input type="text" class="form-control" name="nom" placeholder="Ex: Seconde A" required>
+                </div>
+                <div>
+                  <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Niveau</label>
+                  <select class="form-control" name="niveauId" id="select-niveau" required></select>
+                </div>
+                <div>
+                  <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Année Scolaire</label>
+                  <select class="form-control" name="anneeScolaireId" id="select-annee" required></select>
+                </div>
+                <div>
+                  <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Capacité max</label>
+                  <input type="number" class="form-control" name="capaciteMax" placeholder="Ex: 30" required>
+                </div>
+                <div style="grid-column:span 3;display:flex;gap:1rem;justify-content:flex-end;">
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Enregistrer
+                  </button>
+                </div>
+              </form>
+              <div id="list-classe" style="margin-top:2rem;"></div>
+              <div class="step-footer-nav">
+                <button type="button" class="btn-nav prev-step"><i class="fas fa-arrow-left"></i> Précédent</button>
+                <button type="button" class="btn-nav primary next-step">Suivant <i class="fas fa-arrow-right"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 6: Matières -->
+        <div class="step-content" id="step-matiere" data-step="matiere">
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-book"></i> Matières</h3>
+            </div>
+            <div class="card-body">
+              <form id="form-matiere" style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;">
+                <div>
+                  <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Nom</label>
+                  <input type="text" class="form-control" name="nom" placeholder="Ex: Mathématiques" required>
+                </div>
+                <div>
+                  <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Code</label>
+                  <input type="text" class="form-control" name="code" placeholder="Ex: MATH">
+                </div>
+                <div style="grid-column:span 2;display:flex;gap:1rem;justify-content:flex-end;">
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Enregistrer
+                  </button>
+                </div>
+              </form>
+              <div id="list-matiere" style="margin-top:2rem;"></div>
+              <div class="step-footer-nav">
+                <button type="button" class="btn-nav prev-step"><i class="fas fa-arrow-left"></i> Précédent</button>
+                <span class="spacer"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /.steps-track -->
+    </div><!-- /.steps-viewport -->
+
+  </main>
+</div>
+<script th:src="@{/js/directeur-js/initialize/Initialize.js}" defer></script>
+
+<!-- Navigation en carrousel : glissement fluide + accès direct via les onglets -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var steps = ['etablissement', 'annee', 'niveau', 'salle', 'classe', 'matiere'];
+  var track = document.getElementById('steps-track');
+  var navButtons = document.querySelectorAll('.step-btn');
+  var current = 0;
+
+  function goTo(index) {
+    if (index < 0 || index >= steps.length) return;
+    current = index;
+
+    // Glissement horizontal du carrousel
+    track.style.transform = 'translateX(-' + (index * 100) + '%)';
+
+    // Mise à jour de l'état des onglets (actif / déjà visité)
+    navButtons.forEach(function (btn, i) {
+      btn.classList.remove('active');
+      btn.classList.remove('done');
+      if (i === index) {
+        btn.classList.add('active');
+      } else if (i < index) {
+        btn.classList.add('done');
+      }
+    });
+  }
+
+  // Accès direct au formulaire en cliquant sur un onglet (Salles, Établissement, etc.)
+  navButtons.forEach(function (btn, i) {
+    btn.addEventListener('click', function () {
+      goTo(i);
+    });
+  });
+
+  // Boutons Précédent / Suivant en bas de chaque carte
+  document.querySelectorAll('.next-step').forEach(function (btn) {
+    btn.addEventListener('click', function () { goTo(current + 1); });
+  });
+  document.querySelectorAll('.prev-step').forEach(function (btn) {
+    btn.addEventListener('click', function () { goTo(current - 1); });
+  });
+
+  goTo(0);
+});
+</script>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>
