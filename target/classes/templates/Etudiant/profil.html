@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+<body>
+<canvas id="particle-canvas"></canvas>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar" th:replace="~{fragments/header :: sidebar}"></aside>
+  <header class="topbar" th:replace="~{fragments/header :: topbar}"></header>
+  <main class="main-content">
+    <div class="page-header"><div><h2>Mon Profil</h2><p>Informations personnelles</p></div></div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-body" style="text-align:center;padding:var(--sp-2xl);">
+            <div class="prof-card-avatar" style="background:linear-gradient(135deg,var(--g),var(--b));width:100px;height:100px;font-size:36px;margin:0 auto var(--sp-lg);" th:text="${profilEtudiant != null ? profilEtudiant.prenom.substring(0,1) + profilEtudiant.nom.substring(0,1) : 'ET'}">ET</div>
+            <h3 style="font-family:var(--font-display);font-size:22px;" th:text="${profilEtudiant != null ? profilEtudiant.prenom + ' ' + profilEtudiant.nom : 'Étudiant'}">Étudiant</h3>
+            <div style="color:var(--g);font-weight:600;font-size:13px;margin-top:6px;text-transform:uppercase;letter-spacing:.5px;" th:text="${profilEtudiant != null ? profilEtudiant.matricule : 'Matricule non définie'}">Matricule</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>Mes informations</h3></div>
+          <div class="card-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-md);">
+              <div><div style="font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--txt3);margin-bottom:4px;">Date de naissance</div><strong th:text="${profilEtudiant != null && profilEtudiant.dateNaissance != null ? #temporals.format(profilEtudiant.dateNaissance, 'dd MMM yyyy') : '-'}">-</strong></div>
+              <div><div style="font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--txt3);margin-bottom:4px;">Lieu de naissance</div><strong th:text="${profilEtudiant != null ? profilEtudiant.lieuNaissance : '-'}">-</strong></div>
+              <div><div style="font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--txt3);margin-bottom:4px;">Adresse</div><strong th:text="${profilEtudiant != null ? profilEtudiant.adresse : '-'}">-</strong></div>
+              <div><div style="font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--txt3);margin-bottom:4px;">Téléphone</div><strong th:text="${profilEtudiant != null ? profilEtudiant.telephone : '-'}">-</strong></div>
+              <div><div style="font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--txt3);margin-bottom:4px;">Email</div><strong th:text="${user != null ? user.email : '-'}">-</strong></div>
+              <div><div style="font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--txt3);margin-bottom:4px;">Nationalité</div><strong th:text="${profilEtudiant != null ? profilEtudiant.nationalite : '-'}">-</strong></div>
+            </div>
+          </div>
+        </div>
+      </div>
+  </main>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

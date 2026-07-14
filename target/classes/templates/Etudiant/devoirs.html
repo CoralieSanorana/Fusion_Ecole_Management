@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+<body>
+<canvas id="particle-canvas"></canvas>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar" th:replace="~{fragments/header :: sidebar}"></aside>
+  <header class="topbar" th:replace="~{fragments/header :: topbar}"></header>
+  <main class="main-content">
+
+    <div class="page-header">
+      <div><h2>Devoirs &amp; Leçons</h2><p>Travaux publiés par vos professeurs</p></div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:var(--sp-md);">
+
+      <!-- ── SECTION DEVOIRS ── -->
+      <h3 style="margin:0 0 4px;font-size:1.1rem;color:var(--txt);border-left:4px solid var(--b);padding-left:10px;">
+        <i class="fas fa-clipboard-list"></i> Devoirs
+      </h3>
+
+      <div th:if="${devoirs.isEmpty()}"
+           style="color:var(--txt2);font-style:italic;padding:8px 0 16px 14px;">
+        Aucun devoir publié pour le moment.
+      </div>
+
+      <div class="devoir-card" th:each="devoir : ${devoirs}">
+        <h4 th:text="${devoir.affectation?.professeur?.prenom + ' ' + devoir.affectation?.professeur?.nom}">Professeur</h4>
+        <h4 th:text="${devoir.affectation?.matiere?.nom}">Matière</h4>
+        <h4 th:text="${devoir.titre}">Titre</h4>
+        <div class="due">
+          <i class="fas fa-calendar-day"></i> À rendre :
+          <span th:text="${devoir.dateLimite}">Date limite</span>
+        </div>
+        <p th:text="${devoir.description}">Description</p>
+      </div>
+
+      <!-- ── SECTION LEÇONS ── -->
+      <h3 style="margin:16px 0 4px;font-size:1.1rem;color:var(--txt);border-left:4px solid var(--txt3);padding-left:10px;">
+        <i class="fas fa-book-open"></i> Leçons
+      </h3>
+
+      <div th:if="${lecons.isEmpty()}"
+           style="color:var(--txt2);font-style:italic;padding:8px 0 16px 14px;">
+        Aucune leçon publiée pour le moment.
+      </div>
+
+      <div class="lecon-card" th:each="lecon : ${lecons}">
+        <h4 th:text="${lecon.affectation?.professeur?.prenom + ' ' + lecon.affectation?.professeur?.nom}">Professeur</h4>
+        <h4 th:text="${lecon.affectation?.matiere?.nom}">Matière</h4>
+        <h4 th:text="${lecon.titre}">Titre leçon</h4>
+        <div class="due">
+          <span th:text="${lecon.contenu}">Contenu</span>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>
