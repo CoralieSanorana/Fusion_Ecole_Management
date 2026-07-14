@@ -1,6 +1,7 @@
 package com.ecole.service;
 
 import com.ecole.dto.Directeur.*;
+import com.ecole.dto.Secretaire.PeriodeOptionDTO;
 import com.ecole.entity.AnneeScolaire;
 import com.ecole.entity.Periode;
 import com.ecole.repository.*;
@@ -214,6 +215,23 @@ public class StatistiquesElevesService {
     // HELPER PUBLIC — liste des classes pour peupler le filtre de la vue
     // ----------------------------------------------------------------
 
+    public List<DashboardAnneeOptionDTO> listerAnneesScolaires() {
+        List<AnneeScolaire> annees = anneeScolaireRepo.findAll().stream()
+                .sorted(Comparator.comparing(AnneeScolaire::getDateDebut, Comparator.nullsLast(Comparator.naturalOrder())).reversed())
+                .toList();
+
+        Long activeId = anneeScolaireRepo.findByEstActiveTrue().map(AnneeScolaire::getId).orElse(null);
+        List<DashboardAnneeOptionDTO> options = new ArrayList<>();
+        for (AnneeScolaire annee : annees) {
+            DashboardAnneeOptionDTO option = new DashboardAnneeOptionDTO();
+            option.setId(annee.getId());
+            option.setLibelle(annee.getLibelle());
+            option.setSelected(activeId != null && activeId.equals(annee.getId()));
+            options.add(option);
+        }
+        return options;
+    }
+
     public List<com.ecole.entity.Classe> listerClasses(Long anneeScolaireId) {
         Long anneeId = anneeScolaireId;
         if (anneeId == null) {
@@ -226,7 +244,7 @@ public class StatistiquesElevesService {
         return classeRepo.findByAnneeScolaire_Id(anneeId);
     }
 
-    public List<Periode> listerPeriodes(Long anneeScolaireId) {
+    public List<PeriodeOptionDTO> listerPeriodes(Long anneeScolaireId) {
         Long anneeId = anneeScolaireId;
         if (anneeId == null) {
             AnneeScolaire active = anneeScolaireRepo.findByEstActiveTrue().orElse(null);
@@ -235,7 +253,17 @@ public class StatistiquesElevesService {
             }
             anneeId = active.getId();
         }
-        return periodeRepo.findByAnneeScolaireIdOrderByOrdreAsc(anneeId);
+
+        List<Periode> periodes = periodeRepo.findByAnneeScolaireIdOrderByOrdreAsc(anneeId);
+        List<PeriodeOptionDTO> options = new ArrayList<>();
+        for (Periode periode : periodes) {
+            PeriodeOptionDTO option = new PeriodeOptionDTO();
+            option.setValue(String.valueOf(periode.getId()));
+            option.setLabel(periode.getLibelle());
+            option.setSelected(false);
+            options.add(option);
+        }
+        return options;
     }
 
     // ----------------------------------------------------------------

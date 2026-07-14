@@ -280,8 +280,8 @@
     <article class="contract-cv" th:if="${employe != null}">
       <header class="contract-cv-header">
         <div class="contract-photo-wrap" id="employee-photo-trigger" role="button" tabindex="0" aria-label="Modifier la photo de l'employé">
-          <img th:src="${employe.photoUrl != null && !employe.photoUrl.isEmpty() ? (employe.photoUrl.contains('DefaultIMG') ? '/photo/' + employe.photoUrl : '/photo/photo-employes/' + employe.photoUrl) : photoUrl}" alt="Photo employé">
-          <div class="contract-photo-overlay">Appuyer pour modifier</div>
+          <img th:src="${employe.photoUrl != null && !employe.photoUrl.isEmpty() ? (employe.photoUrl.startsWith('/') ? employe.photoUrl : (employe.photoUrl.contains('DefaultIMG') ? '/photo/' + employe.photoUrl : '/photo/photo-employes/' + employe.photoUrl)) : photoUrl}" alt="Photo employé">
+          <!-- <div class="contract-photo-overlay">Appuyer pour modifier</div> -->
         </div>
         <div class="contract-cv-title">
           <h2 th:text="${employe.prenom + ' ' + employe.nom}">Nom Prénom</h2>
@@ -297,10 +297,10 @@
       <div class="contract-cv-body">
         <section class="contract-panel">
           <div class="contract-section">
-            <h3>Photo Employé</h3>
+            <!-- <h3>Photo Employé</h3>
             <div style="border: 1px dashed #cbd5e1; border-radius: 12px; padding: 14px; background: #f8fafc;">
               <p style="margin:0;font-size:13px;color:#475569;">La photo est affichée depuis le profil de l'employé. Si aucune photo n'est enregistrée, l'image par défaut Homme/Femme s'affiche automatiquement.</p>
-            </div>
+            </div> -->
           </div>
 
           <div class="contract-section">

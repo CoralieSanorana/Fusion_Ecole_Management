@@ -21,6 +21,8 @@ import com.ecole.repository.RoleRepository;
 import com.ecole.repository.UserRoleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -42,6 +44,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class EmployeService {
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     private final VueEmployesDetailRepository vueEmployesDetailRepository;
     private final ProfilsProfesseursRepository profilsProfesseursRepository;
@@ -126,15 +131,23 @@ public class EmployeService {
     }
 
     public String getPhotoUrl(VueEmployesDetail employe) {
-        if (employe.getPhotoUrl() != null && !employe.getPhotoUrl().isEmpty()) {
-            if (employe.getPhotoUrl().contains("DefaultIMG")) {
-                return "/photo/" + employe.getPhotoUrl();
-            }
-            return "/photo/photo-employes/" + employe.getPhotoUrl();
-        }
-        
         String sexe = employe.getSexe() != null ? employe.getSexe().toUpperCase() : "H";
-        return sexe.equals("F") ? "/photo/DefaultIMG_Femme.png" : "/photo/DefaultIMG_Homme.png";
+        return resolvePhotoUrl(employe.getPhotoUrl(), sexe);
+    }
+
+    private String resolvePhotoUrl(String rawPhotoUrl, String sexe) {
+        if (rawPhotoUrl == null || rawPhotoUrl.isBlank()) {
+            return "F".equalsIgnoreCase(sexe) ? "/photo/DefaultIMG_Femme.png" : "/photo/DefaultIMG_Homme.png";
+        }
+
+        String value = rawPhotoUrl.trim();
+        if (value.startsWith("/")) {
+            return value;
+        }
+        if (value.contains("DefaultIMG")) {
+            return "/photo/" + value;
+        }
+        return "/photo/photo-employes/" + value;
     }
 
     public String uploadEmployeePhoto(Long userId, MultipartFile file) throws IOException {
@@ -414,6 +427,9 @@ public class EmployeService {
         }
 
         String defaultPassword = (password != null && !password.trim().isEmpty()) ? password : "ChangeMe123!";
+
+        // Manual seed inserts can leave the sequence behind MAX(id); align it before persisting a new user.
+        alignUsersSequence();
         
         User user = new User();
         user.setEmail(email);
@@ -523,6 +539,16 @@ public class EmployeService {
                 break;
             default:
                 throw new IllegalArgumentException("Fonction non reconnue: " + fonction);
+        }
+    }
+
+    private void alignUsersSequence() {
+        try {
+            entityManager.createNativeQuery(
+                    "SELECT setval(pg_get_serial_sequence('users', 'id'), COALESCE((SELECT MAX(id) FROM users), 0) + 1, false)")
+                    .getSingleResult();
+        } catch (Exception e) {
+            log.warn("Impossible d'aligner la sequence users automatiquement: {}", e.getMessage());
         }
     }
 }

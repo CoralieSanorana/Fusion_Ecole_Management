@@ -149,15 +149,9 @@ public class EleveService {
         Long classeIdInt = dto.getClasseIdAsLong();
         if (classeIdInt != null) {
             Inscription inscription = new Inscription();
-
-            // Utiliser les objets @ManyToOne au lieu des IDs bruts
-            etudiantRepo.findById(saved.getId())
-            .map(ProfilEtudiant::getId)
-            .ifPresent(inscription::setEtudiantId);
-
-            classeRepo.findById(Long.valueOf(classeIdInt))
-                    .map(Classe::getId)
-                    .ifPresent(inscription::setClasseId);
+            // Écrire l'ID de l'étudiant (la colonne est now insertable)
+            inscription.setEtudiantId(saved.getId());
+            inscription.setClasseId(classeIdInt);
 
             inscription.setTypeInscription("nouvelle");
             inscription.setDateInscription(LocalDate.now());
@@ -165,13 +159,15 @@ public class EleveService {
             inscription.setCreatedAt(LocalDateTime.now());
             inscription.setUpdatedAt(LocalDateTime.now());
 
-            anneeScolaireRepo.findByEstActiveTrue().ifPresentOrElse(
-                annee -> {
-                    inscription.setAnneeScolaireId(annee.getId());
-                    log.info("Inscription créée avec année scolaire : {}", annee.getLibelle());
-                },
-                () -> log.warn("Aucune année scolaire active trouvée")
-            );
+            // Assurer qu'une année scolaire active existe avant de créer l'inscription
+            var anneeActiveOpt = anneeScolaireRepo.findByEstActiveTrue();
+            if (anneeActiveOpt.isEmpty()) {
+                throw new RuntimeException("Aucune année scolaire active. Veuillez initialiser l'année scolaire avant d'ajouter un élève.");
+            }
+            anneeActiveOpt.ifPresent(annee -> {
+                inscription.setAnneeScolaireId(annee.getId());
+                log.info("Inscription créée avec année scolaire : {}", annee.getLibelle());
+            });
 
             inscriptionRepo.save(inscription);
         }
@@ -267,7 +263,7 @@ public class EleveService {
         }
 
         Inscription inscription = new Inscription();
-        inscription.setEtudiantId(etudiantId);
+        inscription.setEtudiantId(etudiant.getId());
         inscription.setClasseId(classeId);
         inscription.setAnneeScolaireId(anneeActive.getId());
         inscription.setTypeInscription("reinscription");

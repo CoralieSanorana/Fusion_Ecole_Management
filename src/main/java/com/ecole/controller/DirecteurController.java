@@ -7,7 +7,13 @@ import com.ecole.service.InitializeService;
 import com.ecole.service.EmployeService;
 import com.ecole.service.EtudiantFilterService;
 import com.ecole.service.StatistiquesElevesService;
+import com.ecole.service.ProfilsProfesseursService;
+import com.ecole.service.CoefficientService;
+import com.ecole.service.AffectationEnseignementService;
 import com.ecole.dto.Directeur.*;
+import com.ecole.dto.ProfesseurDTO;
+import com.ecole.dto.CoefficientDTO;
+import com.ecole.dto.AffectationDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -25,6 +31,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
@@ -38,6 +45,9 @@ public class DirecteurController {
     private final com.ecole.service.TypesContratsEmployesService typesContratsEmployesService;
     private final EtudiantFilterService filterService;
     private final StatistiquesElevesService statistiquesElevesService;
+    private final ProfilsProfesseursService ProfilsProfesseursService;
+    private final CoefficientService coefficientService;
+    private final AffectationEnseignementService affectationEnseignementService;
 
 
     @GetMapping("/directeur/dashboard")
@@ -80,13 +90,6 @@ public class DirecteurController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + buildExportFilename("bilan-dashboard", dashboard))
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(pdf);
-    }
-
-    @GetMapping("/directeur/finances")
-    public String finances(Model model) {
-        model.addAttribute("pageTitle", "Finances & Bénéfices");
-        model.addAttribute("currentRole", "directeur");
-        return "directeur/finances";
     }
 
     @GetMapping("/directeur/professeurs")
@@ -240,54 +243,49 @@ public class DirecteurController {
 
     @GetMapping({"/directeur/edt", "/fragments/directeur/edt"})
     public String edt(
-            @RequestParam(name = "salle_id", required = false) Long salleId,
-            @RequestParam(name = "niveau_id", required = false) Long niveauId,
+            @RequestParam(name = "classe_id", required = false) Long classeId,
             Model model) {
         
         // First get all model data for the timetable
         AnneeScolaire annee = edtService.getAnneeActive();
         List<Niveau> niveaux = edtService.getAllNiveaux();
         List<Salle> salles = edtService.getActiveSalles();
-
-        if (salleId == null && !salles.isEmpty()) {
-            salleId = salles.get(0).getId();
-        }
-
+        List<Classe> classes = initializeService.getAllClasses();
+        
+        // Auto-determine salle from classe
+        Long determinedSalleId = null;
         Salle selectedSalle = null;
-        if (salleId != null) {
-            for (Salle s : salles) {
-                if (s.getId().equals(salleId)) {
-                    selectedSalle = s;
-                    break;
-                }
-            }
-        }
-
-        if (selectedSalle == null && !salles.isEmpty()) {
-            selectedSalle = salles.get(0);
-            salleId = selectedSalle.getId();
-        }
-
-        List<HoraireEdt> horaires = edtService.getHoraires(niveauId);
-
+        Classe selectedClasse = null;
         Niveau selectedNiveau = null;
-        if (niveauId != null) {
-            for (Niveau n : niveaux) {
-                if (n.getId().equals(niveauId)) {
-                    selectedNiveau = n;
+        
+        if (classeId != null) {
+            for (Classe c : classes) {
+                if (c.getId().equals(classeId)) {
+                    selectedClasse = c;
+                    selectedNiveau = c.getNiveau();
+                    if (c.getSalle() != null) {
+                        selectedSalle = c.getSalle();
+                        determinedSalleId = selectedSalle.getId();
+                    }
                     break;
                 }
             }
         }
 
-        String selectedNiveauLibelle = selectedNiveau != null ? selectedNiveau.getLibelle() : "";
+        // If no salle determined and salles exist, use first one
+        if (determinedSalleId == null && !salles.isEmpty()) {
+            selectedSalle = salles.get(0);
+            determinedSalleId = selectedSalle.getId();
+        }
+
+        List<HoraireEdt> horaires = edtService.getHoraires(selectedNiveau != null ? selectedNiveau.getId() : null);
 
         Map<Long, Map<Integer, CreneauDTO>> parHoraire = new HashMap<>();
-        if (annee != null && salleId != null) {
-            parHoraire = edtService.getCreneauxParSalle(annee.getId(), salleId, horaires);
+        if (annee != null && determinedSalleId != null) {
+            parHoraire = edtService.getCreneauxParSalle(annee.getId(), determinedSalleId, horaires);
         }
 
-        Integer creneauxCount = annee != null && salleId != null ? edtService.countCreneaux(annee.getId(), salleId) : 0;
+        Integer creneauxCount = annee != null && determinedSalleId != null ? edtService.countCreneaux(annee.getId(), determinedSalleId) : 0;
         List<AffectationDetailDTO> affectations = annee != null ? edtService.getAffectationsWithDetails(annee.getId()) : List.of();
 
         Map<Integer, String> jours = new HashMap<>();
@@ -300,10 +298,12 @@ public class DirecteurController {
 
         model.addAttribute("annee", annee);
         model.addAttribute("niveaux", niveaux);
-        model.addAttribute("selectedNiveauId", niveauId);
-        model.addAttribute("selectedNiveauLibelle", selectedNiveauLibelle);
+        model.addAttribute("classes", classes);
+        model.addAttribute("selectedClasseId", classeId);
+        model.addAttribute("selectedClasse", selectedClasse);
+        model.addAttribute("selectedNiveau", selectedNiveau);
         model.addAttribute("salles", salles);
-        model.addAttribute("selectedSalleId", salleId);
+        model.addAttribute("selectedSalleId", determinedSalleId);
         model.addAttribute("selectedSalle", selectedSalle);
         model.addAttribute("horaires", horaires);
         model.addAttribute("jours", jours);
@@ -318,21 +318,38 @@ public class DirecteurController {
 
     @PostMapping({"/directeur/edt", "/fragments/directeur/edt"})
     public String saveEdt(
-            @RequestParam("salle_id") Long salleId,
+            @RequestParam(name = "classe_id", required = false) Long classeId,
             @RequestParam("affectation_id") Long affectationId,
             @RequestParam(name = "cells", required = false) List<String> cells) {
 
         if (cells != null && !cells.isEmpty()) {
-            edtService.saveCreneaux(salleId, affectationId, cells);
+            // Get salle from classe
+            Long salleId = null;
+            if (classeId != null) {
+                Classe classe = initializeService.getAllClasses().stream()
+                    .filter(c -> c.getId().equals(classeId))
+                    .findFirst()
+                    .orElse(null);
+                if (classe != null && classe.getSalle() != null) {
+                    salleId = classe.getSalle().getId();
+                }
+            }
+            if (salleId != null) {
+                edtService.saveCreneaux(salleId, affectationId, cells);
+            }
         }
 
-        return "redirect:/directeur/edt?salle_id=" + salleId;
+        String redirectUrl = "redirect:/directeur/edt";
+        if (classeId != null) {
+            redirectUrl += "?classe_id=" + classeId;
+        }
+        return redirectUrl;
     }
 
     @PostMapping({"/directeur/edt/save-horaires", "/fragments/directeur/edt/save-horaires"})
     public String saveHoraires(
             @RequestParam("niveau_id") Long niveauId,
-            @RequestParam("salle_id") Long salleId,
+            @RequestParam(name = "classe_id", required = false) Long classeId,
             @RequestParam(name = "reset_to_global", required = false) Boolean resetToGlobal,
             jakarta.servlet.http.HttpServletRequest request) {
 
@@ -342,7 +359,11 @@ public class DirecteurController {
             e.printStackTrace();
             // Just redirect, even if there's an error
         }
-        return "redirect:/directeur/edt?salle_id=" + salleId + "&niveau_id=" + niveauId;
+        String redirectUrl = "redirect:/directeur/edt";
+        if (classeId != null) {
+            redirectUrl += "?classe_id=" + classeId;
+        }
+        return redirectUrl;
     }
 
     // --- Initialization Routes ---
@@ -356,7 +377,69 @@ public class DirecteurController {
         model.addAttribute("salles", initializeService.getAllSalles());
         model.addAttribute("classes", initializeService.getAllClasses());
         model.addAttribute("matieres", initializeService.getAllMatieres());
+        
+        // Convert to DTOs to avoid circular reference issues
+        List<ProfesseurDTO> professeurDTOs = ProfilsProfesseursService.findAll().stream()
+            .map(p -> {
+                ProfesseurDTO dto = new ProfesseurDTO();
+                dto.setId(p.getId());
+                dto.setNom(p.getNom());
+                dto.setPrenom(p.getPrenom());
+                dto.setMatricule(p.getMatricule());
+                dto.setSpecialite(p.getSpecialite());
+                dto.setTelephone(p.getTelephone());
+                dto.setAdresse(p.getAdresse());
+                dto.setTypeContrat(p.getTypeContrat());
+                return dto;
+            }).collect(Collectors.toList());
+        model.addAttribute("professeurs", professeurDTOs);
+        
+        List<CoefficientDTO> coefficientDTOs = coefficientService.findAll().stream()
+            .map(c -> {
+                CoefficientDTO dto = new CoefficientDTO();
+                dto.setId(c.getId());
+                dto.setMatiereId(c.getMatiereId());
+                dto.setNiveauId(c.getNiveauId());
+                dto.setValeur(c.getValeur());
+                
+                // Get matiere and niveau names
+                if (c.getMatiereId() != null) {
+                    matiereService.findById(c.getMatiereId()).ifPresent(m -> dto.setMatiereNom(m.getNom()));
+                }
+                if (c.getNiveauId() != null) {
+                    initializeService.getAllNiveaux().stream()
+                        .filter(n -> n.getId().equals(c.getNiveauId()))
+                        .findFirst()
+                        .ifPresent(n -> dto.setNiveauNom(n.getLibelle()));
+                }
+                
+                return dto;
+            }).collect(Collectors.toList());
+        model.addAttribute("coefficients", coefficientDTOs);
+        
+        List<AffectationDTO> affectationDTOs = affectationEnseignementService.findAll().stream()
+            .map(a -> {
+                AffectationDTO dto = new AffectationDTO();
+                dto.setId(a.getId());
+                dto.setProfesseurId(a.getProfesseur() != null ? a.getProfesseur().getId() : null);
+                dto.setProfesseurNom(buildProfesseurNom(a.getProfesseur()));
+                dto.setMatiereId(a.getMatiere() != null ? a.getMatiere().getId() : null);
+                dto.setMatiereNom(a.getMatiere() != null ? a.getMatiere().getNom() : null);
+                dto.setClasseId(a.getClasse() != null ? a.getClasse().getId() : null);
+                dto.setClasseNom(a.getClasse() != null ? a.getClasse().getNom() : null);
+                dto.setAnneeScolaireId(a.getAnneeScolaire() != null ? a.getAnneeScolaire().getId() : null);
+                dto.setAnneeScolaireNom(a.getAnneeScolaire() != null ? a.getAnneeScolaire().getLibelle() : null);
+                dto.setHeuresHebdo(a.getHeuresHebdo());
+                return dto;
+            }).collect(Collectors.toList());
+        model.addAttribute("affectations", affectationDTOs);
+        
         return "directeur/initialize";
+    }
+    
+    private String buildProfesseurNom(ProfilsProfesseurs professeur) {
+        if (professeur == null) return null;
+        return professeur.getNom() + " " + professeur.getPrenom();
     }
 
     // --- API Endpoints for Initialization ---
@@ -364,12 +447,74 @@ public class DirecteurController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getInitializeData() {
         Map<String, Object> data = new HashMap<>();
-        data.put("etablissements", initializeService.getAllEtablissements());
-        data.put("anneesScolaires", initializeService.getAllAnneesScolaires());
-        data.put("niveaux", initializeService.getAllNiveaux());
-        data.put("salles", initializeService.getAllSalles());
-        data.put("classes", initializeService.getAllClasses());
-        data.put("matieres", initializeService.getAllMatieres());
+        try {
+            data.put("etablissements", initializeService.getAllEtablissements());
+            data.put("anneesScolaires", initializeService.getAllAnneesScolaires());
+            data.put("niveaux", initializeService.getAllNiveaux());
+            data.put("salles", initializeService.getAllSalles());
+            data.put("classes", initializeService.getAllClasses());
+            data.put("matieres", initializeService.getAllMatieres());
+            
+            // Convert to DTOs to avoid circular reference issues
+            List<ProfesseurDTO> professeurDTOs = ProfilsProfesseursService.findAll().stream()
+                .map(p -> {
+                    ProfesseurDTO dto = new ProfesseurDTO();
+                    dto.setId(p.getId());
+                    dto.setNom(p.getNom());
+                    dto.setPrenom(p.getPrenom());
+                    dto.setMatricule(p.getMatricule());
+                    dto.setSpecialite(p.getSpecialite());
+                    dto.setTelephone(p.getTelephone());
+                    dto.setAdresse(p.getAdresse());
+                    dto.setTypeContrat(p.getTypeContrat());
+                    return dto;
+                }).collect(Collectors.toList());
+            data.put("professeurs", professeurDTOs);
+            
+            List<CoefficientDTO> coefficientDTOs = coefficientService.findAll().stream()
+                .map(c -> {
+                    CoefficientDTO dto = new CoefficientDTO();
+                    dto.setId(c.getId());
+                    dto.setMatiereId(c.getMatiereId());
+                    dto.setNiveauId(c.getNiveauId());
+                    dto.setValeur(c.getValeur());
+                    
+                    // Get matiere and niveau names
+                    if (c.getMatiereId() != null) {
+                        matiereService.findById(c.getMatiereId()).ifPresent(m -> dto.setMatiereNom(m.getNom()));
+                    }
+                    if (c.getNiveauId() != null) {
+                        initializeService.getAllNiveaux().stream()
+                            .filter(n -> n.getId().equals(c.getNiveauId()))
+                            .findFirst()
+                            .ifPresent(n -> dto.setNiveauNom(n.getLibelle()));
+                    }
+                    
+                    return dto;
+                }).collect(Collectors.toList());
+            data.put("coefficients", coefficientDTOs);
+            
+            List<AffectationDTO> affectationDTOs = affectationEnseignementService.findAll().stream()
+                .map(a -> {
+                    AffectationDTO dto = new AffectationDTO();
+                    dto.setId(a.getId());
+                    dto.setProfesseurId(a.getProfesseur() != null ? a.getProfesseur().getId() : null);
+                    dto.setProfesseurNom(buildProfesseurNom(a.getProfesseur()));
+                    dto.setMatiereId(a.getMatiere() != null ? a.getMatiere().getId() : null);
+                    dto.setMatiereNom(a.getMatiere() != null ? a.getMatiere().getNom() : null);
+                    dto.setClasseId(a.getClasse() != null ? a.getClasse().getId() : null);
+                    dto.setClasseNom(a.getClasse() != null ? a.getClasse().getNom() : null);
+                    dto.setAnneeScolaireId(a.getAnneeScolaire() != null ? a.getAnneeScolaire().getId() : null);
+                    dto.setAnneeScolaireNom(a.getAnneeScolaire() != null ? a.getAnneeScolaire().getLibelle() : null);
+                    dto.setHeuresHebdo(a.getHeuresHebdo());
+                    return dto;
+                }).collect(Collectors.toList());
+            data.put("affectations", affectationDTOs);
+        } catch (Exception e) {
+            // If any service fails, still return the data that was successfully loaded
+            System.err.println("Error loading initialization data: " + e.getMessage());
+            e.printStackTrace();
+        }
         return ResponseEntity.ok(data);
     }
 
@@ -390,7 +535,20 @@ public class DirecteurController {
     // Annee Scolaire
     @PostMapping("/api/directeur/initialize/annee-scolaire")
     @ResponseBody
-    public ResponseEntity<AnneeScolaire> saveAnneeScolaire(@RequestBody AnneeScolaire annee) {
+    public ResponseEntity<AnneeScolaire> saveAnneeScolaire(@RequestBody Map<String, Object> payload) {
+        AnneeScolaire annee = new AnneeScolaire();
+        
+        Long etablissementId = payload.get("etablissementId") != null ? ((Number) payload.get("etablissementId")).longValue() : null;
+        
+        if (etablissementId != null) {
+            initializeService.getEtablissementById(etablissementId).ifPresent(annee::setEtablissement);
+        }
+        
+        annee.setLibelle((String) payload.get("libelle"));
+        annee.setDateDebut(java.time.LocalDate.parse((String) payload.get("dateDebut")));
+        annee.setDateFin(java.time.LocalDate.parse((String) payload.get("dateFin")));
+        annee.setEstActive(payload.get("estActive") != null ? (Boolean) payload.get("estActive") : false);
+        
         return ResponseEntity.ok(initializeService.saveAnneeScolaire(annee));
     }
 
@@ -404,7 +562,18 @@ public class DirecteurController {
     // Niveau
     @PostMapping("/api/directeur/initialize/niveau")
     @ResponseBody
-    public ResponseEntity<Niveau> saveNiveau(@RequestBody Niveau niveau) {
+    public ResponseEntity<Niveau> saveNiveau(@RequestBody Map<String, Object> payload) {
+        Niveau niveau = new Niveau();
+        
+        Long etablissementId = payload.get("etablissementId") != null ? ((Number) payload.get("etablissementId")).longValue() : null;
+        
+        if (etablissementId != null) {
+            initializeService.getEtablissementById(etablissementId).ifPresent(niveau::setEtablissement);
+        }
+        
+        niveau.setLibelle((String) payload.get("libelle"));
+        niveau.setOrdre(((Number) payload.get("ordre")).intValue());
+        
         return ResponseEntity.ok(initializeService.saveNiveau(niveau));
     }
 
@@ -418,7 +587,20 @@ public class DirecteurController {
     // Salle
     @PostMapping("/api/directeur/initialize/salle")
     @ResponseBody
-    public ResponseEntity<Salle> saveSalle(@RequestBody Salle salle) {
+    public ResponseEntity<Salle> saveSalle(@RequestBody Map<String, Object> payload) {
+        Salle salle = new Salle();
+        
+        Long etablissementId = payload.get("etablissementId") != null ? ((Number) payload.get("etablissementId")).longValue() : null;
+        
+        if (etablissementId != null) {
+            initializeService.getEtablissementById(etablissementId).ifPresent(salle::setEtablissement);
+        }
+        
+        salle.setNom((String) payload.get("nom"));
+        salle.setCapacite(((Number) payload.get("capacite")).intValue());
+        salle.setType((String) payload.get("type"));
+        salle.setIsActive(payload.get("isActive") != null ? (Boolean) payload.get("isActive") : true);
+        
         return ResponseEntity.ok(initializeService.saveSalle(salle));
     }
 
@@ -432,7 +614,28 @@ public class DirecteurController {
     // Classe
     @PostMapping("/api/directeur/initialize/classe")
     @ResponseBody
-    public ResponseEntity<Classe> saveClasse(@RequestBody Classe classe) {
+    public ResponseEntity<Classe> saveClasse(@RequestBody Map<String, Object> payload) {
+        Classe classe = new Classe();
+        
+        Long niveauId = payload.get("niveauId") != null ? ((Number) payload.get("niveauId")).longValue() : null;
+        Long anneeScolaireId = payload.get("anneeScolaireId") != null ? ((Number) payload.get("anneeScolaireId")).longValue() : null;
+        Long salleId = payload.get("salleId") != null ? ((Number) payload.get("salleId")).longValue() : null;
+        
+        if (niveauId != null) {
+            initializeService.getNiveauById(niveauId).ifPresent(classe::setNiveau);
+        }
+        
+        if (anneeScolaireId != null) {
+            initializeService.getAnneeScolaireById(anneeScolaireId).ifPresent(classe::setAnneeScolaire);
+        }
+        
+        if (salleId != null) {
+            initializeService.getSalleById(salleId).ifPresent(classe::setSalle);
+        }
+        
+        classe.setNom((String) payload.get("nom"));
+        classe.setCapaciteMax(((Number) payload.get("capaciteMax")).intValue());
+        
         return ResponseEntity.ok(initializeService.saveClasse(classe));
     }
 
@@ -446,7 +649,18 @@ public class DirecteurController {
     // Matiere
     @PostMapping("/api/directeur/initialize/matiere")
     @ResponseBody
-    public ResponseEntity<Matiere> saveMatiere(@RequestBody Matiere matiere) {
+    public ResponseEntity<Matiere> saveMatiere(@RequestBody Map<String, Object> payload) {
+        Matiere matiere = new Matiere();
+        
+        Long etablissementId = payload.get("etablissementId") != null ? ((Number) payload.get("etablissementId")).longValue() : null;
+        
+        if (etablissementId != null) {
+            initializeService.getEtablissementById(etablissementId).ifPresent(matiere::setEtablissement);
+        }
+        
+        matiere.setNom((String) payload.get("nom"));
+        matiere.setCode((String) payload.get("code"));
+        
         return ResponseEntity.ok(initializeService.saveMatiere(matiere));
     }
 
@@ -454,6 +668,131 @@ public class DirecteurController {
     @ResponseBody
     public ResponseEntity<Void> deleteMatiere(@PathVariable Long id) {
         initializeService.deleteMatiere(id);
+        return ResponseEntity.ok().build();
+    }
+
+    // Coefficient
+    @PostMapping("/api/directeur/initialize/coefficient")
+    @ResponseBody
+    public ResponseEntity<CoefficientDTO> saveCoefficient(@RequestBody Map<String, Object> payload) {
+        Coefficient coefficient = new Coefficient();
+        coefficient.setMatiereId(((Number) payload.get("matiereId")).longValue());
+        coefficient.setNiveauId(((Number) payload.get("niveauId")).longValue());
+        coefficient.setValeur(new BigDecimal(payload.get("valeur").toString()));
+        
+        Coefficient saved = initializeService.saveCoefficient(coefficient);
+        
+        CoefficientDTO dto = new CoefficientDTO();
+        dto.setId(saved.getId());
+        dto.setMatiereId(saved.getMatiereId());
+        dto.setNiveauId(saved.getNiveauId());
+        dto.setValeur(saved.getValeur());
+        
+        // Get matiere and niveau names
+        if (saved.getMatiereId() != null) {
+            matiereService.findById(saved.getMatiereId()).ifPresent(m -> dto.setMatiereNom(m.getNom()));
+        }
+        if (saved.getNiveauId() != null) {
+            initializeService.getAllNiveaux().stream()
+                .filter(n -> n.getId().equals(saved.getNiveauId()))
+                .findFirst()
+                .ifPresent(n -> dto.setNiveauNom(n.getLibelle()));
+        }
+        
+        return ResponseEntity.ok(dto);
+    }
+
+    @PutMapping("/api/directeur/initialize/coefficient/{id}")
+    @ResponseBody
+    public ResponseEntity<CoefficientDTO> updateCoefficient(@PathVariable Long id, @RequestBody Map<String, Object> payload) {
+        Coefficient coefficient = new Coefficient();
+        coefficient.setId(id);
+        coefficient.setMatiereId(((Number) payload.get("matiereId")).longValue());
+        coefficient.setNiveauId(((Number) payload.get("niveauId")).longValue());
+        coefficient.setValeur(new BigDecimal(payload.get("valeur").toString()));
+        
+        Coefficient saved = initializeService.saveCoefficient(coefficient);
+        
+        CoefficientDTO dto = new CoefficientDTO();
+        dto.setId(saved.getId());
+        dto.setMatiereId(saved.getMatiereId());
+        dto.setNiveauId(saved.getNiveauId());
+        dto.setValeur(saved.getValeur());
+        
+        // Get matiere and niveau names
+        if (saved.getMatiereId() != null) {
+            matiereService.findById(saved.getMatiereId()).ifPresent(m -> dto.setMatiereNom(m.getNom()));
+        }
+        if (saved.getNiveauId() != null) {
+            initializeService.getAllNiveaux().stream()
+                .filter(n -> n.getId().equals(saved.getNiveauId()))
+                .findFirst()
+                .ifPresent(n -> dto.setNiveauNom(n.getLibelle()));
+        }
+        
+        return ResponseEntity.ok(dto);
+    }
+
+    @DeleteMapping("/api/directeur/initialize/coefficient/{id}")
+    @ResponseBody
+    public ResponseEntity<Void> deleteCoefficient(@PathVariable Long id) {
+        initializeService.deleteCoefficient(id);
+        return ResponseEntity.ok().build();
+    }
+
+    // Affectation
+    @PostMapping("/api/directeur/initialize/affectation")
+    @ResponseBody
+    public ResponseEntity<AffectationDTO> saveAffectation(@RequestBody Map<String, Object> payload) {
+        AffectationEnseignement affectation = new AffectationEnseignement();
+        
+        Long professeurId = payload.get("professeurId") != null ? ((Number) payload.get("professeurId")).longValue() : null;
+        Long matiereId = payload.get("matiereId") != null ? ((Number) payload.get("matiereId")).longValue() : null;
+        Long classeId = payload.get("classeId") != null ? ((Number) payload.get("classeId")).longValue() : null;
+        Long anneeScolaireId = payload.get("anneeScolaireId") != null ? ((Number) payload.get("anneeScolaireId")).longValue() : null;
+        
+        if (professeurId != null) {
+            ProfilsProfesseurs professeur = ProfilsProfesseursService.findById(professeurId).orElse(null);
+            affectation.setProfesseur(professeur);
+        }
+        
+        if (matiereId != null) {
+            Matiere matiere = matiereService.findById(matiereId).orElse(null);
+            affectation.setMatiere(matiere);
+        }
+        
+        if (classeId != null) {
+            initializeService.getClasseById(classeId).ifPresent(affectation::setClasse);
+        }
+        
+        if (anneeScolaireId != null) {
+            initializeService.getAnneeScolaireById(anneeScolaireId).ifPresent(affectation::setAnneeScolaire);
+        }
+        
+        affectation.setHeuresHebdo(new BigDecimal(payload.get("heuresHebdo").toString()));
+        affectation.setCreatedAt(java.time.LocalDateTime.now());
+        
+        AffectationEnseignement saved = initializeService.saveAffectation(affectation);
+        
+        AffectationDTO dto = new AffectationDTO();
+        dto.setId(saved.getId());
+        dto.setProfesseurId(saved.getProfesseur() != null ? saved.getProfesseur().getId() : null);
+        dto.setProfesseurNom(buildProfesseurNom(saved.getProfesseur()));
+        dto.setMatiereId(saved.getMatiere() != null ? saved.getMatiere().getId() : null);
+        dto.setMatiereNom(saved.getMatiere() != null ? saved.getMatiere().getNom() : null);
+        dto.setClasseId(saved.getClasse() != null ? saved.getClasse().getId() : null);
+        dto.setClasseNom(saved.getClasse() != null ? saved.getClasse().getNom() : null);
+        dto.setAnneeScolaireId(saved.getAnneeScolaire() != null ? saved.getAnneeScolaire().getId() : null);
+        dto.setAnneeScolaireNom(saved.getAnneeScolaire() != null ? saved.getAnneeScolaire().getLibelle() : null);
+        dto.setHeuresHebdo(saved.getHeuresHebdo());
+        
+        return ResponseEntity.ok(dto);
+    }
+
+    @DeleteMapping("/api/directeur/initialize/affectation/{id}")
+    @ResponseBody
+    public ResponseEntity<Void> deleteAffectation(@PathVariable Long id) {
+        initializeService.deleteAffectation(id);
         return ResponseEntity.ok().build();
     }
 
@@ -588,6 +927,12 @@ public class DirecteurController {
         model.addAttribute("currentRole", "directeur");
         return "directeur/statistiques-eleves";
     }
+    
+    @GetMapping("/api/directeur/statistiques-eleves/annees")
+    @ResponseBody
+    public ResponseEntity<List<DashboardAnneeOptionDTO>> getAnneesStatistiquesEleves() {
+        return ResponseEntity.ok(statistiquesElevesService.listerAnneesScolaires());
+    }
 
     // ----------------------------------------------------------------
     // API — classes disponibles pour le filtre
@@ -598,6 +943,13 @@ public class DirecteurController {
     public ResponseEntity<List<Classe>> getClassesStatistiques(
             @RequestParam(required = false) Long anneeScolaireId) {
         return ResponseEntity.ok(statistiquesElevesService.listerClasses(anneeScolaireId));
+    }
+    
+    @GetMapping("/api/directeur/statistiques-eleves/periodes")
+    @ResponseBody
+    public ResponseEntity<List<com.ecole.dto.Secretaire.PeriodeOptionDTO>> getPeriodesStatistiquesEleves(
+            @RequestParam(required = false) Long anneeScolaireId) {
+        return ResponseEntity.ok(statistiquesElevesService.listerPeriodes(anneeScolaireId));
     }
 
     // ----------------------------------------------------------------

@@ -20,6 +20,10 @@ public class Classe {
     @JoinColumn(name = "annee_scolaire_id")
     private AnneeScolaire anneeScolaire;
 
+    @ManyToOne
+    @JoinColumn(name = "salle_id")
+    private Salle salle;
+
     private String nom;
     private Integer capaciteMax;
 
@@ -67,6 +71,15 @@ public class Classe {
     }
     public Long getAnneeScolaireId() {
         return anneeScolaire != null ? anneeScolaire.getId() : null;
+    }
+    public Salle getSalle() {
+        return salle;
+    }
+    public void setSalle(Salle salle) {
+        this.salle = salle;
+    }
+    public Long getSalleId() {
+        return salle != null ? salle.getId() : null;
     }
     
     

@@ -97,6 +97,93 @@
         .step-btn{min-width:100px;padding:0.7rem 0.4rem;}
         .step-btn strong{font-size:0.75rem;white-space:normal;}
       }
+
+      /* ===== Alertes (messages succès / erreur / info) ===== */
+      #message-container{
+        display:flex;flex-direction:column;gap:0.75rem;
+      }
+      .alert{
+        display:flex;align-items:flex-start;gap:0.85rem;
+        padding:1rem 1.1rem;border-radius:0.65rem;border:1px solid transparent;
+        line-height:1.5;position:relative;
+        animation:alert-in .2s ease;
+      }
+      @keyframes alert-in{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);}}
+      .alert .alert-icon{font-size:1.15rem;margin-top:0.1rem;flex-shrink:0;}
+      .alert .alert-body{flex:1;min-width:0;}
+      .alert .alert-title{font-weight:600;display:block;margin-bottom:0.15rem;}
+      .alert .alert-close{
+        border:none;background:transparent;cursor:pointer;font-size:1rem;
+        opacity:0.55;padding:0.15rem;line-height:1;flex-shrink:0;
+      }
+      .alert .alert-close:hover{opacity:1;}
+      .alert-success{background:#ecfdf5;color:#065f46;border-color:#a7f3d0;}
+      .alert-error{background:#fef2f2;color:#991b1b;border-color:#fecaca;}
+      .alert-info{background:#eff6ff;color:#1e40af;border-color:#bfdbfe;}
+      .alert-default{background:#f3f4f6;color:#374151;border-color:#e5e7eb;}
+      .alert a{color:inherit;font-weight:600;text-decoration:underline;}
+
+      /* Liste d'erreurs détaillées (import CSV) : espacée, lisible, bornée en hauteur */
+      .alert-detail-list{
+        list-style:none;margin:0.6rem 0 0;padding:0;
+        display:flex;flex-direction:column;gap:0.4rem;
+        max-height:220px;overflow-y:auto;
+      }
+      .alert-detail-list li{
+        background:rgba(255,255,255,0.55);border-radius:0.4rem;
+        padding:0.5rem 0.7rem;font-size:0.87rem;
+      }
+      .alert-detail-heading{
+        font-weight:600;margin-top:0.85rem;margin-bottom:0.35rem;display:block;
+      }
+
+      /* ===== Bannières de prérequis (à l'intérieur d'une étape) ===== */
+      .prereq-banner{
+        display:flex;gap:0.85rem;align-items:flex-start;
+        padding:1.1rem 1.25rem;border-radius:0.65rem;
+        border-left:4px solid; margin-bottom:1.75rem;
+      }
+      .prereq-banner .prereq-icon{font-size:1.2rem;margin-top:0.1rem;flex-shrink:0;}
+      .prereq-banner .prereq-title{font-weight:600;display:block;margin-bottom:0.4rem;}
+      .prereq-banner p{margin:0;line-height:1.55;}
+      .prereq-banner .prereq-links{
+        display:flex;flex-direction:column;gap:0.35rem;margin-top:0.6rem;
+      }
+      .prereq-banner--info{
+        background:rgba(255,193,7,0.1);border-color:var(--clr-amber);color:inherit;
+      }
+      .prereq-banner--info .prereq-title{color:var(--clr-amber);}
+      .prereq-banner--missing{
+        background:rgba(239,68,68,0.08);border-color:#ef4444;color:inherit;
+      }
+      .prereq-banner--missing .prereq-title{color:#ef4444;}
+      .prereq-banner--missing a{color:#ef4444;font-weight:600;text-decoration:underline;}
+
+      /* ===== Items de liste (établissements, salles, classes, etc.) ===== */
+      .list-section{margin-top:2.25rem;}
+      .list-section-title{
+        font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:0.03em;
+        color:var(--txt2);margin-bottom:0.85rem;
+      }
+      .list-items{display:flex;flex-direction:column;gap:0.65rem;}
+      .list-item{
+        display:flex;justify-content:space-between;align-items:center;gap:1rem;
+        padding:1rem 1.1rem;border:1px solid var(--border);border-radius:0.65rem;
+        background:var(--bg);transition:border-color .15s ease, box-shadow .15s ease;
+      }
+      .list-item:hover{border-color:var(--clr-primary,#4f46e5);box-shadow:0 2px 8px rgba(0,0,0,0.05);}
+      .list-item .li-main strong{display:block;font-size:0.98rem;}
+      .list-item .li-main small{display:block;color:var(--txt2);margin-top:0.3rem;font-size:0.83rem;}
+      .list-item .li-actions{display:flex;align-items:center;gap:0.6rem;flex-shrink:0;}
+      .list-empty{color:var(--txt2);text-align:center;padding:2.5rem 1rem;font-size:0.92rem;}
+      .badge-active{
+        background:var(--clr-success,#16a34a);color:#fff;padding:0.3rem 0.85rem;
+        border-radius:9999px;font-size:0.72rem;font-weight:600;letter-spacing:0.02em;
+      }
+
+      /* ===== Espacement général des cartes / formulaires ===== */
+      .card-body{padding:1.75rem;}
+      .card-body form{row-gap:1.25rem !important;}
     </style>
 
     <div class="page-header">
@@ -114,37 +201,43 @@
       </div>
     </div>
 
+    <!-- Message Container for Import/Export feedback -->
+    <div id="message-container" style="margin-bottom: 1.5rem;"></div>
+
     <!-- Steps Navigation : cliquer ici mène directement au formulaire concerné -->
     <div class="steps-nav" id="steps-nav">
       <button class="step-btn active" data-step="etablissement" type="button">
-        <span class="step-index">1</span>
-        <i class="fas fa-school"></i>
+               <i class="fas fa-school"></i>
         <strong>Établissement</strong>
       </button>
       <button class="step-btn" data-step="annee" type="button">
-        <span class="step-index">2</span>
+
         <i class="fas fa-calendar-alt"></i>
         <strong>Année Scolaire</strong>
       </button>
       <button class="step-btn" data-step="niveau" type="button">
-        <span class="step-index">3</span>
-        <i class="fas fa-layer-group"></i>
+               <i class="fas fa-layer-group"></i>
         <strong>Niveaux</strong>
       </button>
       <button class="step-btn" data-step="salle" type="button">
-        <span class="step-index">4</span>
-        <i class="fas fa-door-open"></i>
+               <i class="fas fa-door-open"></i>
         <strong>Salles</strong>
       </button>
       <button class="step-btn" data-step="classe" type="button">
-        <span class="step-index">5</span>
-        <i class="fas fa-users-class"></i>
+               <i class="fas fa-users-class"></i>
         <strong>Classes</strong>
       </button>
       <button class="step-btn" data-step="matiere" type="button">
-        <span class="step-index">6</span>
-        <i class="fas fa-book"></i>
+               <i class="fas fa-book"></i>
         <strong>Matières</strong>
+      </button>
+      <button class="step-btn" data-step="coefficient" type="button">
+               <i class="fas fa-balance-scale"></i>
+        <strong>Coefficients</strong>
+      </button>
+      <button class="step-btn" data-step="affectation" type="button">
+               <i class="fas fa-chalkboard-teacher"></i>
+        <strong>Affectations</strong>
       </button>
     </div>
 
@@ -182,7 +275,7 @@
                   </button>
                 </div>
               </form>
-              <div id="list-etablissement" style="margin-top:2rem;"></div>
+              <div id="list-etablissement" class="list-section"></div>
               <div class="step-footer-nav">
                 <span class="spacer"></span>
                 <button type="button" class="btn-nav primary next-step">Suivant <i class="fas fa-arrow-right"></i></button>
@@ -198,11 +291,19 @@
               <h3><i class="fas fa-calendar-alt"></i> Année Scolaire</h3>
             </div>
             <div class="card-body">
-              <div style="background:rgba(255,193,7,0.1);padding:1rem;border-radius:0.5rem;margin-bottom:1.5rem;border-left:4px solid var(--clr-amber);">
-                <strong style="color:var(--clr-amber);"><i class="fas fa-info-circle"></i> Important</strong>
-                <p style="margin:0.5rem 0 0 0;">L'année scolaire active est utilisée pour toutes les opérations de l'application.</p>
+              <div id="prereq-annee" style="display:none;"></div>
+              <div class="prereq-banner prereq-banner--info">
+                <i class="fas fa-info-circle prereq-icon"></i>
+                <div>
+                  <span class="prereq-title">Important</span>
+                  <p>L'année scolaire active est utilisée pour toutes les opérations de l'application.</p>
+                </div>
               </div>
               <form id="form-annee" style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
+                <div>
+                  <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Établissement</label>
+                  <select class="form-control" name="etablissementId" id="select-etablissement-annee" required></select>
+                </div>
                 <div>
                   <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Libellé</label>
                   <input type="text" class="form-control" name="libelle" placeholder="Ex: 2024-2025" required>
@@ -225,7 +326,7 @@
                   </button>
                 </div>
               </form>
-              <div id="list-annee" style="margin-top:2rem;"></div>
+              <div id="list-annee" class="list-section"></div>
               <div class="step-footer-nav">
                 <button type="button" class="btn-nav prev-step"><i class="fas fa-arrow-left"></i> Précédent</button>
                 <button type="button" class="btn-nav primary next-step">Suivant <i class="fas fa-arrow-right"></i></button>
@@ -241,7 +342,12 @@
               <h3><i class="fas fa-layer-group"></i> Niveaux</h3>
             </div>
             <div class="card-body">
+              <div id="prereq-niveau" style="display:none;"></div>
               <form id="form-niveau" style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;">
+                <div>
+                  <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Établissement</label>
+                  <select class="form-control" name="etablissementId" id="select-etablissement-niveau" required></select>
+                </div>
                 <div>
                   <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Libellé</label>
                   <input type="text" class="form-control" name="libelle" placeholder="Ex: Seconde" required>
@@ -256,7 +362,7 @@
                   </button>
                 </div>
               </form>
-              <div id="list-niveau" style="margin-top:2rem;"></div>
+              <div id="list-niveau" class="list-section"></div>
               <div class="step-footer-nav">
                 <button type="button" class="btn-nav prev-step"><i class="fas fa-arrow-left"></i> Précédent</button>
                 <button type="button" class="btn-nav primary next-step">Suivant <i class="fas fa-arrow-right"></i></button>
@@ -272,7 +378,12 @@
               <h3><i class="fas fa-door-open"></i> Salles</h3>
             </div>
             <div class="card-body">
+              <div id="prereq-salle" style="display:none;"></div>
               <form id="form-salle" style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
+                <div>
+                  <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Établissement</label>
+                  <select class="form-control" name="etablissementId" id="select-etablissement-salle" required></select>
+                </div>
                 <div>
                   <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Nom</label>
                   <input type="text" class="form-control" name="nom" placeholder="Ex: Salle 101" required>
@@ -300,7 +411,7 @@
                   </button>
                 </div>
               </form>
-              <div id="list-salle" style="margin-top:2rem;"></div>
+              <div id="list-salle" class="list-section"></div>
               <div class="step-footer-nav">
                 <button type="button" class="btn-nav prev-step"><i class="fas fa-arrow-left"></i> Précédent</button>
                 <button type="button" class="btn-nav primary next-step">Suivant <i class="fas fa-arrow-right"></i></button>
@@ -316,9 +427,13 @@
               <h3><i class="fas fa-users-class"></i> Classes</h3>
             </div>
             <div class="card-body">
-              <div style="background:rgba(255,193,7,0.1);padding:1rem;border-radius:0.5rem;margin-bottom:1.5rem;border-left:4px solid var(--clr-amber);">
-                <strong style="color:var(--clr-amber);"><i class="fas fa-info-circle"></i> Prérequis</strong>
-                <p style="margin:0.5rem 0 0 0;">Vous devez d'abord créer des niveaux et une année scolaire avant de créer des classes.</p>
+              <div id="prereq-classe" style="display:none;"></div>
+              <div class="prereq-banner prereq-banner--info">
+                <i class="fas fa-info-circle prereq-icon"></i>
+                <div>
+                  <span class="prereq-title">Prérequis</span>
+                  <p>Vous devez d'abord créer des niveaux, une année scolaire active et des salles avant de créer des classes.</p>
+                </div>
               </div>
               <form id="form-classe" style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
                 <div>
@@ -334,6 +449,10 @@
                   <select class="form-control" name="anneeScolaireId" id="select-annee" required></select>
                 </div>
                 <div>
+                  <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Salle</label>
+                  <select class="form-control" name="salleId" id="select-salle-classe" required></select>
+                </div>
+                <div>
                   <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Capacité max</label>
                   <input type="number" class="form-control" name="capaciteMax" placeholder="Ex: 30" required>
                 </div>
@@ -343,7 +462,7 @@
                   </button>
                 </div>
               </form>
-              <div id="list-classe" style="margin-top:2rem;"></div>
+              <div id="list-classe" class="list-section"></div>
               <div class="step-footer-nav">
                 <button type="button" class="btn-nav prev-step"><i class="fas fa-arrow-left"></i> Précédent</button>
                 <button type="button" class="btn-nav primary next-step">Suivant <i class="fas fa-arrow-right"></i></button>
@@ -359,7 +478,12 @@
               <h3><i class="fas fa-book"></i> Matières</h3>
             </div>
             <div class="card-body">
+              <div id="prereq-matiere" style="display:none;"></div>
               <form id="form-matiere" style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;">
+                <div>
+                  <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Établissement</label>
+                  <select class="form-control" name="etablissementId" id="select-etablissement-matiere" required></select>
+                </div>
                 <div>
                   <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Nom</label>
                   <input type="text" class="form-control" name="nom" placeholder="Ex: Mathématiques" required>
@@ -374,7 +498,101 @@
                   </button>
                 </div>
               </form>
-              <div id="list-matiere" style="margin-top:2rem;"></div>
+              <div id="list-matiere" class="list-section"></div>
+              <div class="step-footer-nav">
+                <button type="button" class="btn-nav prev-step"><i class="fas fa-arrow-left"></i> Précédent</button>
+                <button type="button" class="btn-nav primary next-step">Suivant <i class="fas fa-arrow-right"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 7: Coefficients -->
+        <div class="step-content" id="step-coefficient" data-step="coefficient">
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-balance-scale"></i> Coefficients</h3>
+            </div>
+            <div class="card-body">
+              <div id="prereq-coefficient" style="display:none;"></div>
+              <div class="prereq-banner prereq-banner--info">
+                <i class="fas fa-info-circle prereq-icon"></i>
+                <div>
+                  <span class="prereq-title">Prérequis</span>
+                  <p>Vous devez d'abord créer des matières et des niveaux avant de définir les coefficients.</p>
+                </div>
+              </div>
+              <form id="form-coefficient" style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
+                <div>
+                  <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Matière</label>
+                  <select class="form-control searchable-select" name="matiereId" id="select-matiere-coeff" required></select>
+                </div>
+                <div>
+                  <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Niveau</label>
+                  <select class="form-control searchable-select" name="niveauId" id="select-niveau-coeff" required></select>
+                </div>
+                <div>
+                  <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Coefficient</label>
+                  <input type="number" class="form-control" name="valeur" placeholder="Ex: 2" step="0.5" min="0.5" required>
+                </div>
+                <div style="grid-column:span 3;display:flex;gap:1rem;justify-content:flex-end;">
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Enregistrer
+                  </button>
+                </div>
+              </form>
+              <div id="list-coefficient" class="list-section"></div>
+              <div class="step-footer-nav">
+                <button type="button" class="btn-nav prev-step"><i class="fas fa-arrow-left"></i> Précédent</button>
+                <button type="button" class="btn-nav primary next-step">Suivant <i class="fas fa-arrow-right"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 8: Affectations -->
+        <div class="step-content" id="step-affectation" data-step="affectation">
+          <div class="card">
+            <div class="card-header">
+              <h3><i class="fas fa-chalkboard-teacher"></i> Affectations</h3>
+            </div>
+            <div class="card-body">
+              <div id="prereq-affectation" style="display:none;"></div>
+              <div class="prereq-banner prereq-banner--info">
+                <i class="fas fa-info-circle prereq-icon"></i>
+                <div>
+                  <span class="prereq-title">Prérequis</span>
+                  <p>Vous devez d'abord créer des professeurs, matières, classes et une année scolaire avant de créer des affectations.</p>
+                </div>
+              </div>
+              <form id="form-affectation" style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;">
+                <div>
+                  <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Professeur</label>
+                  <select class="form-control searchable-select" name="professeurId" id="select-professeur" required></select>
+                </div>
+                <div>
+                  <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Matière</label>
+                  <select class="form-control searchable-select" name="matiereId" id="select-matiere-affect" required></select>
+                </div>
+                <div>
+                  <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Classe</label>
+                  <select class="form-control searchable-select" name="classeId" id="select-classe" required></select>
+                </div>
+                <div>
+                  <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Année Scolaire</label>
+                  <select class="form-control searchable-select" name="anneeScolaireId" id="select-annee-affect" required></select>
+                </div>
+                <div>
+                  <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Heures hebdomadaires</label>
+                  <input type="number" class="form-control" name="heuresHebdo" placeholder="Ex: 18" min="1" required>
+                </div>
+                <div style="grid-column:span 2;display:flex;gap:1rem;justify-content:flex-end;">
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Enregistrer
+                  </button>
+                </div>
+              </form>
+              <div id="list-affectation" class="list-section"></div>
               <div class="step-footer-nav">
                 <button type="button" class="btn-nav prev-step"><i class="fas fa-arrow-left"></i> Précédent</button>
                 <span class="spacer"></span>
@@ -390,10 +608,12 @@
 </div>
 <script th:src="@{/js/directeur-js/initialize/Initialize.js}" defer></script>
 
-<!-- Navigation en carrousel : glissement fluide + accès direct via les onglets -->
+<!-- Navigation en carrousel : glissement fluide + accès direct via les onglets.
+     C'est la SEULE source de vérité pour la navigation entre étapes :
+     Initialize.js n'y touche plus (voir commentaire en tête de ce fichier JS). -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  var steps = ['etablissement', 'annee', 'niveau', 'salle', 'classe', 'matiere'];
+  var steps = ['etablissement', 'annee', 'niveau', 'salle', 'classe', 'matiere', 'coefficient', 'affectation'];
   var track = document.getElementById('steps-track');
   var navButtons = document.querySelectorAll('.step-btn');
   var current = 0;
@@ -417,6 +637,13 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
+  // Accès global à la navigation par étape (utilisé par les onglets ET par les
+  // liens "Aller à ..." générés dynamiquement dans les bannières de prérequis)
+  window.goToStep = function (stepName) {
+    var index = steps.indexOf(stepName);
+    if (index !== -1) goTo(index);
+  };
+
   // Accès direct au formulaire en cliquant sur un onglet (Salles, Établissement, etc.)
   navButtons.forEach(function (btn, i) {
     btn.addEventListener('click', function () {
@@ -433,6 +660,11 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   goTo(0);
+
+  // NOTE : l'initialisation des selects "recherchables" (.searchable-select) est
+  // gérée UNIQUEMENT par makeSearchable() dans Initialize.js. La dupliquer ici
+  // créait deux barres de recherche superposées sur chaque select — c'était
+  // une des causes du chevauchement visuel signalé.
 });
 </script>
 

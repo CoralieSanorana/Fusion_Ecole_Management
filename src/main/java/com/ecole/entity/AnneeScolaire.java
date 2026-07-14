@@ -61,4 +61,13 @@ public class AnneeScolaire {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
+    public Etablissement getEtablissement() {
+        return etablissement;
+    }
+    public void setEtablissement(Etablissement etablissement) {
+        this.etablissement = etablissement;
+    }
+    public Long getEtablissementId() {
+        return etablissement != null ? etablissement.getId() : null;
+    }
 }

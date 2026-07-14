@@ -1,0 +1,641 @@
+TABLE,NOMBRE_ENREGISTREMENTS,STATUT
+Users,67,OK
+Roles,4,OK
+User_roles,67,OK
+Etablissement,2,OK
+AnneeScolaire,2,OK
+Niveau,6,OK
+Salle,10,OK
+Matiere,10,OK
+Classe,12,OK
+Coefficient,30,OK
+ProfilsProfesseurs,15,OK
+ProfilsEtudiant,50,OK
+ProfilsDirecteurs,1,OK
+AffectationEnseignement,40,OK
+Periode,6,OK
+Inscription,50,OK
+Note,200,OK
+TABLE_START,Users
+id,email,password,is_active,created_at
+1,directeur@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+2,prof001@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+3,prof002@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+4,prof003@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+5,prof004@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+6,prof005@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+7,prof006@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+8,prof007@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+9,prof008@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+10,prof009@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+11,prof010@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+12,prof011@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+13,prof012@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+14,prof013@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+15,prof014@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+16,prof015@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+17,etu001@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+18,etu002@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+19,etu003@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+20,etu004@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+21,etu005@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+22,etu006@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+23,etu007@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+24,etu008@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+25,etu009@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+26,etu010@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+27,etu011@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+28,etu012@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+29,etu013@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+30,etu014@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+31,etu015@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+32,etu016@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+33,etu017@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+34,etu018@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+35,etu019@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+36,etu020@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+37,etu021@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+38,etu022@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+39,etu023@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+40,etu024@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+41,etu025@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+42,etu026@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+43,etu027@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+44,etu028@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+45,etu029@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+46,etu030@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+47,etu031@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+48,etu032@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+49,etu033@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+50,etu034@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+51,etu035@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+52,etu036@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+53,etu037@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+54,etu038@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+55,etu039@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+56,etu040@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+57,etu041@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+58,etu042@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+59,etu043@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+60,etu044@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+61,etu045@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+62,etu046@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+63,etu047@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+64,etu048@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+65,etu049@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+66,etu050@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+67,secretariat@lycee-ste-marie.mg,$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH,true,2024-01-15 08:00:00
+TABLE_END,Users
+TABLE_START,Roles
+id,nom,description,created_at
+1,ADMIN,Administrateur du système,2024-01-15 08:00:00
+2,DIRECTEUR,Directeur de l'établissement,2024-01-15 08:00:00
+3,PROFESSEUR,Enseignant,2024-01-15 08:00:00
+4,ETUDIANT,Élève,2024-01-15 08:00:00
+TABLE_END,Roles
+TABLE_START,User_roles
+user_id,role_id
+1,2
+2,3
+3,3
+4,3
+5,3
+6,3
+7,3
+8,3
+9,3
+10,3
+11,3
+12,3
+13,3
+14,3
+15,3
+16,3
+17,4
+18,4
+19,4
+20,4
+21,4
+22,4
+23,4
+24,4
+25,4
+26,4
+27,4
+28,4
+29,4
+30,4
+31,4
+32,4
+33,4
+34,4
+35,4
+36,4
+37,4
+38,4
+39,4
+40,4
+41,4
+42,4
+43,4
+44,4
+45,4
+46,4
+47,4
+48,4
+49,4
+50,4
+51,4
+52,4
+53,4
+54,4
+55,4
+56,4
+57,4
+58,4
+59,4
+60,4
+61,4
+62,4
+63,4
+64,4
+65,4
+66,4
+67,3
+TABLE_END,User_roles
+TABLE_START,Etablissement
+id,nom,adresse,telephone,email,logoUrl,createdAt
+1,Lycée Sainte Marie,123 Avenue de l'Indépendance,Antananarivo,261 34 00 000,contact@lycee-ste-marie.mg,,2024-01-15 08:00:00
+2,Collège Jean Jaurès,45 Rue de la République,Antananarivo,261 34 00 111,contact@college-jaures.mg,,2024-01-15 08:00:00
+TABLE_END,Etablissement
+TABLE_START,AnneeScolaire
+id,etablissement,libelle,dateDebut,dateFin,estActive,createdAt
+1,1,2024-2025,2024-09-01,2025-07-15,true,2024-01-15 08:00:00
+2,1,2025-2026,2025-09-01,2026-07-15,false,2024-01-15 08:00:00
+TABLE_END,AnneeScolaire
+TABLE_START,Niveau
+id,etablissement,libelle,ordre,createdAt
+1,1,Sixième,1,2024-01-15 08:00:00
+2,1,Cinquième,2,2024-01-15 08:00:00
+3,1,Quatrième,3,2024-01-15 08:00:00
+4,1,Troisième,4,2024-01-15 08:00:00
+5,1,Seconde,5,2024-01-15 08:00:00
+6,1,Première,6,2024-01-15 08:00:00
+TABLE_END,Niveau
+TABLE_START,Salle
+id,etablissement,nom,capacite,type,isActive,createdAt
+1,1,Salle 101,30,cours,true,2024-01-15 08:00:00
+2,1,Salle 102,30,cours,true,2024-01-15 08:00:00
+3,1,Salle 103,25,cours,true,2024-01-15 08:00:00
+4,1,Salle 104,25,cours,true,2024-01-15 08:00:00
+5,1,Laboratoire Physique,20,laboratoire,true,2024-01-15 08:00:00
+6,1,Laboratoire Chimie,20,laboratoire,true,2024-01-15 08:00:00
+7,1,Laboratoire SVT,20,laboratoire,true,2024-01-15 08:00:00
+8,1,Salle Informatique,25,informatique,true,2024-01-15 08:00:00
+9,1,Bibliothèque,40,bibliotheque,true,2024-01-15 08:00:00
+10,1,Amphithéâtre A,100,amphi,true,2024-01-15 08:00:00
+TABLE_END,Salle
+TABLE_START,Matiere
+id,etablissement,nom,code,createdAt
+1,1,Mathématiques,MATH,2024-01-15 08:00:00
+2,1,Français,FR,2024-01-15 08:00:00
+3,1,Anglais,ENG,2024-01-15 08:00:00
+4,1,Physique,PHY,2024-01-15 08:00:00
+5,1,Chimie,CHI,2024-01-15 08:00:00
+6,1,Histoire-Géographie,HG,2024-01-15 08:00:00
+7,1,SVT,SVT,2024-01-15 08:00:00
+8,1,Informatique,INFO,2024-01-15 08:00:00
+9,1,EPS,ESP,2024-01-15 08:00:00
+10,1,Philosophie,PHI,2024-01-15 08:00:00
+TABLE_END,Matiere
+TABLE_START,Classe
+id,niveau,anneeScolaire,nom,capaciteMax,salleId,createdAt
+1,1,1,Sixième A,30,1,2024-01-15 08:00:00
+2,1,1,Sixième B,30,2,2024-01-15 08:00:00
+3,2,1,Cinquième A,30,3,2024-01-15 08:00:00
+4,2,1,Cinquième B,30,4,2024-01-15 08:00:00
+5,3,1,Quatrième A,30,1,2024-01-15 08:00:00
+6,3,1,Quatrième B,30,2,2024-01-15 08:00:00
+7,4,1,Troisième A,30,3,2024-01-15 08:00:00
+8,4,1,Troisième B,30,4,2024-01-15 08:00:00
+9,5,1,Seconde A,30,1,2024-01-15 08:00:00
+10,5,1,Seconde B,30,2,2024-01-15 08:00:00
+11,6,1,Première A,30,3,2024-01-15 08:00:00
+12,6,1,Première B,30,4,2024-01-15 08:00:00
+TABLE_END,Classe
+TABLE_START,Coefficient
+id,matiereId,niveauId,valeur
+1,1,1,4.00
+2,2,1,4.00
+3,3,1,3.00
+4,4,1,2.00
+5,5,1,2.00
+6,6,1,2.00
+7,7,1,2.00
+8,8,1,1.00
+9,9,1,1.00
+10,1,2,4.00
+11,2,2,4.00
+12,3,2,3.00
+13,4,2,2.00
+14,5,2,2.00
+15,6,2,2.00
+16,7,2,2.00
+17,8,2,1.00
+18,9,2,1.00
+19,1,3,4.00
+20,2,3,4.00
+21,3,3,3.00
+22,4,3,3.00
+23,5,3,3.00
+24,6,2,2.00
+25,7,2,2.00
+26,8,2,1.00
+27,9,2,1.00
+28,1,4,5.00
+29,2,4,5.00
+30,10,4,4.00
+TABLE_END,Coefficient
+TABLE_START,ProfilsProfesseurs
+id,user_id,matricule,nom,prenom,date_naissance,sexe,telephone,adresse,specialite,type_contrat,date_debut_contrat,is_archived,createdAt
+1,2,PROF001,Rakoto,Jean,1980-05-15,H,034 00 001 23,123 Rue Principale,Antananarivo,Mathématiques,CDI,2020-09-01,false,2024-01-15 08:00:00
+2,3,PROF002,Rasoa,Marie,1982-08-22,F,034 00 002 34,45 Avenue des Fleurs,Antananarivo,Français,CDI,2019-09-01,false,2024-01-15 08:00:00
+3,4,PROF003,Andriamanitra,Pierre,1978-03-10,H,034 00 003 45,78 Boulevard Central,Antananarivo,Physique,CDI,2021-09-01,false,2024-01-15 08:00:00
+4,5,PROF004,Raveloson,Françoise,1985-11-28,F,034 00 004 56,12 Rue de l'Ecole,Antananarivo,Chimie,CDI,2022-09-01,false,2024-01-15 08:00:00
+5,6,PROF005,Randrianarisoa,Paul,1983-07-05,H,034 00 005 67,56 Avenue de la Paix,Antananarivo,Histoire-Géographie,CDI,2020-09-01,false,2024-01-15 08:00:00
+6,7,PROF006,Rasoarimanana,Nathalie,1987-02-14,F,034 00 006 78,90 Rue du Commerce,Antananarivo,Anglais,CDI,2021-09-01,false,2024-01-15 08:00:00
+7,8,PROF007,Rakotomaharo,Jean-Luc,1979-09-30,H,034 00 007 89,23 Boulevard de la Liberté,Antananarivo,SVT,CDI,2018-09-01,false,2024-01-15 08:00:00
+8,9,PROF008,Ratsiraka,Sophie,1984-06-18,F,034 00 008 90,67 Avenue des Arts,Antananarivo,Informatique,CDI,2022-09-01,false,2024-01-15 08:00:00
+9,10,PROF009,Rajaonarivelo,Marc,1981-12-03,H,034 00 009 01,34 Rue du Sport,Antananarivo,EPS,CDI,2019-09-01,false,2024-01-15 08:00:00
+10,11,PROF010,Ramanandrasana,Isabelle,1986-04-25,F,034 00 010 12,89 Avenue de la Culture,Antananarivo,Philosophie,CDI,2023-09-01,false,2024-01-15 08:00:00
+11,12,PROF011,Rakotobe,Michel,1980-10-12,H,034 00 011 23,12 Rue de la Science,Antananarivo,Mathématiques,CDD,2024-09-01,false,2024-01-15 08:00:00
+12,13,PROF012,Rasolondraibe,Claire,1983-01-08,F,034 00 012 34,56 Avenue du Progrès,Antananarivo,Français,CDD,2024-09-01,false,2024-01-15 08:00:00
+13,14,PROF013,Andriamalala,Thomas,1977-05-20,H,034 00 013 45,78 Boulevard de l'Industrie,Antananarivo,Physique,CDI,2017-09-01,false,2024-01-15 08:00:00
+14,15,PROF014,Ravelonarivo,Monique,1988-09-15,F,034 00 014 56,90 Rue de l'Innovation,Antananarivo,Chimie,CDD,2024-09-01,false,2024-01-15 08:00:00
+15,16,PROF015,Randriamanantena,Luc,1982-03-28,H,034 00 015 67,23 Avenue de la Technologie,Antananarivo,Informatique,CDI,2020-09-01,false,2024-01-15 08:00:00
+TABLE_END,ProfilsProfesseurs
+TABLE_START,AffectationEnseignement
+id,professeurId,matiereId,classeId,anneeScolaireId,heuresHebdo,createdAt
+1,1,1,1,1,18.0,2024-01-15 08:00:00
+2,1,1,2,1,18.0,2024-01-15 08:00:00
+3,2,2,1,1,15.0,2024-01-15 08:00:00
+4,2,2,2,1,15.0,2024-01-15 08:00:00
+5,3,4,1,1,12.0,2024-01-15 08:00:00
+6,3,4,3,1,12.0,2024-01-15 08:00:00
+7,4,5,1,1,12.0,2024-01-15 08:00:00
+8,4,5,3,1,12.0,2024-01-15 08:00:00
+9,5,6,1,1,10.0,2024-01-15 08:00:00
+10,5,6,2,1,10.0,2024-01-15 08:00:00
+11,6,3,1,1,8.0,2024-01-15 08:00:00
+12,6,3,2,1,8.0,2024-01-15 08:00:00
+13,7,7,1,1,10.0,2024-01-15 08:00:00
+14,7,7,3,1,10.0,2024-01-15 08:00:00
+15,8,8,1,1,6.0,2024-01-15 08:00:00
+16,8,8,2,1,6.0,2024-01-15 08:00:00
+17,9,9,1,1,4.0,2024-01-15 08:00:00
+18,9,9,2,1,4.0,2024-01-15 08:00:00
+19,10,10,11,1,8.0,2024-01-15 08:00:00
+20,10,10,12,1,8.0,2024-01-15 08:00:00
+21,11,1,3,1,18.0,2024-01-15 08:00:00
+22,11,1,4,1,18.0,2024-01-15 08:00:00
+23,12,2,3,1,15.0,2024-01-15 08:00:00
+24,12,2,4,1,15.0,2024-01-15 08:00:00
+25,13,4,5,1,12.0,2024-01-15 08:00:00
+26,13,4,6,1,12.0,2024-01-15 08:00:00
+27,14,5,5,1,12.0,2024-01-15 08:00:00
+28,14,5,6,1,12.0,2024-01-15 08:00:00
+29,15,8,9,1,6.0,2024-01-15 08:00:00
+30,15,8,10,1,6.0,2024-01-15 08:00:00
+31,1,1,5,1,18.0,2024-01-15 08:00:00
+32,2,2,5,1,15.0,2024-01-15 08:00:00
+33,3,4,7,1,12.0,2024-01-15 08:00:00
+34,4,5,7,1,12.0,2024-01-15 08:00:00
+35,5,6,7,1,10.0,2024-01-15 08:00:00
+36,6,3,7,1,8.0,2024-01-15 08:00:00
+37,7,7,7,1,10.0,2024-01-15 08:00:00
+38,8,8,7,1,6.0,2024-01-15 08:00:00
+39,9,9,7,1,4.0,2024-01-15 08:00:00
+40,10,10,11,1,8.0,2024-01-15 08:00:00
+TABLE_END,AffectationEnseignement
+TABLE_START,Periode
+id,anneeScolaireId,libelle,type,ordre,dateDebut,dateFin,datePublicationNotes,estCloturee,createdAt
+1,1,Trimestre 1,trimestre,1,2024-09-01,2024-11-30,2024-12-15,false,2024-01-15 08:00:00
+2,1,Trimestre 2,trimestre,2,2024-12-01,2025-03-15,2025-03-30,false,2024-01-15 08:00:00
+3,1,Trimestre 3,trimestre,3,2025-03-16,2025-07-15,2025-07-20,false,2024-01-15 08:00:00
+4,2,Trimestre 1,trimestre,1,2025-09-01,2025-11-30,2025-12-15,false,2024-01-15 08:00:00
+5,2,Trimestre 2,trimestre,2,2025-12-01,2026-03-15,2026-03-30,false,2024-01-15 08:00:00
+6,2,Trimestre 3,trimestre,3,2026-03-16,2026-07-15,2026-07-20,false,2024-01-15 08:00:00
+TABLE_END,Periode
+TABLE_START,ProfilsDirecteurs
+id,user_id,nom,prenom,telephone,sexe,createdAt
+1,1,Rakoto,Jean,034 00 000 01,H,2024-01-15 08:00:00
+TABLE_END,ProfilsDirecteurs
+TABLE_START,ProfilsEtudiant
+id,user_id,matricule,nom,prenom,date_naissance,lieu_naissance,sexe,adresse,commune,region,nationalite,telephone,is_archived,createdAt
+1,17,ETU001,Rakoto,Jean,2010-05-15,Antananarivo,M,123 Rue Principale,Antananarivo,Analamanga,Malgache,034 00 100 01,false,2024-01-15 08:00:00
+2,18,ETU002,Rasoa,Marie,2010-08-22,Antananarivo,F,45 Avenue des Fleurs,Antananarivo,Analamanga,Malgache,034 00 100 02,false,2024-01-15 08:00:00
+3,19,ETU003,Andriamanitra,Pierre,2010-03-10,Antananarivo,M,78 Boulevard Central,Antananarivo,Analamanga,Malgache,034 00 100 03,false,2024-01-15 08:00:00
+4,20,ETU004,Raveloson,Françoise,2010-11-28,Antananarivo,F,12 Rue de l'Ecole,Antananarivo,Analamanga,Malgache,034 00 100 04,false,2024-01-15 08:00:00
+5,21,ETU005,Randrianarisoa,Paul,2010-07-05,Antananarivo,M,56 Avenue de la Paix,Antananarivo,Analamanga,Malgache,034 00 100 05,false,2024-01-15 08:00:00
+6,22,ETU006,Rasoarimanana,Nathalie,2010-02-14,Antananarivo,F,90 Rue du Commerce,Antananarivo,Analamanga,Malgache,034 00 100 06,false,2024-01-15 08:00:00
+7,23,ETU007,Rakotomaharo,Jean-Luc,2010-09-30,Antananarivo,M,23 Boulevard de la Liberté,Antananarivo,Analamanga,Malgache,034 00 100 07,false,2024-01-15 08:00:00
+8,24,ETU008,Ratsiraka,Sophie,2010-06-18,Antananarivo,F,67 Avenue des Arts,Antananarivo,Analamanga,Malgache,034 00 100 08,false,2024-01-15 08:00:00
+9,25,ETU009,Rajaonarivelo,Marc,2010-12-03,Antananarivo,M,34 Rue du Sport,Antananarivo,Analamanga,Malgache,034 00 100 09,false,2024-01-15 08:00:00
+10,26,ETU010,Ramanandrasana,Isabelle,2010-04-25,Antananarivo,F,89 Avenue de la Culture,Antananarivo,Analamanga,Malgache,034 00 100 10,false,2024-01-15 08:00:00
+11,27,ETU011,Rakotobe,Michel,2010-10-12,Antananarivo,M,12 Rue de la Science,Antananarivo,Analamanga,Malgache,034 00 100 11,false,2024-01-15 08:00:00
+12,28,ETU012,Rasolondraibe,Claire,2010-01-08,Antananarivo,F,56 Avenue du Progrès,Antananarivo,Analamanga,Malgache,034 00 100 12,false,2024-01-15 08:00:00
+13,29,ETU013,Andriamalala,Thomas,2010-05-20,Antananarivo,M,78 Boulevard de l'Industrie,Antananarivo,Analamanga,Malgache,034 00 100 13,false,2024-01-15 08:00:00
+14,30,ETU014,Ravelonarivo,Monique,2010-09-15,Antananarivo,F,90 Rue de l'Innovation,Antananarivo,Analamanga,Malgache,034 00 100 14,false,2024-01-15 08:00:00
+15,31,ETU015,Randriamanantena,Luc,2010-03-28,Antananarivo,M,23 Avenue de la Technologie,Antananarivo,Analamanga,Malgache,034 00 100 15,false,2024-01-15 08:00:00
+16,32,ETU016,Rakotoasimanolakanto,Jean,2009-07-12,Antananarivo,M,45 Rue de la Paix,Antananarivo,Analamanga,Malgache,034 00 100 16,false,2024-01-15 08:00:00
+17,33,ETU017,Rasoafoheriterana,Marie,2009-11-23,Antananarivo,F,78 Avenue des Fleurs,Antananarivo,Analamanga,Malgache,034 00 100 17,false,2024-01-15 08:00:00
+18,34,ETU018,Andrianjafy,Pierre,2009-04-05,Antananarivo,M,12 Boulevard Central,Antananarivo,Analamanga,Malgache,034 00 100 18,false,2024-01-15 08:00:00
+19,35,ETU019,Ravelomanana,Françoise,2009-08-17,Antananarivo,F,56 Rue du Commerce,Antananarivo,Analamanga,Malgache,034 00 100 19,false,2024-01-15 08:00:00
+20,36,ETU020,Randrianasolo,Paul,2009-02-28,Antananarivo,M,90 Avenue de la Culture,Antananarivo,Analamanga,Malgache,034 00 100 20,false,2024-01-15 08:00:00
+21,37,ETU021,Rasoarivelo,Nathalie,2009-09-09,Antananarivo,F,23 Rue de la Science,Antananarivo,Analamanga,Malgache,034 00 100 21,false,2024-01-15 08:00:00
+22,38,ETU022,Rakotondrazaka,Jean-Luc,2009-12-21,Antananarivo,M,67 Boulevard de la Liberté,Antananarivo,Analamanga,Malgache,034 00 100 22,false,2024-01-15 08:00:00
+23,39,ETU023,Rasolofondraibe,Sophie,2009-06-03,Antananarivo,F,34 Avenue des Arts,Antananarivo,Analamanga,Malgache,034 00 100 23,false,2024-01-15 08:00:00
+24,40,ETU024,Andriamanoharisoa,Marc,2009-10-15,Antananarivo,M,89 Rue du Sport,Antananarivo,Analamanga,Malgache,034 00 100 24,false,2024-01-15 08:00:00
+25,41,ETU025,Ravelonarivelo,Isabelle,2009-03-27,Antananarivo,F,12 Avenue de la Paix,Antananarivo,Analamanga,Malgache,034 00 100 25,false,2024-01-15 08:00:00
+26,42,ETU026,Rakotomampionona,Michel,2008-08-08,Antananarivo,M,45 Boulevard Central,Antananarivo,Analamanga,Malgache,034 00 100 26,false,2024-01-15 08:00:00
+27,43,ETU027,Rasoaomalala,Marie,2008-01-19,Antananarivo,F,78 Rue du Commerce,Antananarivo,Analamanga,Malgache,034 00 100 27,false,2024-01-15 08:00:00
+28,44,ETU028,Andrianarimanana,Pierre,2008-05-31,Antananarivo,M,56 Avenue des Fleurs,Antananarivo,Analamanga,Malgache,034 00 100 28,false,2024-01-15 08:00:00
+29,45,ETU029,Ravelomanjaka,Françoise,2008-09-12,Antananarivo,F,90 Boulevard de la Liberté,Antananarivo,Analamanga,Malgache,034 00 100 29,false,2024-01-15 08:00:00
+30,46,ETU030,Randriamanampy,Paul,2008-02-24,Antananarivo,M,23 Rue de la Science,Antananarivo,Analamanga,Malgache,034 00 100 30,false,2024-01-15 08:00:00
+31,47,ETU031,Rasoarimanana,Nathalie,2008-11-06,Antananarivo,F,67 Avenue de la Culture,Antananarivo,Analamanga,Malgache,034 00 100 31,false,2024-01-15 08:00:00
+32,48,ETU032,Rakotobe,Jean-Luc,2008-04-18,Antananarivo,M,34 Boulevard de l'Industrie,Antananarivo,Analamanga,Malgache,034 00 100 32,false,2024-01-15 08:00:00
+33,49,ETU033,Rasolofondraibe,Sophie,2008-07-30,Antananarivo,F,89 Avenue des Arts,Antananarivo,Analamanga,Malgache,034 00 100 33,false,2024-01-15 08:00:00
+34,50,ETU034,Andrianjafy,Marc,2008-12-12,Antananarivo,M,12 Rue du Sport,Antananarivo,Analamanga,Malgache,034 00 100 34,false,2024-01-15 08:00:00
+35,51,ETU035,Ravelomanana,Isabelle,2008-03-24,Antananarivo,F,45 Avenue de la Paix,Antananarivo,Analamanga,Malgache,034 00 100 35,false,2024-01-15 08:00:00
+36,52,ETU036,Randrianasolo,Michel,2007-09-05,Antananarivo,M,78 Boulevard Central,Antananarivo,Analamanga,Malgache,034 00 100 36,false,2024-01-15 08:00:00
+37,53,ETU037,Rasoarivelo,Marie,2007-01-16,Antananarivo,F,56 Rue du Commerce,Antananarivo,Analamanga,Malgache,034 00 100 37,false,2024-01-15 08:00:00
+38,54,ETU038,Rakotondrazaka,Pierre,2007-05-28,Antananarivo,M,90 Avenue des Fleurs,Antananarivo,Analamanga,Malgache,034 00 100 38,false,2024-01-15 08:00:00
+39,55,ETU039,Rasolofondraibe,Françoise,2007-08-09,Antananarivo,F,23 Boulevard de la Liberté,Antananarivo,Analamanga,Malgache,034 00 100 39,false,2024-01-15 08:00:00
+40,56,ETU040,Andrianarimanana,Paul,2007-11-21,Antananarivo,M,67 Rue de la Science,Antananarivo,Analamanga,Malgache,034 00 100 40,false,2024-01-15 08:00:00
+41,57,ETU041,Ravelomanjaka,Nathalie,2007-04-03,Antananarivo,F,34 Avenue de la Culture,Antananarivo,Analamanga,Malgache,034 00 100 41,false,2024-01-15 08:00:00
+42,58,ETU042,Randriamanampy,Jean-Luc,2007-06-15,Antananarivo,M,89 Boulevard de l'Industrie,Antananarivo,Analamanga,Malgache,034 00 100 42,false,2024-01-15 08:00:00
+43,59,ETU043,Rasoarimanana,Sophie,2007-09-27,Antananarivo,F,12 Avenue des Arts,Antananarivo,Analamanga,Malgache,034 00 100 43,false,2024-01-15 08:00:00
+44,60,ETU044,Rakotobe,Marc,2007-02-08,Antananarivo,M,45 Rue du Sport,Antananarivo,Analamanga,Malgache,034 00 100 44,false,2024-01-15 08:00:00
+45,61,ETU045,Rasolofondraibe,Isabelle,2007-10-20,Antananarivo,F,78 Avenue de la Paix,Antananarivo,Analamanga,Malgache,034 00 100 45,false,2024-01-15 08:00:00
+46,62,ETU046,Andrianjafy,Michel,2006-12-01,Antananarivo,M,56 Boulevard Central,Antananarivo,Analamanga,Malgache,034 00 100 46,false,2024-01-15 08:00:00
+47,63,ETU047,Ravelomanana,Marie,2006-04-13,Antananarivo,F,90 Rue du Commerce,Antananarivo,Analamanga,Malgache,034 00 100 47,false,2024-01-15 08:00:00
+48,64,ETU048,Randrianasolo,Pierre,2006-07-25,Antananarivo,M,23 Avenue des Fleurs,Antananarivo,Analamanga,Malgache,034 00 100 48,false,2024-01-15 08:00:00
+49,65,ETU049,Rasoarivelo,Françoise,2006-11-06,Antananarivo,F,67 Boulevard de la Liberté,Antananarivo,Analamanga,Malgache,034 00 100 49,false,2024-01-15 08:00:00
+50,66,ETU050,Rakotondrazaka,Paul,2006-03-18,Antananarivo,M,34 Rue de la Science,Antananarivo,Analamanga,Malgache,034 00 100 50,false,2024-01-15 08:00:00
+TABLE_END,ProfilsEtudiant
+TABLE_START,Inscription
+id,etudiantId,classeId,anneeScolaireId,typeInscription,dateInscription,statut,createdAt
+1,1,1,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+2,2,1,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+3,3,1,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+4,4,1,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+5,5,1,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+6,6,2,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+7,7,2,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+8,8,2,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+9,9,2,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+10,10,2,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+11,11,3,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+12,12,3,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+13,13,3,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+14,14,3,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+15,15,3,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+16,16,4,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+17,17,4,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+18,18,4,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+19,19,4,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+20,20,4,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+21,21,5,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+22,22,5,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+23,23,5,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+24,24,5,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+25,25,5,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+26,26,6,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+27,27,6,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+28,28,6,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+29,29,6,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+30,30,6,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+31,31,7,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+32,32,7,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+33,33,7,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+34,34,7,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+35,35,7,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+36,36,8,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+37,37,8,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+38,38,8,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+39,39,8,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+40,40,8,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+41,41,9,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+42,42,9,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+43,43,9,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+44,44,9,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+45,45,9,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+46,46,10,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+47,47,10,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+48,48,10,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+49,49,10,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+50,50,10,1,nouvelle,2024-09-01,active,2024-01-15 08:00:00
+TABLE_END,Inscription
+TABLE_START,Note
+id,etudiantId,affectationId,periodeId,typeEvaluation,valeur,sur,commentaire,estValide,trimestre,createdAt
+1,1,1,1,Devoir surveillé,15.00,20.00,Bon travail,true,Trimestre 1,2024-10-15 10:30:00
+2,1,1,1,Interrogation,12.50,20.00,Peut mieux faire,true,Trimestre 1,2024-10-20 10:30:00
+3,1,1,1,Examen,14.00,20.00,Satisfaisant,true,Trimestre 1,2024-11-10 10:30:00
+4,1,3,1,Devoir surveillé,13.00,20.00,Progression notable,true,Trimestre 1,2024-10-15 10:30:00
+5,1,5,1,Interrogation,11.00,20.00,À améliorer,true,Trimestre 1,2024-10-20 10:30:00
+6,2,1,1,Devoir surveillé,16.00,20.00,Excellent travail,true,Trimestre 1,2024-10-15 10:30:00
+7,2,1,1,Interrogation,14.50,20.00,Tès bien,true,Trimestre 1,2024-10-20 10:30:00
+8,2,1,1,Examen,17.00,20.00,Remarquable,true,Trimestre 1,2024-11-10 10:30:00
+9,2,3,1,Devoir surveillé,15.00,20.00,Bien,true,Trimestre 1,2024-10-15 10:30:00
+10,2,5,1,Interrogation,13.00,20.00,Satisfaisant,true,Trimestre 1,2024-10-20 10:30:00
+11,3,1,1,Devoir surveillé,14.00,20.00,Bon travail,true,Trimestre 1,2024-10-15 10:30:00
+12,3,1,1,Interrogation,13.50,20.00,Bien,true,Trimestre 1,2024-10-20 10:30:00
+13,3,1,1,Examen,15.00,20.00,Tès bien,true,Trimestre 1,2024-11-10 10:30:00
+14,3,3,1,Devoir surveillé,12.00,20.00,Moyen,true,Trimestre 1,2024-10-15 10:30:00
+15,3,5,1,Interrogation,10.00,20.00,À retravailler,true,Trimestre 1,2024-10-20 10:30:00
+16,4,1,1,Devoir surveillé,17.00,20.00,Excellent,true,Trimestre 1,2024-10-15 10:30:00
+17,4,1,1,Interrogation,15.50,20.00,Tès bien,true,Trimestre 1,2024-10-20 10:30:00
+18,4,1,1,Examen,18.00,20.00,Brillant,true,Trimestre 1,2024-11-10 10:30:00
+19,4,3,1,Devoir surveillé,16.00,20.00,Tès bien,true,Trimestre 1,2024-10-15 10:30:00
+20,4,5,1,Interrogation,14.00,20.00,Bien,true,Trimestre 1,2024-10-20 10:30:00
+21,5,1,1,Devoir surveillé,13.00,20.00,Satisfaisant,true,Trimestre 1,2024-10-15 10:30:00
+22,5,1,1,Interrogation,12.00,20.00,Passable,true,Trimestre 1,2024-10-20 10:30:00
+23,5,1,1,Examen,13.50,20.00,Satisfaisant,true,Trimestre 1,2024-11-10 10:30:00
+24,5,3,1,Devoir surveillé,11.00,20.00,Faible,true,Trimestre 1,2024-10-15 10:30:00
+25,5,5,1,Interrogation,09.00,20.00,Insuffisant,true,Trimestre 1,2024-10-20 10:30:00
+26,6,2,1,Devoir surveillé,15.00,20.00,Bon travail,true,Trimestre 1,2024-10-15 10:30:00
+27,6,2,1,Interrogation,14.00,20.00,Bien,true,Trimestre 1,2024-10-20 10:30:00
+28,6,2,1,Examen,16.00,20.00,Tès bien,true,Trimestre 1,2024-11-10 10:30:00
+29,6,11,1,Devoir surveillé,13.00,20.00,Satisfaisant,true,Trimestre 1,2024-10-15 10:30:00
+30,6,11,1,Interrogation,12.00,20.00,Passable,true,Trimestre 1,2024-10-20 10:30:00
+31,7,2,1,Devoir surveillé,16.00,20.00,Excellent,true,Trimestre 1,2024-10-15 10:30:00
+32,7,2,1,Interrogation,15.00,20.00,Tès bien,true,Trimestre 1,2024-10-20 10:30:00
+33,7,2,1,Examen,17.00,20.00,Remarquable,true,Trimestre 1,2024-11-10 10:30:00
+34,7,11,1,Devoir surveillé,14.00,20.00,Bien,true,Trimestre 1,2024-10-15 10:30:00
+35,7,11,1,Interrogation,13.00,20.00,Satisfaisant,true,Trimestre 1,2024-10-20 10:30:00
+36,8,2,1,Devoir surveillé,14.50,20.00,Bon travail,true,Trimestre 1,2024-10-15 10:30:00
+37,8,2,1,Interrogation,13.50,20.00,Bien,true,Trimestre 1,2024-10-20 10:30:00
+38,8,2,1,Examen,15.00,20.00,Tès bien,true,Trimestre 1,2024-11-10 10:30:00
+39,8,11,1,Devoir surveillé,12.50,20.00,Moyen,true,Trimestre 1,2024-10-15 10:30:00
+40,8,11,1,Interrogation,11.50,20.00,Passable,true,Trimestre 1,2024-10-20 10:30:00
+41,9,2,1,Devoir surveillé,17.00,20.00,Excellent,true,Trimestre 1,2024-10-15 10:30:00
+42,9,2,1,Interrogation,16.00,20.00,Tès bien,true,Trimestre 1,2024-10-20 10:30:00
+43,9,2,1,Examen,18.00,20.00,Brillant,true,Trimestre 1,2024-11-10 10:30:00
+44,9,11,1,Devoir surveillé,15.00,20.00,Bon travail,true,Trimestre 1,2024-10-15 10:30:00
+45,9,11,1,Interrogation,14.00,20.00,Bien,true,Trimestre 1,2024-10-20 10:30:00
+46,10,2,1,Devoir surveillé,13.00,20.00,Satisfaisant,true,Trimestre 1,2024-10-15 10:30:00
+47,10,2,1,Interrogation,12.00,20.00,Passable,true,Trimestre 1,2024-10-20 10:30:00
+48,10,2,1,Examen,14.00,20.00,Bien,true,Trimestre 1,2024-11-10 10:30:00
+49,10,11,1,Devoir surveillé,11.00,20.00,Faible,true,Trimestre 1,2024-10-15 10:30:00
+50,10,11,1,Interrogation,10.00,20.00,Insuffisant,true,Trimestre 1,2024-10-20 10:30:00
+51,11,21,1,Devoir surveillé,14.00,20.00,Bon travail,true,Trimestre 1,2024-10-15 10:30:00
+52,11,21,1,Interrogation,13.00,20.00,Satisfaisant,true,Trimestre 1,2024-10-20 10:30:00
+53,11,21,1,Examen,15.00,20.00,Tès bien,true,Trimestre 1,2024-11-10 10:30:00
+54,11,23,1,Devoir surveillé,12.00,20.00,Moyen,true,Trimestre 1,2024-10-15 10:30:00
+55,11,23,1,Interrogation,11.00,20.00,Faible,true,Trimestre 1,2024-10-20 10:30:00
+56,12,21,1,Devoir surveillé,15.00,20.00,Bon travail,true,Trimestre 1,2024-10-15 10:30:00
+57,12,21,1,Interrogation,14.00,20.00,Bien,true,Trimestre 1,2024-10-20 10:30:00
+58,12,21,1,Examen,16.00,20.00,Tès bien,true,Trimestre 1,2024-11-10 10:30:00
+59,12,23,1,Devoir surveillé,13.00,20.00,Satisfaisant,true,Trimestre 1,2024-10-15 10:30:00
+60,12,23,1,Interrogation,12.00,20.00,Passable,true,Trimestre 1,2024-10-20 10:30:00
+61,13,21,1,Devoir surveillé,16.00,20.00,Excellent,true,Trimestre 1,2024-10-15 10:30:00
+62,13,21,1,Interrogation,15.00,20.00,Tès bien,true,Trimestre 1,2024-10-20 10:30:00
+63,13,21,1,Examen,17.00,20.00,Remarquable,true,Trimestre 1,2024-11-10 10:30:00
+64,13,23,1,Devoir surveillé,14.00,20.00,Bien,true,Trimestre 1,2024-10-15 10:30:00
+65,13,23,1,Interrogation,13.00,20.00,Satisfaisant,true,Trimestre 1,2024-10-20 10:30:00
+66,14,21,1,Devoir surveillé,13.50,20.00,Bon travail,true,Trimestre 1,2024-10-15 10:30:00
+67,14,21,1,Interrogation,12.50,20.00,Moyen,true,Trimestre 1,2024-10-20 10:30:00
+68,14,21,1,Examen,14.00,20.00,Bien,true,Trimestre 1,2024-11-10 10:30:00
+69,14,23,1,Devoir surveillé,11.50,20.00,Faible,true,Trimestre 1,2024-10-15 10:30:00
+70,14,23,1,Interrogation,10.50,20.00,Insuffisant,true,Trimestre 1,2024-10-20 10:30:00
+71,15,21,1,Devoir surveillé,14.00,20.00,Bon travail,true,Trimestre 1,2024-10-15 10:30:00
+72,15,21,1,Interrogation,13.00,20.00,Satisfaisant,true,Trimestre 1,2024-10-20 10:30:00
+73,15,21,1,Examen,15.00,20.00,Tès bien,true,Trimestre 1,2024-11-10 10:30:00
+74,15,23,1,Devoir surveillé,12.00,20.00,Passable,true,Trimestre 1,2024-10-15 10:30:00
+75,15,23,1,Interrogation,11.00,20.00,Faible,true,Trimestre 1,2024-10-20 10:30:00
+76,16,22,1,Devoir surveillé,15.00,20.00,Bon travail,true,Trimestre 1,2024-10-15 10:30:00
+77,16,22,1,Interrogation,14.00,20.00,Bien,true,Trimestre 1,2024-10-20 10:30:00
+78,16,22,1,Examen,16.00,20.00,Tès bien,true,Trimestre 1,2024-11-10 10:30:00
+79,16,24,1,Devoir surveillé,13.00,20.00,Satisfaisant,true,Trimestre 1,2024-10-15 10:30:00
+80,16,24,1,Interrogation,12.00,20.00,Passable,true,Trimestre 1,2024-10-20 10:30:00
+81,17,22,1,Devoir surveillé,16.00,20.00,Excellent,true,Trimestre 1,2024-10-15 10:30:00
+82,17,22,1,Interrogation,15.00,20.00,Tès bien,true,Trimestre 1,2024-10-20 10:30:00
+83,17,22,1,Examen,17.00,20.00,Remarquable,true,Trimestre 1,2024-11-10 10:30:00
+84,17,24,1,Devoir surveillé,14.00,20.00,Bien,true,Trimestre 1,2024-10-15 10:30:00
+85,17,24,1,Interrogation,13.00,20.00,Satisfaisant,true,Trimestre 1,2024-10-20 10:30:00
+86,18,22,1,Devoir surveillé,14.50,20.00,Bon travail,true,Trimestre 1,2024-10-15 10:30:00
+87,18,22,1,Interrogation,13.50,20.00,Bien,true,Trimestre 1,2024-10-20 10:30:00
+88,18,22,1,Examen,15.00,20.00,Tès bien,true,Trimestre 1,2024-11-10 10:30:00
+89,18,24,1,Devoir surveillé,12.50,20.00,Moyen,true,Trimestre 1,2024-10-15 10:30:00
+90,18,24,1,Interrogation,11.50,20.00,Passable,true,Trimestre 1,2024-10-20 10:30:00
+91,19,22,1,Devoir surveillé,17.00,20.00,Excellent,true,Trimestre 1,2024-10-15 10:30:00
+92,19,22,1,Interrogation,16.00,20.00,Tès bien,true,Trimestre 1,2024-10-20 10:30:00
+93,19,22,1,Examen,18.00,20.00,Brillant,true,Trimestre 1,2024-11-10 10:30:00
+94,19,24,1,Devoir surveillé,15.00,20.00,Bon travail,true,Trimestre 1,2024-10-15 10:30:00
+95,19,24,1,Interrogation,14.00,20.00,Bien,true,Trimestre 1,2024-10-20 10:30:00
+96,20,22,1,Devoir surveillé,13.00,20.00,Satisfaisant,true,Trimestre 1,2024-10-15 10:30:00
+97,20,22,1,Interrogation,12.00,20.00,Passable,true,Trimestre 1,2024-10-20 10:30:00
+98,20,22,1,Examen,14.00,20.00,Bien,true,Trimestre 1,2024-11-10 10:30:00
+99,20,24,1,Devoir surveillé,11.00,20.00,Faible,true,Trimestre 1,2024-10-15 10:30:00
+100,20,24,1,Interrogation,10.00,20.00,Insuffisant,true,Trimestre 1,2024-10-20 10:30:00
+101,21,31,1,Devoir surveillé,14.00,20.00,Bon travail,true,Trimestre 1,2024-10-15 10:30:00
+102,21,31,1,Interrogation,13.00,20.00,Satisfaisant,true,Trimestre 1,2024-10-20 10:30:00
+103,21,31,1,Examen,15.00,20.00,Tès bien,true,Trimestre 1,2024-11-10 10:30:00
+104,21,33,1,Devoir surveillé,12.00,20.00,Moyen,true,Trimestre 1,2024-10-15 10:30:00
+105,21,33,1,Interrogation,11.00,20.00,Faible,true,Trimestre 1,2024-10-20 10:30:00
+106,22,31,1,Devoir surveillé,15.00,20.00,Bon travail,true,Trimestre 1,2024-10-15 10:30:00
+107,22,31,1,Interrogation,14.00,20.00,Bien,true,Trimestre 1,2024-10-20 10:30:00
+108,22,31,1,Examen,16.00,20.00,Tès bien,true,Trimestre 1,2024-11-10 10:30:00
+109,22,33,1,Devoir surveillé,13.00,20.00,Satisfaisant,true,Trimestre 1,2024-10-15 10:30:00
+110,22,33,1,Interrogation,12.00,20.00,Passable,true,Trimestre 1,2024-10-20 10:30:00
+111,23,31,1,Devoir surveillé,16.00,20.00,Excellent,true,Trimestre 1,2024-10-15 10:30:00
+112,23,31,1,Interrogation,15.00,20.00,Tès bien,true,Trimestre 1,2024-10-20 10:30:00
+113,23,31,1,Examen,17.00,20.00,Remarquable,true,Trimestre 1,2024-11-10 10:30:00
+114,23,33,1,Devoir surveillé,14.00,20.00,Bien,true,Trimestre 1,2024-10-15 10:30:00
+115,23,33,1,Interrogation,13.00,20.00,Satisfaisant,true,Trimestre 1,2024-10-20 10:30:00
+116,24,31,1,Devoir surveillé,13.50,20.00,Bon travail,true,Trimestre 1,2024-10-15 10:30:00
+117,24,31,1,Interrogation,12.50,20.00,Moyen,true,Trimestre 1,2024-10-20 10:30:00
+118,24,31,1,Examen,14.00,20.00,Bien,true,Trimestre 1,2024-11-10 10:30:00
+119,24,33,1,Devoir surveillé,11.50,20.00,Faible,true,Trimestre 1,2024-10-15 10:30:00
+120,24,33,1,Interrogation,10.50,20.00,Insuffisant,true,Trimestre 1,2024-10-20 10:30:00
+121,25,31,1,Devoir surveillé,14.00,20.00,Bon travail,true,Trimestre 1,2024-10-15 10:30:00
+122,25,31,1,Interrogation,13.00,20.00,Satisfaisant,true,Trimestre 1,2024-10-20 10:30:00
+123,25,31,1,Examen,15.00,20.00,Tès bien,true,Trimestre 1,2024-11-10 10:30:00
+124,25,33,1,Devoir surveillé,12.00,20.00,Passable,true,Trimestre 1,2024-10-15 10:30:00
+125,25,33,1,Interrogation,11.00,20.00,Faible,true,Trimestre 1,2024-10-20 10:30:00
+126,26,32,1,Devoir surveillé,15.00,20.00,Bon travail,true,Trimestre 1,2024-10-15 10:30:00
+127,26,32,1,Interrogation,14.00,20.00,Bien,true,Trimestre 1,2024-10-20 10:30:00
+128,26,32,1,Examen,16.00,20.00,Tès bien,true,Trimestre 1,2024-11-10 10:30:00
+129,26,34,1,Devoir surveillé,13.00,20.00,Satisfaisant,true,Trimestre 1,2024-10-15 10:30:00
+130,26,34,1,Interrogation,12.00,20.00,Passable,true,Trimestre 1,2024-10-20 10:30:00
+131,27,32,1,Devoir surveillé,16.00,20.00,Excellent,true,Trimestre 1,2024-10-15 10:30:00
+132,27,32,1,Interrogation,15.00,20.00,Tès bien,true,Trimestre 1,2024-10-20 10:30:00
+133,27,32,1,Examen,17.00,20.00,Remarquable,true,Trimestre 1,2024-11-10 10:30:00
+134,27,34,1,Devoir surveillé,14.00,20.00,Bien,true,Trimestre 1,2024-10-15 10:30:00
+135,27,34,1,Interrogation,13.00,20.00,Satisfaisant,true,Trimestre 1,2024-10-20 10:30:00
+136,28,32,1,Devoir surveillé,14.50,20.00,Bon travail,true,Trimestre 1,2024-10-15 10:30:00
+137,28,32,1,Interrogation,13.50,20.00,Bien,true,Trimestre 1,2024-10-20 10:30:00
+138,28,32,1,Examen,15.00,20.00,Tès bien,true,Trimestre 1,2024-11-10 10:30:00
+139,28,34,1,Devoir surveillé,12.50,20.00,Moyen,true,Trimestre 1,2024-10-15 10:30:00
+140,28,34,1,Interrogation,11.50,20.00,Passable,true,Trimestre 1,2024-10-20 10:30:00
+141,29,32,1,Devoir surveillé,17.00,20.00,Excellent,true,Trimestre 1,2024-10-15 10:30:00
+142,29,32,1,Interrogation,16.00,20.00,Tès bien,true,Trimestre 1,2024-10-20 10:30:00
+143,29,32,1,Examen,18.00,20.00,Brillant,true,Trimestre 1,2024-11-10 10:30:00
+144,29,34,1,Devoir surveillé,15.00,20.00,Bon travail,true,Trimestre 1,2024-10-15 10:30:00
+145,29,34,1,Interrogation,14.00,20.00,Bien,true,Trimestre 1,2024-10-20 10:30:00
+146,30,32,1,Devoir surveillé,13.00,20.00,Satisfaisant,true,Trimestre 1,2024-10-15 10:30:00
+147,30,32,1,Interrogation,12.00,20.00,Passable,true,Trimestre 1,2024-10-20 10:30:00
+148,30,32,1,Examen,14.00,20.00,Bien,true,Trimestre 1,2024-11-10 10:30:00
+149,30,34,1,Devoir surveillé,11.00,20.00,Faible,true,Trimestre 1,2024-10-15 10:30:00
+150,30,34,1,Interrogation,10.00,20.00,Insuffisant,true,Trimestre 1,2024-10-20 10:30:00
+151,31,35,1,Devoir surveillé,14.00,20.00,Bon travail,true,Trimestre 1,2024-10-15 10:30:00
+152,31,35,1,Interrogation,13.00,20.00,Satisfaisant,true,Trimestre 1,2024-10-20 10:30:00
+153,31,35,1,Examen,15.00,20.00,Tès bien,true,Trimestre 1,2024-11-10 10:30:00
+154,31,37,1,Devoir surveillé,12.00,20.00,Moyen,true,Trimestre 1,2024-10-15 10:30:00
+155,31,37,1,Interrogation,11.00,20.00,Faible,true,Trimestre 1,2024-10-20 10:30:00
+156,32,35,1,Devoir surveillé,15.00,20.00,Bon travail,true,Trimestre 1,2024-10-15 10:30:00
+157,32,35,1,Interrogation,14.00,20.00,Bien,true,Trimestre 1,2024-10-20 10:30:00
+158,32,35,1,Examen,16.00,20.00,Tès bien,true,Trimestre 1,2024-11-10 10:30:00
+159,32,37,1,Devoir surveillé,13.00,20.00,Satisfaisant,true,Trimestre 1,2024-10-15 10:30:00
+160,32,37,1,Interrogation,12.00,20.00,Passable,true,Trimestre 1,2024-10-20 10:30:00
+161,33,35,1,Devoir surveillé,16.00,20.00,Excellent,true,Trimestre 1,2024-10-15 10:30:00
+162,33,35,1,Interrogation,15.00,20.00,Tès bien,true,Trimestre 1,2024-10-20 10:30:00
+163,33,35,1,Examen,17.00,20.00,Remarquable,true,Trimestre 1,2024-11-10 10:30:00
+164,33,37,1,Devoir surveillé,14.00,20.00,Bien,true,Trimestre 1,2024-10-15 10:30:00
+165,33,37,1,Interrogation,13.00,20.00,Satisfaisant,true,Trimestre 1,2024-10-20 10:30:00
+166,34,35,1,Devoir surveillé,13.50,20.00,Bon travail,true,Trimestre 1,2024-10-15 10:30:00
+167,34,35,1,Interrogation,12.50,20.00,Moyen,true,Trimestre 1,2024-10-20 10:30:00
+168,34,35,1,Examen,14.00,20.00,Bien,true,Trimestre 1,2024-11-10 10:30:00
+169,34,37,1,Devoir surveillé,11.50,20.00,Faible,true,Trimestre 1,2024-10-15 10:30:00
+170,34,37,1,Interrogation,10.50,20.00,Insuffisant,true,Trimestre 1,2024-10-20 10:30:00
+171,35,35,1,Devoir surveillé,14.00,20.00,Bon travail,true,Trimestre 1,2024-10-15 10:30:00
+172,35,35,1,Interrogation,13.00,20.00,Satisfaisant,true,Trimestre 1,2024-10-20 10:30:00
+173,35,35,1,Examen,15.00,20.00,Tès bien,true,Trimestre 1,2024-11-10 10:30:00
+174,35,37,1,Devoir surveillé,12.00,20.00,Passable,true,Trimestre 1,2024-10-15 10:30:00
+175,35,37,1,Interrogation,11.00,20.00,Faible,true,Trimestre 1,2024-10-20 10:30:00
+176,36,36,1,Devoir surveillé,15.00,20.00,Bon travail,true,Trimestre 1,2024-10-15 10:30:00
+177,36,36,1,Interrogation,14.00,20.00,Bien,true,Trimestre 1,2024-10-20 10:30:00
+178,36,36,1,Examen,16.00,20.00,Tès bien,true,Trimestre 1,2024-11-10 10:30:00
+179,36,38,1,Devoir surveillé,13.00,20.00,Satisfaisant,true,Trimestre 1,2024-10-15 10:30:00
+180,36,38,1,Interrogation,12.00,20.00,Passable,true,Trimestre 1,2024-10-20 10:30:00
+181,37,36,1,Devoir surveillé,16.00,20.00,Excellent,true,Trimestre 1,2024-10-15 10:30:00
+182,37,36,1,Interrogation,15.00,20.00,Tès bien,true,Trimestre 1,2024-10-20 10:30:00
+183,37,36,1,Examen,17.00,20.00,Remarquable,true,Trimestre 1,2024-11-10 10:30:00
+184,37,38,1,Devoir surveillé,14.00,20.00,Bien,true,Trimestre 1,2024-10-15 10:30:00
+185,37,38,1,Interrogation,13.00,20.00,Satisfaisant,true,Trimestre 1,2024-10-20 10:30:00
+186,38,36,1,Devoir surveillé,14.50,20.00,Bon travail,true,Trimestre 1,2024-10-15 10:30:00
+187,38,36,1,Interrogation,13.50,20.00,Bien,true,Trimestre 1,2024-10-20 10:30:00
+188,38,36,1,Examen,15.00,20.00,Tès bien,true,Trimestre 1,2024-11-10 10:30:00
+189,38,38,1,Devoir surveillé,12.50,20.00,Moyen,true,Trimestre 1,2024-10-15 10:30:00
+190,38,38,1,Interrogation,11.50,20.00,Passable,true,Trimestre 1,2024-10-20 10:30:00
+191,39,36,1,Devoir surveillé,17.00,20.00,Excellent,true,Trimestre 1,2024-10-15 10:30:00
+192,39,36,1,Interrogation,16.00,20.00,Tès bien,true,Trimestre 1,2024-10-20 10:30:00
+193,39,36,1,Examen,18.00,20.00,Brillant,true,Trimestre 1,2024-11-10 10:30:00
+194,39,38,1,Devoir surveillé,15.00,20.00,Bon travail,true,Trimestre 1,2024-10-15 10:30:00
+195,39,38,1,Interrogation,14.00,20.00,Bien,true,Trimestre 1,2024-10-20 10:30:00
+196,40,36,1,Devoir surveillé,13.00,20.00,Satisfaisant,true,Trimestre 1,2024-10-15 10:30:00
+197,40,36,1,Interrogation,12.00,20.00,Passable,true,Trimestre 1,2024-10-20 10:30:00
+198,40,36,1,Examen,14.00,20.00,Bien,true,Trimestre 1,2024-11-10 10:30:00
+199,40,38,1,Devoir surveillé,11.00,20.00,Faible,true,Trimestre 1,2024-10-15 10:30:00
+200,40,38,1,Interrogation,10.00,20.00,Insuffisant,true,Trimestre 1,2024-10-20 10:30:00
+TABLE_END,Note
