@@ -1,0 +1,24 @@
+<div th:fragment="footer">
+  </main>
+</div>
+
+  <!-- Modals -->
+  <div id="modals-container"></div>
+
+  <script th:inline="javascript">
+    // Passer le rôle actuel depuis le modèle Thymeleaf
+    /*<![CDATA[*/
+    window.currentRole = /*[[${currentRole}]]*/ 'directeur';
+    /*]]>*/
+    
+    // Charger les modals dynamiquement
+    fetch('/fragments/inc/modals')
+      .then(response => response.text())
+      .then(html => {
+        document.getElementById('modals-container').innerHTML = html;
+      })
+      .catch(error => console.error('Erreur chargement modals:', error));
+  </script>
+
+</body>
+</html>
